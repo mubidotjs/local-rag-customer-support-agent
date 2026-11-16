@@ -1,0 +1,14 @@
+{
+  "verified_at_utc": "2026-11-16T15:54:42.156257+00:00",
+  "protected_artifacts_verified": 209,
+  "historical_checks": {
+    "historical_manifest_entries": 139,
+    "prior_offline_artifacts_verified": 7,
+    "ignored_local_entries_available": 15
+  },
+  "new_index_exists": false,
+  "claim_matches_execution_copy": true,
+  "execution_manifest_sha256": "bdc5327b1410c1d8e4e51b0a8308606325564bf2da73ed41b642cca079846b9b",
+  "model_requests_after_stop": 0,
+  "method": "strictly offline byte hashes; no historical SQLite opens"
+}

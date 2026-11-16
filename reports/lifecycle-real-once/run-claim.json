@@ -1,0 +1,18 @@
+{
+  "run_id": "lifecycle-real-once",
+  "consumed": true,
+  "claimed_at_utc": "2026-11-16T15:52:22.853304+00:00",
+  "approved_source_commit": "9c3bdb0879b247969a9bc67cda044ad095b97a07",
+  "runner_commit": "c38b8c1f1119f75e0799b36458f28e5c833b2035",
+  "embedding_model": "nomic-embed-text:latest",
+  "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+  "limits": {
+    "embedding_posts": 3,
+    "metadata_gets": 6,
+    "generation": 0,
+    "query_embeddings": 0,
+    "seconds": 600
+  },
+  "database": "D:\\Web Projects\\GitHub\\local-rag-customer-support-agent\\.local\\lifecycle-real-once\\fictional.sqlite3",
+  "rule": "Never remove, reuse or resume this claim"
+}

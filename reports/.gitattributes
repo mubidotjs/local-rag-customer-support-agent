@@ -1,0 +1,2 @@
+# Preserve the raw Windows preflight log; CRLF is evidence, not trailing spaces.
+lifecycle-real-once/offline-tests.body whitespace=cr-at-eol

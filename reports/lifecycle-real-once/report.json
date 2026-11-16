@@ -1,0 +1,26 @@
+{
+  "run_id": "lifecycle-real-once",
+  "kind": "single actual local embedding-only fictional lifecycle acceptance",
+  "approved_source_commit": "9c3bdb0879b247969a9bc67cda044ad095b97a07",
+  "runner_commit": "c38b8c1f1119f75e0799b36458f28e5c833b2035",
+  "status": "STOPPED",
+  "model": "nomic-embed-text:latest",
+  "required_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+  "operations": [],
+  "request_counts": {
+    "embedding_posts": 0,
+    "metadata_gets": 1
+  },
+  "query_embeddings": 0,
+  "generation_posts": 0,
+  "retries": 0,
+  "downloads": 0,
+  "substitutions": 0,
+  "started_at_utc": "2026-11-16T15:52:22.874288+00:00",
+  "failure": {
+    "type": "ModelError",
+    "reason": "Pinned model metadata verification failed"
+  },
+  "seconds": 2.584278,
+  "ended_at_utc": "2026-11-16T15:52:25.123520+00:00"
+}
