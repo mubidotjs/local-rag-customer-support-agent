@@ -1,0 +1,11 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_document: The Lyra beacon is the panel indicator.\nTo mute the indicator, enable quiet mode."
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

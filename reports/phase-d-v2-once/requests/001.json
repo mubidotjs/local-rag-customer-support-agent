@@ -1,0 +1,12 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_document: The Solstice travel lock releases after 14 seconds of holding the latch.",
+    "search_document: The Solstice travel lock releases after 14 seconds of holding the latch."
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_query: How many days is Vesper extended history retained?"
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

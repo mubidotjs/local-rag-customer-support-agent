@@ -94,10 +94,12 @@ The MVP favors abstention. Synonyms without lexical overlap can fail the relevan
 
 ## Independent review and offline hardening
 
-The owner-approved label corrections are now published separately as [immutable labels v2](docs/labels-v2-finalization.md). Its digest covers the exact approved corrections and source offsets; original labels and reports remain unchanged. Approval covers label finalization only. Phase D and its retained inference budget remain unauthorized.
+The **single authorized Phase D run is complete**: [metadata-led live report and per-case findings](reports/phase-d-v2-once/report.md). It is an agent-curated synthetic adversarial evaluation, not an independently human-validated benchmark. It used 23 embedding POSTs and 8 generation POSTs in 256.38 seconds. Exact citation validity was 9/9, but frozen-rubric correctness was 9/12: two answers included unrelated source-backed facts, and one supported paraphrase was rejected. The authorization is consumed; no repeat batch or prompt tuning is authorized.
+
+The owner-approved label corrections are published separately as [immutable labels v2](docs/labels-v2-finalization.md). Its digest covers the exact approved corrections and source offsets; original labels and reports remain unchanged. Its historical approval/budget files record label finalization only. A later explicit owner instruction authorized the one completed Phase D run; that consumed authorization is recorded separately in the live report and does not permit further inference.
 
 - [Review all 12 original golden cases](docs/golden-review.md), including source locations, rationale and blank owner sign-off fields. Original labels, corpus and baseline reports are preserved and hash-checked.
-- [Review 12 separate adversarial holdout cases and five output probes](docs/holdout-review.md). The 29 fictional documents span 33 chunks across 11 isolated scenarios. Labels are frozen and **not human-approved**.
+- [Original review package: 12 adversarial holdout cases and five output probes](docs/holdout-review.md). The 29 fictional documents span 33 chunks across 11 isolated scenarios. Original labels stay frozen; approved corrections are in v2. Full independent human review of the dataset is not claimed.
 - [Offline findings and limitations](reports/adversarial-hardening.md) and [synthetic contract report](reports/holdout-offline.json) distinguish guard behavior from real model quality. One supported low-overlap paraphrase remains a visible false abstention.
 - The entire ordinary pytest suite forbids unmocked HTTP; CI explicitly disables both opt-in real-model flags. No new dependency is needed.
 
@@ -111,6 +113,6 @@ cd frontend
 npm run test:e2e -- --output=../.local/adversarial-playwright
 ```
 
-The holdout runner uses temporary synthetic indexes and never changes the default baseline database. **Phase D has not run.** Explicit owner approval of the frozen labels and [proposed budget](evaluation/holdout/proposed-live-budget.json) is required: at most 12 generation POSTs, 23 embedding POSTs, no retries/downloads/substitutions, and a 20-minute overall cap. There is no new live holdout runner or authorization token in this milestone. The baseline live-evaluation commands above describe historical capability and must not be used to bypass this approval boundary.
+The offline holdout runner uses temporary synthetic indexes and never changes the default baseline database. The [bounded live runner](docs/phase-d-runner.md) has completed its only authorized run and retains a persistent one-run claim. Its new isolated real-embedding indexes remain under `.local/phase-d-v2-once/`. The [original proposed budget](evaluation/holdout/proposed-live-budget.json) and v2 budget are preserved historical records; neither is a reusable execution authorization. Any future inference batch requires a new explicit owner authorization. The baseline live-evaluation commands above must not be used to bypass that boundary.
 
 Later milestones remain out of scope: document mutation/reindexing, rerankers and retrieval tuning, LangGraph, MCP investigation tools, comprehensive injection evaluation, Docker, and any public synthetic showcase.

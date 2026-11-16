@@ -1,0 +1,11 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_query: How long does the cobalt recovery code remain valid?"
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

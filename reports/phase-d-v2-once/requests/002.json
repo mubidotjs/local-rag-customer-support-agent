@@ -1,0 +1,12 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_document: Cinder repair coverage lasts 90 days after delivery.",
+    "search_document: Cinder repair coverage lasts 120 days after delivery."
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

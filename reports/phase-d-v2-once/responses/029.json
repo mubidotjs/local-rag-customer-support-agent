@@ -1,0 +1,17 @@
+{
+  "model": "qwen3:4b",
+  "created_at": "2026-11-16T12:45:58.0440909Z",
+  "message": {
+    "role": "assistant",
+    "content": "{\n  \"abstain\": false,\n  \"claims\": [\n    {\n      \"chunk_id\": \"zz-archive-policy:c000\",\n      \"quote\": \"The recovery archive grace period is 18 hours.\"\n    }\n  ]\n}"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 17120335700,
+  "load_duration": 7084800,
+  "prompt_eval_count": 249,
+  "prompt_eval_cached_count": 109,
+  "prompt_eval_duration": 7686605000,
+  "eval_count": 52,
+  "eval_duration": 9413908000
+}

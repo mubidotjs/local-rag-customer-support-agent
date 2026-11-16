@@ -1,5 +1,7 @@
 # One bounded Phase D evaluation
 
+**Completed once:** [reviewed results and full evidence](../reports/phase-d-v2-once/report.md). The persistent claim remains consumed. This document records the enforced protocol; it does not authorize rerunning the command. Four unused generation slots do not permit another batch.
+
 The owner explicitly authorized **one** live run against application baseline `a9f30ecd7cc2069e63c048bae6f5a668d8f18a61` and immutable v2 label SHA-256 `b7a4600f21bf2e030390ecb7b749c5c2d9ac6feb9fc826250de7665baa1a22e6` in the current Codex conversation. This is a new execution authorization; the historical label-finalization approval and frozen v2 budget files remain unchanged.
 
 This run is an **agent-curated synthetic adversarial evaluation**, not an independently human-validated benchmark. Only the 12 frozen holdout questions are evaluated. The golden questions are not run. The five adversarial output probes remain offline tests, not extra generation calls.

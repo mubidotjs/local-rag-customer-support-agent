@@ -1,0 +1,11 @@
+{
+  "model": "nomic-embed-text:latest",
+  "total_duration": 89816700,
+  "load_duration": 8593400,
+  "prompt_eval_count": 17,
+  "embedding_count": 1,
+  "dimensions": [
+    768
+  ],
+  "parsed_full_response_sha256": "e8f72f0fa67f940e51c494197973f07371db0d92af2298b8207b4807822fb054"
+}

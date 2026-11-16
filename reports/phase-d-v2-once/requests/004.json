@@ -1,0 +1,11 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_document: Each Talon recovery request issues 6 recovery tokens.\nTalon recovery tokens are printed on blue cards."
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

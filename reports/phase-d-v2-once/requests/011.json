@@ -1,0 +1,12 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_document: The Orion queue capacity is 40 jobs.",
+    "search_document: The Orion queue capacity is 70 jobs.\nThis draft has no published approval or authority designation."
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

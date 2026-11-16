@@ -1,0 +1,17 @@
+{
+  "model": "qwen3:4b",
+  "created_at": "2026-11-16T12:45:40.6725346Z",
+  "message": {
+    "role": "assistant",
+    "content": "{\n  \"abstain\": false,\n  \"claims\": [\n    {\n      \"chunk_id\": \"lyra-controls:c000\",\n      \"quote\": \"To mute the indicator, enable quiet mode.\"\n    }\n  ]\n}"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 14146043200,
+  "load_duration": 5614500,
+  "prompt_eval_count": 165,
+  "prompt_eval_cached_count": 110,
+  "prompt_eval_duration": 3418728000,
+  "eval_count": 50,
+  "eval_duration": 10690069000
+}

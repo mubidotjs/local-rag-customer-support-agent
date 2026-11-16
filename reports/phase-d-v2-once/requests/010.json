@@ -1,0 +1,11 @@
+{
+  "model": "nomic-embed-text:latest",
+  "input": [
+    "search_document: Marlin returns are accepted within 21 days of delivery.\nThe package must include the charging cable."
+  ],
+  "truncate": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 2048
+  }
+}

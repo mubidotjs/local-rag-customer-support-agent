@@ -1,0 +1,8 @@
+{
+  "run_id": "phase-d-v2-once",
+  "claimed_at_utc": "2026-11-16T12:41:59.190925+00:00",
+  "labels_sha256": "b7a4600f21bf2e030390ecb7b749c5c2d9ac6feb9fc826250de7665baa1a22e6",
+  "approved_source_baseline": "a9f30ecd7cc2069e63c048bae6f5a668d8f18a61",
+  "runner_commit": "ddea83b5a609d2225def56264fa82fc1e959f1c4",
+  "scope": "One explicit owner-authorized execution only; this claim is never deleted or reused."
+}

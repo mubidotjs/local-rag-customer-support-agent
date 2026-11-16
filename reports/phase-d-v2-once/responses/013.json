@@ -1,0 +1,17 @@
+{
+  "model": "qwen3:4b",
+  "created_at": "2026-11-16T12:43:31.8357397Z",
+  "message": {
+    "role": "assistant",
+    "content": "{\n  \"abstain\": false,\n  \"claims\": [\n    {\n      \"chunk_id\": \"peregrine-guide:c003\",\n      \"quote\": \"The cobalt recovery code remains valid for 9 minutes.\"\n    },\n    {\n      \"chunk_id\": \"peregrine-guide:c002\",\n      \"quote\": \"The amber recovery code remains valid for 47 minutes.\"\n    },\n    {\n      \"chunk_id\": \"peregrine-guide:c000\",\n      \"quote\": \"The visitor code remains valid for 3 minutes.\"\n    }\n  ]\n}"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 79812519100,
+  "load_duration": 14461000900,
+  "prompt_eval_count": 647,
+  "prompt_eval_cached_count": 0,
+  "prompt_eval_duration": 32806949000,
+  "eval_count": 127,
+  "eval_duration": 32479339000
+}
