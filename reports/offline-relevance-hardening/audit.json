@@ -1,0 +1,29 @@
+{
+  "baseline_commit": "7bc42b194158f1f672b7ee3d48f2b7a5faafb503",
+  "scope": "strictly offline deterministic validation; no new retrieval or live-model acceptance",
+  "real_model_status": "NOT RERUN",
+  "embedding_requests": 0,
+  "generation_requests": 0,
+  "model_metadata_requests": 0,
+  "model_downloads": 0,
+  "preserved_original_artifacts": 139,
+  "frozen_v2_label_sha256": "b7a4600f21bf2e030390ecb7b749c5c2d9ac6feb9fc826250de7665baa1a22e6",
+  "historical_phase_d_report_sha256": "d3061b2bbfec1cbf6c921d00091873ddb55129aa90df0ad0d9c475917b3a93ab",
+  "new_holdout_sha256": "44303ab7163414f98bdc688971f8bcf2a214fa04f9354dc091060875d840906e",
+  "validator_source_sha256": {
+    "support_agent/answer.py": "eba8c4fba6c727f963a7474fc6016357ed07066dbf8d6e356af3c7082b0f07a7",
+    "support_agent/relevance.py": "d656baf744baf1a179b5ce6deb5de27b5425ed25f2b2686cd46c955ddf9ae6ec"
+  },
+  "replay_frozen_rubric_correct": 10,
+  "historical_passing_cases_retained": 9,
+  "safe_rejections_of_historical_wrong_outputs": 2,
+  "remaining_replay_supported_false_abstentions": [
+    "late-amber",
+    "adjacent-cobalt"
+  ],
+  "replay_unsupported_answers": [],
+  "new_holdout_cases": 17,
+  "new_holdout_correct": 17,
+  "new_holdout_false_abstentions": [],
+  "new_holdout_unsupported_acceptances": []
+}

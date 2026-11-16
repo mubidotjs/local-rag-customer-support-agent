@@ -1,0 +1,308 @@
+{
+  "kind": "separately authored frozen agent-curated offline holdout; not human-validated or live-model acceptance",
+  "real_model_status": "NOT RERUN",
+  "model_requests": 0,
+  "cases": 17,
+  "correct": 17,
+  "records": [
+    {
+      "id": "specific-duration",
+      "expected": "accept",
+      "actual": "accept",
+      "correct": true,
+      "reason": "verified_exact_quotes",
+      "citations": [
+        {
+          "chunk_id": "ochre:c000",
+          "document_id": "ochre",
+          "title": "Ochre Workshop Tokens",
+          "version": "1.0",
+          "quote": "The ochre service token stays valid for 22 minutes.",
+          "normalized_start": 76,
+          "normalized_end": 127,
+          "source_start": 76,
+          "source_end": 127,
+          "relevance": [
+            {
+              "intent": 0,
+              "facet": "validity_duration",
+              "entity": "ochre service token",
+              "requested_entity": "ochre service token",
+              "action": "",
+              "question_action_wording": "",
+              "source_action_wording": "",
+              "action_link": "literal_predicate",
+              "basis": "literal_entity_and_relation",
+              "support_chain": [
+                {
+                  "chunk_id": "ochre:c000",
+                  "document_id": "ochre",
+                  "title": "Ochre Workshop Tokens",
+                  "version": "1.0",
+                  "quote": "The ochre service token stays valid for 22 minutes.",
+                  "normalized_start": 76,
+                  "normalized_end": 127,
+                  "source_start": 76,
+                  "source_end": 127
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extra-other-duration",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "entity_mismatch",
+      "citations": []
+    },
+    {
+      "id": "ambiguous-token",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "ambiguous_entity",
+      "citations": []
+    },
+    {
+      "id": "duration-versus-count",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "facet_mismatch",
+      "citations": []
+    },
+    {
+      "id": "issued-key-count",
+      "expected": "accept",
+      "actual": "accept",
+      "correct": true,
+      "reason": "verified_exact_quotes",
+      "citations": [
+        {
+          "chunk_id": "kestrel:c000",
+          "document_id": "kestrel",
+          "title": "Kestrel Request Policy",
+          "version": "1.0",
+          "quote": "Each Kestrel recovery request issues 7 restore keys.",
+          "normalized_start": 75,
+          "normalized_end": 127,
+          "source_start": 75,
+          "source_end": 127,
+          "relevance": [
+            {
+              "intent": 0,
+              "facet": "issued_count",
+              "entity": "kestrel recovery request",
+              "requested_entity": "kestrel request",
+              "action": "",
+              "question_action_wording": "",
+              "source_action_wording": "",
+              "action_link": "literal_predicate",
+              "basis": "unique_request_purpose_scope",
+              "support_chain": [
+                {
+                  "chunk_id": "kestrel:c000",
+                  "document_id": "kestrel",
+                  "title": "Kestrel Request Policy",
+                  "version": "1.0",
+                  "quote": "Each Kestrel recovery request issues 7 restore keys.",
+                  "normalized_start": 75,
+                  "normalized_end": 127,
+                  "source_start": 75,
+                  "source_end": 127
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrong-count-object",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "facet_mismatch",
+      "citations": []
+    },
+    {
+      "id": "altered-count",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "unsupported_quote",
+      "citations": []
+    },
+    {
+      "id": "documented-action-alias",
+      "expected": "accept",
+      "actual": "accept",
+      "correct": true,
+      "reason": "verified_exact_quotes",
+      "citations": [
+        {
+          "chunk_id": "brindle:c000",
+          "document_id": "brindle",
+          "title": "Brindle Sound Controls",
+          "version": "1.0",
+          "quote": "To mute the bell, enable night mode.",
+          "normalized_start": 127,
+          "normalized_end": 163,
+          "source_start": 127,
+          "source_end": 163,
+          "relevance": [
+            {
+              "intent": 0,
+              "facet": "configuration_action",
+              "entity": "bell",
+              "requested_entity": "brindle chime",
+              "action": "mute",
+              "question_action_wording": "silence",
+              "source_action_wording": "mute",
+              "action_link": "bounded_action_mapping",
+              "basis": "explicit_same_document_alias",
+              "support_chain": [
+                {
+                  "chunk_id": "brindle:c000",
+                  "document_id": "brindle",
+                  "title": "Brindle Sound Controls",
+                  "version": "1.0",
+                  "quote": "The Brindle chime is also called the bell.",
+                  "normalized_start": 84,
+                  "normalized_end": 126,
+                  "source_start": 84,
+                  "source_end": 126
+                },
+                {
+                  "chunk_id": "brindle:c000",
+                  "document_id": "brindle",
+                  "title": "Brindle Sound Controls",
+                  "version": "1.0",
+                  "quote": "To mute the bell, enable night mode.",
+                  "normalized_start": 127,
+                  "normalized_end": 163,
+                  "source_start": 127,
+                  "source_end": 163
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "other-product-control",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "entity_mismatch",
+      "citations": []
+    },
+    {
+      "id": "association-is-not-alias",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "entity_mismatch",
+      "citations": []
+    },
+    {
+      "id": "ambiguous-alias",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "ambiguous_alias",
+      "citations": []
+    },
+    {
+      "id": "unsupported-action",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "facet_mismatch",
+      "citations": []
+    },
+    {
+      "id": "policy-condition",
+      "expected": "accept",
+      "actual": "accept",
+      "correct": true,
+      "reason": "verified_exact_quotes",
+      "citations": [
+        {
+          "chunk_id": "renewal:c000",
+          "document_id": "renewal",
+          "title": "Cormorant Renewal Policy",
+          "version": "1.0",
+          "quote": "The Cormorant renewal is eligible only if the stamped receipt is attached.",
+          "normalized_start": 80,
+          "normalized_end": 154,
+          "source_start": 80,
+          "source_end": 154,
+          "relevance": [
+            {
+              "intent": 0,
+              "facet": "policy_condition",
+              "entity": "cormorant renewal",
+              "requested_entity": "cormorant renewal",
+              "action": "eligible",
+              "question_action_wording": "",
+              "source_action_wording": "",
+              "action_link": "literal_predicate",
+              "basis": "literal_entity_and_relation",
+              "support_chain": [
+                {
+                  "chunk_id": "renewal:c000",
+                  "document_id": "renewal",
+                  "title": "Cormorant Renewal Policy",
+                  "version": "1.0",
+                  "quote": "The Cormorant renewal is eligible only if the stamped receipt is attached.",
+                  "normalized_start": 80,
+                  "normalized_end": 154,
+                  "source_start": 80,
+                  "source_end": 154
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "partial-compound",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "incomplete_evidence",
+      "citations": []
+    },
+    {
+      "id": "fabricated-citation",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "unverifiable_citation",
+      "citations": []
+    },
+    {
+      "id": "quarantined-alias",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "untrusted_source",
+      "citations": []
+    },
+    {
+      "id": "conflicting-duration",
+      "expected": "abstain",
+      "actual": "abstain",
+      "correct": true,
+      "reason": "conflicting_relation",
+      "citations": []
+    }
+  ]
+}

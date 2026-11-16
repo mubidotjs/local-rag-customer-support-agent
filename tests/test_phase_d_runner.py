@@ -161,7 +161,8 @@ def test_full_synthetic_lifecycle_uses_11_fresh_indexes_12_queries_and_preserves
     assert len(report["ingestions"]) == 11 and len(report["records"]) == 12
     assert report["request_counts"] == {"ingestion_embedding": 11, "query_embedding": 12, "generation": 8, "total_embedding_posts": 23}
     assert all(r["index_sha256_before"] == r["index_sha256_after"] for r in report["records"])
-    assert report["summary"]["supported_false_abstentions"]["numerator"] == 1
+    # This is an oracle/synthetic lifecycle, not the immutable recorded live run.
+    assert report["summary"]["supported_false_abstentions"]["numerator"] == 0
     assert report["summary"]["security_quarantine_cases"][0]["reason"] == "untrusted_source"
     events = [json.loads(s) for s in (root / "reports" / runner.RUN_ID / "requests.jsonl").read_text().splitlines()]
     attempted = [e for e in events if e["event"] == "post_attempt"]

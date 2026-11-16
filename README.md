@@ -94,6 +94,8 @@ The MVP favors abstention. Synonyms without lexical overlap can fail the relevan
 
 ## Independent review and offline hardening
 
+Subsequent **strictly offline relevance hardening** adds entity/facet proofs and source-grounded alias chains: [12-case replay and new 17-case holdout](reports/offline-relevance-hardening/report.md). Both mixed-entity historical outputs now cause complete abstention, the recorded supported paraphrase is accepted with source evidence, and all nine historical passing outcomes are retained. Replay is 10/12 under the frozen answer rubric, with two safe false abstentions; it does not demonstrate new generated answers. Real-model status: **NOT RERUN**.
+
 The **single authorized Phase D run is complete**: [metadata-led live report and per-case findings](reports/phase-d-v2-once/report.md). It is an agent-curated synthetic adversarial evaluation, not an independently human-validated benchmark. It used 23 embedding POSTs and 8 generation POSTs in 256.38 seconds. Exact citation validity was 9/9, but frozen-rubric correctness was 9/12: two answers included unrelated source-backed facts, and one supported paraphrase was rejected. The authorization is consumed; no repeat batch or prompt tuning is authorized.
 
 The owner-approved label corrections are published separately as [immutable labels v2](docs/labels-v2-finalization.md). Its digest covers the exact approved corrections and source offsets; original labels and reports remain unchanged. Its historical approval/budget files record label finalization only. A later explicit owner instruction authorized the one completed Phase D run; that consumed authorization is recorded separately in the live report and does not permit further inference.

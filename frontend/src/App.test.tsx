@@ -27,4 +27,20 @@ describe('local support UI (synthetic HTTP)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Find an answer/ }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Local service offline');
   });
+  it('exposes source-grounded alias evidence without rewriting the answer quote', async () => {
+    const answer = 'To mute the indicator, enable quiet mode.';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ answer, abstained: false, passages: [],
+      citations: [{ chunk_id: 'control:c000', document_id: 'control', title: 'Control Guide', version: '1', quote: answer, normalized_start: 80, normalized_end: 121,
+        relevance: [{ question_action_wording: 'silence', source_action_wording: 'mute', support_chain: [
+          { chunk_id: 'control:c000', document_id: 'control', title: 'Control Guide', version: '1', quote: 'The console beacon is the status indicator.', normalized_start: 20, normalized_end: 62 },
+          { chunk_id: 'control:c000', document_id: 'control', title: 'Control Guide', version: '1', quote: answer, normalized_start: 80, normalized_end: 121 },
+        ] }] }], diagnostics: { reason: 'verified_exact_quotes', algorithm: 'RRF(k=60)', generation_called: true } }) }));
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Your question'), { target: { value: 'How can I silence the console beacon?' } });
+    fireEvent.click(screen.getByRole('button', { name: /Find an answer/ }));
+    fireEvent.click(await screen.findByText('Supporting source evidence'));
+    expect(screen.getByText('The console beacon is the status indicator.')).toBeInTheDocument();
+    expect(screen.getByText(/Question wording “silence”/)).toBeInTheDocument();
+    expect(screen.getByText(/control:c000 · v1 · chars 20–62/)).toBeInTheDocument();
+  });
 });
