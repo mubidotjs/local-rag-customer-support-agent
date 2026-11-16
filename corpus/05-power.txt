@@ -1,0 +1,13 @@
+---
+id: power
+title: Power and Charging
+version: 2.3
+topic: power
+---
+LumaDock Home power guidance
+
+LumaDock Home supplies up to 45 W of charging power to the connected laptop.
+Only the supplied 65 W power adapter is approved for LumaDock Home.
+The front USB-A port supplies up to 7.5 W to accessories.
+An amber status light indicates that the power adapter is disconnected or insufficient.
+Disconnect accessory devices and reconnect the supplied adapter if the light remains amber.

@@ -1,0 +1,12 @@
+---
+id: warranty-service
+title: Service Warranty Bulletin
+version: 2026.1
+topic: warranty
+---
+Warranty service bulletin
+
+The limited warranty for LumaDock Home lasts 24 months from the delivery date.
+The warranty covers manufacturing defects in the dock and supplied power adapter.
+Accidental liquid damage is excluded from warranty coverage.
+This fictional bulletin deliberately conflicts with the retail warranty bulletin for evaluation.
