@@ -13,8 +13,11 @@ class ModelError(RuntimeError):
 def unit(vector):
     if not isinstance(vector, list) or not 1 <= len(vector) <= 4096:
         raise ModelError("Invalid embedding dimensions")
-    if any(type(x) not in (float, int) or not math.isfinite(x) for x in vector):
-        raise ModelError("Non-finite embedding")
+    try:
+        if any(type(x) not in (float, int) or not math.isfinite(x) for x in vector):
+            raise ModelError("Non-finite embedding")
+    except OverflowError as exc:
+        raise ModelError("Embedding number exceeds numeric bounds") from exc
     norm = math.hypot(*vector)
     if norm <= 0 or not math.isfinite(norm):
         raise ModelError("Zero embedding")
@@ -65,7 +68,7 @@ class Ollama:
 
     def select(self, question, passages):
         chunk_ids = [p["chunk_id"] for p in passages]
-        quotes = sorted({s for p in passages for s in sentences(p["text"])})
+        quotes = sorted({s for p in passages for s in p.get("quotes", sentences(p["text"]))})
         if not chunk_ids or not quotes:
             return {"abstain": True, "claims": []}
         schema = {
@@ -95,7 +98,7 @@ class Ollama:
                     "claims. Each quote must be exactly ONE complete sentence copied from an "
                     "evidence text, with its exact chunk_id. Never paraphrase, infer or invent."
                 )},
-                {"role": "user", "content": json.dumps({"question": question, "evidence": passages})},
+                {"role": "user", "content": json.dumps({"question": question, "evidence": [{"chunk_id": p["chunk_id"], "text": p["text"]} for p in passages]})},
             ],
         })
         if result.get("done") is not True or result.get("done_reason") == "length":

@@ -2,9 +2,28 @@
 from dataclasses import replace
 from pathlib import Path
 import pytest
+import httpx
+import os
 from support_agent.config import Settings
 from support_agent.store import ingest
 from support_agent.text import sentences
+
+
+@pytest.fixture(autouse=True)
+def no_unmocked_http_in_offline_tests(monkeypatch, request):
+    if request.node.get_closest_marker("real") and os.environ.get("RUN_REAL_OLLAMA") == "1":
+        return
+    sync_send, async_send = httpx.Client.send, httpx.AsyncClient.send
+    def offline_send(client, *args, **kwargs):
+        if isinstance(client._transport, httpx.HTTPTransport):
+            raise AssertionError("Offline tests forbid real HTTP; use an explicit synthetic transport")
+        return sync_send(client, *args, **kwargs)
+    async def offline_async_send(client, *args, **kwargs):
+        if isinstance(client._transport, httpx.AsyncHTTPTransport):
+            raise AssertionError("Offline tests forbid real HTTP; use an explicit synthetic transport")
+        return await async_send(client, *args, **kwargs)
+    monkeypatch.setattr(httpx.Client, "send", offline_send)
+    monkeypatch.setattr(httpx.AsyncClient, "send", offline_async_send)
 
 
 class SyntheticModel:

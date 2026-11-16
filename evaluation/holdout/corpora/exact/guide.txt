@@ -1,0 +1,8 @@
+---
+id: talon-tokens
+title: Talon Token Policy
+version: 1.0
+topic: tokens
+---
+Each Talon recovery request issues 6 recovery tokens.
+Talon recovery tokens are printed on blue cards.

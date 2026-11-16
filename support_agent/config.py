@@ -12,6 +12,7 @@ class Settings:
     max_file_bytes: int = 64_000
     max_documents: int = 50
     max_chunks: int = 500
+    max_db_bytes: int = 64_000_000
     chunk_chars: int = 800
     max_context_chars: int = 4_800
     top_k: int = 6

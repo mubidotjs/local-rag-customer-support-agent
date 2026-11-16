@@ -1,0 +1,39 @@
+{
+  "status": "PROPOSED ONLY; owner label and budget approval required; NOT AUTHORIZED",
+  "labels_sha256": "6451df4d72ac4266484b3ee5b4afa19b1a059a3c9c7e7b893dbcfa86ab1faad0",
+  "cases": 12,
+  "isolated_scenario_databases": 11,
+  "documents": 29,
+  "chunks": 33,
+  "chunks_per_scenario": {
+    "agreement": 2,
+    "conflict": 2,
+    "duplicates": 16,
+    "exact": 1,
+    "injection": 2,
+    "irrelevant": 1,
+    "long": 4,
+    "near-match": 1,
+    "paraphrase": 1,
+    "partial": 1,
+    "versions": 2
+  },
+  "max_ingestion_embedding_requests": 11,
+  "max_query_embedding_requests": 12,
+  "max_total_embedding_requests": 23,
+  "max_answer_generation_requests": 12,
+  "max_generations_per_case": 1,
+  "automatic_retries": 0,
+  "extra_smoke_requests": 0,
+  "wall_clock_minutes": 20,
+  "per_http_request_deadline_seconds": 90,
+  "generation_num_predict": 384,
+  "generation_num_ctx": 4096,
+  "embedding_num_ctx": 2048,
+  "models": {
+    "nomic-embed-text:latest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "qwen3:4b": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7"
+  },
+  "identity_source": "Expected digests copied from preserved baseline report; not re-queried during offline milestone.",
+  "live_inference_requests_so_far": 0
+}

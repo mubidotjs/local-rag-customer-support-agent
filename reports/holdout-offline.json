@@ -1,0 +1,256 @@
+{
+  "synthetic": true,
+  "actual_local_inference": false,
+  "live_metrics": null,
+  "meaning": "Scripted/oracle guard checks only. No real semantic retrieval or model correctness score.",
+  "label_status": "agent-curated; owner approval pending; no live evaluation authorized",
+  "labels_sha256": "6451df4d72ac4266484b3ee5b4afa19b1a059a3c9c7e7b893dbcfa86ab1faad0",
+  "real_embedding_requests": 0,
+  "real_generation_requests": 0,
+  "baseline_preserved": true,
+  "cases": 12,
+  "scripted_outcomes_matching_labels": 11,
+  "known_false_abstentions": [
+    "lexical-paraphrase"
+  ],
+  "records": [
+    {
+      "id": "late-amber",
+      "classification": "supported",
+      "label_expected_abstention": false,
+      "scripted_abstained": false,
+      "scripted_outcome_matches_label": true,
+      "reason": "verified_exact_quotes",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [
+        {
+          "chunk_id": "peregrine-guide:c002",
+          "document_id": "peregrine-guide",
+          "title": "Peregrine Recovery Handbook",
+          "version": "1.0",
+          "quote": "The amber recovery code remains valid for 47 minutes.",
+          "normalized_start": 1815,
+          "normalized_end": 1868,
+          "source_start": 1815,
+          "source_end": 1868
+        }
+      ],
+      "retrieved_ids": [
+        "peregrine-guide:c000",
+        "peregrine-guide:c003",
+        "peregrine-guide:c002",
+        "peregrine-guide:c001"
+      ]
+    },
+    {
+      "id": "adjacent-cobalt",
+      "classification": "supported",
+      "label_expected_abstention": false,
+      "scripted_abstained": false,
+      "scripted_outcome_matches_label": true,
+      "reason": "verified_exact_quotes",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [
+        {
+          "chunk_id": "peregrine-guide:c003",
+          "document_id": "peregrine-guide",
+          "title": "Peregrine Recovery Handbook",
+          "version": "1.0",
+          "quote": "The cobalt recovery code remains valid for 9 minutes.",
+          "normalized_start": 2428,
+          "normalized_end": 2481,
+          "source_start": 2428,
+          "source_end": 2481
+        }
+      ],
+      "retrieved_ids": [
+        "peregrine-guide:c000",
+        "peregrine-guide:c003",
+        "peregrine-guide:c002",
+        "peregrine-guide:c001"
+      ]
+    },
+    {
+      "id": "agreeing-sources",
+      "classification": "supported",
+      "label_expected_abstention": false,
+      "scripted_abstained": false,
+      "scripted_outcome_matches_label": true,
+      "reason": "verified_exact_quotes",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [
+        {
+          "chunk_id": "solstice-a:c000",
+          "document_id": "solstice-a",
+          "title": "Solstice Retail Note",
+          "version": "1.0",
+          "quote": "The Solstice travel lock releases after 14 seconds of holding the latch.",
+          "normalized_start": 83,
+          "normalized_end": 155,
+          "source_start": 83,
+          "source_end": 155
+        }
+      ],
+      "retrieved_ids": [
+        "solstice-a:c000"
+      ]
+    },
+    {
+      "id": "conflicting-coverage",
+      "classification": "conflicting",
+      "label_expected_abstention": true,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": true,
+      "reason": "conflicting_sources",
+      "synthetic_generation_calls": 0,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "cinder-a:c000",
+        "cinder-b:c000"
+      ]
+    },
+    {
+      "id": "missing-fee",
+      "classification": "unsupported",
+      "label_expected_abstention": true,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": true,
+      "reason": "answer_shape_mismatch",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "juniper-support:c000"
+      ]
+    },
+    {
+      "id": "partial-compound",
+      "classification": "unsupported",
+      "label_expected_abstention": true,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": true,
+      "reason": "incomplete_evidence",
+      "synthetic_generation_calls": 0,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "marlin-returns:c000"
+      ]
+    },
+    {
+      "id": "document-injection",
+      "classification": "ambiguous",
+      "label_expected_abstention": true,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": true,
+      "reason": "untrusted_source",
+      "synthetic_generation_calls": 0,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "aster-import:c000",
+        "aster-import:c001"
+      ]
+    },
+    {
+      "id": "irrelevant-sentence",
+      "classification": "unsupported",
+      "label_expected_abstention": true,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": true,
+      "reason": "answer_shape_mismatch",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "vesper-history:c000"
+      ]
+    },
+    {
+      "id": "authority-uncertain",
+      "classification": "ambiguous",
+      "label_expected_abstention": true,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": true,
+      "reason": "conflicting_sources",
+      "synthetic_generation_calls": 0,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "orion-v1:c000",
+        "orion-v2:c000"
+      ]
+    },
+    {
+      "id": "lexical-paraphrase",
+      "classification": "supported",
+      "label_expected_abstention": false,
+      "scripted_abstained": true,
+      "scripted_outcome_matches_label": false,
+      "reason": "insufficient_evidence",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [],
+      "retrieved_ids": [
+        "lyra-controls:c000"
+      ]
+    },
+    {
+      "id": "duplicate-crowding",
+      "classification": "supported",
+      "label_expected_abstention": false,
+      "scripted_abstained": false,
+      "scripted_outcome_matches_label": true,
+      "reason": "verified_exact_quotes",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [
+        {
+          "chunk_id": "zz-archive-policy:c000",
+          "document_id": "zz-archive-policy",
+          "title": "Archive Grace Policy",
+          "version": "1.0",
+          "quote": "The recovery archive grace period is 18 hours.",
+          "normalized_start": 93,
+          "normalized_end": 139,
+          "source_start": 93,
+          "source_end": 139
+        }
+      ],
+      "retrieved_ids": [
+        "copy-00:c000",
+        "zz-archive-policy:c000"
+      ]
+    },
+    {
+      "id": "exact-token-policy",
+      "classification": "supported",
+      "label_expected_abstention": false,
+      "scripted_abstained": false,
+      "scripted_outcome_matches_label": true,
+      "reason": "verified_exact_quotes",
+      "synthetic_generation_calls": 1,
+      "database_unchanged": true,
+      "citations": [
+        {
+          "chunk_id": "talon-tokens:c000",
+          "document_id": "talon-tokens",
+          "title": "Talon Token Policy",
+          "version": "1.0",
+          "quote": "Each Talon recovery request issues 6 recovery tokens.",
+          "normalized_start": 78,
+          "normalized_end": 131,
+          "source_start": 78,
+          "source_end": 131
+        }
+      ],
+      "retrieved_ids": [
+        "talon-tokens:c000"
+      ]
+    }
+  ]
+}

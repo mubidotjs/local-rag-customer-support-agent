@@ -1,6 +1,6 @@
 from .ollama import ModelError
 from .retrieval import retrieve
-from .text import sentences, terms
+from .text import answer_shape_matches, clauses_supported, has_instructions, terms
 
 
 ABSTENTION = "I cannot answer that from the available documentation."
@@ -17,6 +17,8 @@ def verify_selection(selection, passages, question, settings):
     if not 1 <= len(claims) <= 3:
         return [], "invalid_claim_count"
     by_id = {p["id"]: p for p in passages}
+    if len(by_id) != len(passages):
+        return [], "invalid_evidence"
     verified, seen = [], set()
     for claim in claims:
         if not isinstance(claim, dict) or set(claim) != {"chunk_id", "quote"}:
@@ -25,18 +27,22 @@ def verify_selection(selection, passages, question, settings):
         if not isinstance(cid, str) or not isinstance(quote, str) or cid not in by_id:
             return [], "unverifiable_citation"
         p = by_id[cid]
-        if quote not in sentences(p["text"]) or (cid, quote) in seen:
+        exact = next((q for q in p["quotes"] if q["quote"] == quote), None)
+        if exact is None or (cid, quote) in seen:
             return [], "unsupported_quote"
+        if p["quarantined"] or has_instructions(quote):
+            return [], "untrusted_source"
         if p["similarity"] < settings.min_similarity or not terms(question).intersection(terms(quote)):
             return [], "insufficient_evidence"
         if p["ambiguous_topic"]:
             return [], "conflicting_sources"
+        if not answer_shape_matches(question, quote):
+            return [], "answer_shape_mismatch"
         seen.add((cid, quote))
-        start = p["text"].index(quote)
         verified.append({"chunk_id": cid, "document_id": p["document_id"], "title": p["title"],
-                         "version": p["version"], "quote": quote,
-                         "normalized_start": p["normalized_start"] + start,
-                         "normalized_end": p["normalized_start"] + start + len(quote)})
+                         "version": p["version"], **exact})
+    if not clauses_supported(question, [c["quote"] for c in verified]):
+        return [], "incomplete_evidence"
     return verified, "verified_exact_quotes"
 
 
@@ -46,16 +52,23 @@ def answer(question, settings, model):
               "diagnostics": {"algorithm": "RRF(k=60), equal semantic/FTS5 weights", "generation_called": False,
                               "embedding_model": settings.embed_model, "generation_model": settings.chat_model}}
     relevant = [p for p in passages if p["similarity"] >= settings.min_similarity
-                and terms(question).intersection(terms(p["text"])) and sentences(p["text"])]
-    if not relevant:
+                and terms(question).intersection(terms(p["text"])) and p["quotes"]]
+    if has_instructions(question):
+        reason = "untrusted_question"
+    elif not relevant:
         reason = "insufficient_evidence"
+    elif relevant[0]["quarantined"]:
+        reason = "untrusted_source"
     elif relevant[0]["ambiguous_topic"]:
         reason = "conflicting_sources"
+    elif not clauses_supported(question, [q["quote"] for p in relevant if not p["quarantined"] and not p["ambiguous_topic"] for q in p["quotes"]]):
+        reason = "incomplete_evidence"
     else:
         result["diagnostics"]["generation_called"] = True
         try:
-            selection = model.select(question, [{"chunk_id": p["id"], "text": p["text"]} for p in relevant])
-            citations, reason = verify_selection(selection, relevant, question, settings)
+            safe = [p for p in relevant if not p["quarantined"] and not p["ambiguous_topic"]]
+            selection = model.select(question, [{"chunk_id": p["id"], "text": p["text"], "quotes": [q["quote"] for q in p["quotes"]]} for p in safe])
+            citations, reason = verify_selection(selection, safe, question, settings)
             if citations:
                 result.update(answer="\n\n".join(f'{c["quote"]} [{c["chunk_id"]}]' for c in citations),
                               abstained=False, citations=citations)

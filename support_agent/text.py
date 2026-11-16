@@ -1,6 +1,8 @@
 """Deterministic character offsets are Unicode code points, end exclusive."""
 import re
 
+HEADER = re.compile(r"\A---\nid: ([a-z0-9-]{1,60})\ntitle: ([^\n]{1,120})\nversion: ([^\n]{1,40})\ntopic: ([a-z0-9-]{1,60})\n---\n")
+
 
 def normalize(source: str) -> tuple[str, list[tuple[int, int]]]:
     chars, offsets = [], []
@@ -23,6 +25,8 @@ def normalize(source: str) -> tuple[str, list[tuple[int, int]]]:
 
 
 def chunks(text: str, size: int = 800):
+    if not 1 <= size <= 800:
+        raise ValueError("Chunk size must be between 1 and 800")
     start = 0
     while start < len(text):
         while start < len(text) and text[start].isspace():
@@ -49,6 +53,52 @@ def terms(text: str) -> set[str]:
 
 
 def sentences(text: str) -> list[str]:
-    # Quotes must be complete body sentences, never metadata or fragments.
-    return [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", text)
-            if len(s.strip()) >= 15 and s.strip().endswith((".", "!", "?"))]
+    return [quote for _, _, quote in sentence_spans(text)]
+
+
+def sentence_spans(text: str):
+    """Parse full prose paragraphs before chunk slicing; preserve soft newlines."""
+    def scan(a, b):
+        block = text[a:b]
+        start = 0
+        for end in re.finditer(r"[.!?](?=\s|$)", block):
+            segment = block[start:end.end()]
+            quote = segment.strip()
+            if len(quote) >= 15:
+                absolute = a + start + len(segment) - len(segment.lstrip())
+                yield absolute, absolute + len(quote), quote
+            start = end.end()
+    beginning, offset = None, 0
+    for line in text.splitlines(keepends=True):
+        if not line.strip() or line.lstrip().startswith("#"):
+            if beginning is not None:
+                yield from scan(beginning, offset)
+                beginning = None
+        elif beginning is None:
+            beginning = offset
+        offset += len(line)
+    if beginning is not None:
+        yield from scan(beginning, offset)
+
+
+CONTROL = re.compile(
+    r"(?:ignore|disregard|override).{0,100}(?:instructions?|rules?|system|evidence)"
+    r"|(?:system|assistant|developer)\s*(?:prompt\b|message\b|:)"
+    r"|</?(?:system|assistant|developer)>|fabricat\w*.{0,40}citation", re.I | re.S)
+
+
+def has_instructions(text: str) -> bool:
+    return bool(CONTROL.search(text))
+
+
+def clauses_supported(question: str, quotes: list[str]) -> bool:
+    """Necessary lexical coverage only; never a semantic entailment claim."""
+    clauses = re.split(r"\b(?:and|also)\b|[;?]", question.lower())
+    evidence = terms(" ".join(quotes))
+    return all(not terms(clause) or bool(terms(clause) & evidence) for clause in clauses)
+
+
+def answer_shape_matches(question: str, quote: str) -> bool:
+    if re.search(r"\b(?:how many|how much|how long|price|cost|fee)\b", question, re.I):
+        return bool(re.search(r"\b\d+(?:\.\d+)?\b|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten)\b", quote, re.I))
+    return True

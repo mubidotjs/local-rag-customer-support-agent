@@ -1,37 +1,53 @@
-import json
+from .integrity import checked_index
 from .ollama import ModelError, unit
 from .store import connect
 from .text import terms
 
 
 def retrieve(question, settings, model):
+    if not isinstance(question, str) or not 3 <= len(question.strip()) <= 600:
+        raise ValueError("Question must contain 3 to 600 characters")
+    if settings.db_path.stat().st_size > settings.max_db_bytes:
+        raise ModelError("Stored database exceeds size limit")
     with connect(settings.db_path) as db:
-        meta = dict(db.execute("SELECT key,value FROM metadata"))
-        if meta.get("embed_model") != settings.embed_model:
-            raise ModelError("Index embedding model mismatch")
-        rows = [dict(r) for r in db.execute("""
-            SELECT c.*, d.title,d.version,d.topic,d.filename FROM chunks c
-            JOIN documents d ON d.id=c.document_id ORDER BY c.id LIMIT ?
-        """, (settings.max_chunks + 1,))]
-        if len(rows) > settings.max_chunks:
-            raise ModelError("Stored chunk limit exceeded")
-        query = model.embed([question], query=True)[0]
-        if len(query) != int(meta["dimension"]):
+        rows, dimension = checked_index(db, settings)
+        vectors = model.embed([question], query=True)
+        if not isinstance(vectors, list) or len(vectors) != 1:
+            raise ModelError("Query embedding count mismatch")
+        query = unit(vectors[0])
+        if len(query) != dimension:
             raise ModelError("Query embedding dimension mismatch")
+        canonical, by_id = {}, {}
         for row in rows:
-            vector = unit(json.loads(row.pop("embedding")))
-            if len(vector) != len(query):
-                raise ModelError("Stored embedding dimension mismatch")
-            row["similarity"] = sum(a * b for a, b in zip(query, vector, strict=True))
-        semantic = sorted(rows, key=lambda r: (-r["similarity"], r["id"]))[:20]
+            row["similarity"] = sum(a * b for a, b in zip(query, row.pop("vector"), strict=True))
+            row["duplicate_ids"] = []
+            if row["text"] not in canonical:
+                canonical[row["text"]] = row
+            else:
+                kept = canonical[row["text"]]
+                kept["duplicate_ids"].append(row["id"])
+                kept["ambiguous_topic"] |= row["ambiguous_topic"]
+                kept["quarantined"] |= row["quarantined"]
+            by_id[row["id"]] = canonical[row["text"]]["id"]
+        unique = list(canonical.values())
+        semantic = sorted(unique, key=lambda r: (-r["similarity"], r["id"]))[:20]
         words = sorted(terms(question))[:32]
         expression = " OR ".join('"' + word + '"' for word in words)
-        keyword = db.execute("""SELECT chunk_id, bm25(chunks_fts) AS score FROM chunks_fts
-            WHERE chunks_fts MATCH ? ORDER BY score,chunk_id LIMIT 20""", (expression,)).fetchall() if expression else []
+        # Collapse the bounded full match list before applying the candidate cap.
+        matches = db.execute("""SELECT chunk_id, bm25(chunks_fts) AS score FROM chunks_fts
+            WHERE chunks_fts MATCH ? ORDER BY score,chunk_id LIMIT ?""",
+            (expression, settings.max_chunks + 1)).fetchall() if expression else []
+        keyword = []
+        for r in matches:
+            cid = by_id[r["chunk_id"]]
+            if cid not in keyword:
+                keyword.append(cid)
+            if len(keyword) == 20:
+                break
         sr = {r["id"]: i + 1 for i, r in enumerate(semantic)}
-        kr = {r["chunk_id"]: i + 1 for i, r in enumerate(keyword)}
+        kr = {cid: i + 1 for i, cid in enumerate(keyword)}
         ranked = []
-        for row in rows:
+        for row in unique:
             sid = row["id"]
             if sid not in sr and sid not in kr:
                 continue
@@ -47,10 +63,4 @@ def retrieve(question, settings, model):
             used += len(row["text"])
             if len(selected) == settings.top_k:
                 break
-        # Multiple active sources for one topic are conservatively ambiguous.
-        topics = {}
-        for row in db.execute("SELECT topic,id FROM documents"):
-            topics.setdefault(row["topic"], []).append(row["id"])
-        for row in selected:
-            row["ambiguous_topic"] = len(topics[row["topic"]]) > 1
     return selected

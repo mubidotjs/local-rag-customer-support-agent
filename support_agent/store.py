@@ -2,10 +2,9 @@ import hashlib
 from contextlib import contextmanager
 import json
 from pathlib import Path
-import re
 import sqlite3
 from .config import Settings
-from .text import chunks, normalize
+from .text import HEADER, chunks, normalize
 
 
 SCHEMA = """
@@ -32,6 +31,7 @@ def connect(path: Path, *, readonly=True):
         db = sqlite3.connect(path)
         db.execute("PRAGMA foreign_keys=ON")
     db.row_factory = sqlite3.Row
+    db.execute("PRAGMA trusted_schema=OFF")
     try:
         with db:
             yield db
@@ -56,11 +56,10 @@ def ingest(directory: Path, settings: Settings, model):
             raise ValueError("Document exceeds byte limit")
         source = raw.decode("utf-8")
         text, offsets = normalize(source)
-        match = re.match(r"\A---\n(id: [a-z0-9-]+)\ntitle: ([^\n]{1,120})\nversion: ([^\n]{1,40})\ntopic: ([a-z0-9-]{1,60})\n---\n", text)
+        match = HEADER.match(text)
         if not match:
             raise ValueError(f"Missing required metadata header: {path.name}")
         doc_id, title, version, topic = match.groups()
-        doc_id = doc_id.removeprefix("id: ")
         docs.append((doc_id, title, version, topic, path.name, hashlib.sha256(raw).hexdigest(), source, text))
         for ordinal, (start, end, chunk) in enumerate(chunks(text[match.end():], settings.chunk_chars)):
             start, end = start + match.end(), end + match.end()

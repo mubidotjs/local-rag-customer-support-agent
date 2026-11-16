@@ -1,0 +1,26 @@
+{
+  "baseline_commit": "c4aaf5696976872e533672c1fb66b93ca3c6a4e0",
+  "required": {
+    "corpus/01-returns.md": "83cbbc928732c319c3293ad582877272f1059bc3dc57c66d291c1f7093e666c7",
+    "corpus/02-shipping.md": "bbd58d205fbbceb4d3968f2471f223b299368ac5ab936d7faab9df92921bc3d6",
+    "corpus/03-setup.md": "01c165807074173eaa7cba2da427dafd59c231cea2f75684f08a423c8e2784b1",
+    "corpus/04-reset.md": "fd7ba4e1f0d46bdef2477f7aa125df29ab3646e76ce5f969cf41b49efe23edb0",
+    "corpus/05-power.txt": "cc495ed87b6e37665dad46b443cc2b215c7c7f07f875e5f1846f56e1a1376298",
+    "corpus/06-display.md": "d81dc1788832fabef57cbc029ed54d9d544033f2725f7995df484861e095b158",
+    "corpus/07-offline.md": "a609422f1514f9205bb9c9eab3ffa16c906c86cf3357b846719e42671108a9e5",
+    "corpus/08-firmware.md": "276fd7d6a89409a9cf1c675f3c514483a86f02e3b2bf5f1b8f8a30305ce3f0b1",
+    "corpus/09-sleep.md": "4f1b6d26a60c682bf955185ddfbf5ab5afcecbaf81fe49eebdd7dc3ecaf91807",
+    "corpus/10-cleaning.md": "78f6a9e166d3f2e126ae580ba4b97283fd30e77d2e4010f0d4e553309a2db31f",
+    "corpus/11-support.md": "1c1dee9a17f2a3de2bdf65fa5301b8dd6bf878a1b7d00643a34cc8647c3eab6e",
+    "corpus/12-warranty.md": "902a8703cc648f283055fe4c5d2dce07ce81ee9a6109609dfa180b1b37500c5c",
+    "corpus/13-warranty-conflict.txt": "8bc8d18c20e173a66a089ea00fd871285a1a15e1aced13473c60c4b84a910d8e",
+    "evaluation/golden.json": "1f03c8d9415d3e5f4a4c33fb079946cef38980bec0633c737a7b943c95b27ee1",
+    "reports/local-evaluation.json": "93ce1d1308d446f5bc50e8068645223e1d676bef92f762741ad82617d88e0869",
+    "reports/verification.md": "fedd2f6b4362f2068adf2bf4326e5f7daf5f43584548af621111a6ba6d69cbd5"
+  },
+  "local_artifacts": {
+    "data/support.sqlite3": "568280d06c0814b1c4202c3e2200bae4e77589042f0066b3706057d7b1726b9f",
+    "frontend/test-results/actual-local-desktop.png": "2d57c8fee32d66fa9d6e08c99b0635a881b0aaa2d22e6d9d1a4da1c65b38ddb1",
+    "frontend/test-results/actual-local-mobile.png": "36f7af9f70613cdf70a665141a302584ad45ed3fb47abb494d00cfc2270edd4b"
+  }
+}

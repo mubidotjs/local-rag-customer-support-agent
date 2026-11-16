@@ -90,6 +90,25 @@ The fixed, independently curated [golden cases](evaluation/golden.json) cover su
 
 The server binds only to loopback; use one worker. It rejects unrelated Host/Origin values, limits request bodies and question length, and admits one model operation at a time. No upload, document-read-by-path, URL fetch, tool execution, remote action, or customer messaging endpoints exist. The local owner chooses the trusted corpus; retrieved content remains untrusted model input. Do not expose this development server publicly.
 
-The MVP favors abstention. Synonyms without lexical overlap can fail the relevance gate; same-topic documents are conservatively ambiguous even when they agree. Exact copied sentences prove where emitted claims came from, but cannot establish source truth or guarantee that every possible question was fully understood. A single-process lock is a resource bound, not a multi-user queue. All limits and remaining work are documented in [architecture](docs/architecture.md).
+The MVP favors abstention. Synonyms without lexical overlap can fail the relevance gate; same-topic documents require identical ordered complete sentences and versions to establish the narrow agreement exception. Exact copied sentences prove where emitted claims came from, but cannot establish source truth or guarantee that every possible question was fully understood. A single-process lock is a resource bound, not a multi-user queue. All limits and remaining work are documented in [architecture](docs/architecture.md).
+
+## Independent review and offline hardening
+
+- [Review all 12 original golden cases](docs/golden-review.md), including source locations, rationale and blank owner sign-off fields. Original labels, corpus and baseline reports are preserved and hash-checked.
+- [Review 12 separate adversarial holdout cases and five output probes](docs/holdout-review.md). The 29 fictional documents span 33 chunks across 11 isolated scenarios. Labels are frozen and **not human-approved**.
+- [Offline findings and limitations](reports/adversarial-hardening.md) and [synthetic contract report](reports/holdout-offline.json) distinguish guard behavior from real model quality. One supported low-overlap paraphrase remains a visible false abstention.
+- The entire ordinary pytest suite forbids unmocked HTTP; CI explicitly disables both opt-in real-model flags. No new dependency is needed.
+
+Run the new synthetic checks without Ollama:
+
+```powershell
+.\.venv\Scripts\python -m pytest -q
+.\.venv\Scripts\python -m evaluation.holdout.offline
+# Preserve existing real-acceptance screenshots when running local browser tests:
+cd frontend
+npm run test:e2e -- --output=../.local/adversarial-playwright
+```
+
+The holdout runner uses temporary synthetic indexes and never changes the default baseline database. **Phase D has not run.** Explicit owner approval of the frozen labels and [proposed budget](evaluation/holdout/proposed-live-budget.json) is required: at most 12 generation POSTs, 23 embedding POSTs, no retries/downloads/substitutions, and a 20-minute overall cap. There is no new live holdout runner or authorization token in this milestone. The baseline live-evaluation commands above describe historical capability and must not be used to bypass this approval boundary.
 
 Later milestones remain out of scope: document mutation/reindexing, rerankers and retrieval tuning, LangGraph, MCP investigation tools, comprehensive injection evaluation, Docker, and any public synthetic showcase.

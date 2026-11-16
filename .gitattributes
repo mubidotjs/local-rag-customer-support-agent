@@ -1,2 +1,4 @@
 * text=auto eol=lf
 *.png binary
+# Preserve the frozen adversarial fixture bytes, including authored trailing spaces.
+evaluation/holdout/corpora/** whitespace=-blank-at-eol
