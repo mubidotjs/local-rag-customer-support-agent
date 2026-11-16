@@ -94,6 +94,8 @@ The MVP favors abstention. Synonyms without lexical overlap can fail the relevan
 
 ## Independent review and offline hardening
 
+The owner-approved label corrections are now published separately as [immutable labels v2](docs/labels-v2-finalization.md). Its digest covers the exact approved corrections and source offsets; original labels and reports remain unchanged. Approval covers label finalization only. Phase D and its retained inference budget remain unauthorized.
+
 - [Review all 12 original golden cases](docs/golden-review.md), including source locations, rationale and blank owner sign-off fields. Original labels, corpus and baseline reports are preserved and hash-checked.
 - [Review 12 separate adversarial holdout cases and five output probes](docs/holdout-review.md). The 29 fictional documents span 33 chunks across 11 isolated scenarios. Labels are frozen and **not human-approved**.
 - [Offline findings and limitations](reports/adversarial-hardening.md) and [synthetic contract report](reports/holdout-offline.json) distinguish guard behavior from real model quality. One supported low-overlap paraphrase remains a visible false abstention.

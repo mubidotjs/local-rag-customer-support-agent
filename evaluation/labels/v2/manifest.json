@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "label_version": "v2",
+  "status": "immutable finalized label version",
+  "immutability_policy": "Append-only published version. Never overwrite these files; future approved corrections require a new version directory and digest.",
+  "labels_sha256": "b7a4600f21bf2e030390ecb7b749c5c2d9ac6feb9fc826250de7665baa1a22e6",
+  "digest_definition": "SHA-256 of exact labels.json UTF-8 bytes, with LF line endings and a final newline. Includes both datasets, reset source locations and the preserved finding.",
+  "approval_scope": "label_finalization_only",
+  "phase_d_authorized": false,
+  "inference_budget_approved_for_execution": false,
+  "approved_proposal_commit": "620d970c01232e28a73b72e37385b28c6d90203a",
+  "approved_proposal_sha256": "6e9bf1de19f1c3dec1e44eae730334debafc23d5b6df5d071d32967ddd420578",
+  "original_label_sha256": {
+    "golden": "1f03c8d9415d3e5f4a4c33fb079946cef38980bec0633c737a7b943c95b27ee1",
+    "holdout": "6451df4d72ac4266484b3ee5b4afa19b1a059a3c9c7e7b893dbcfa86ab1faad0"
+  },
+  "original_preservation_snapshot": "evaluation/proposals/review-v2-preservation.json",
+  "original_preservation_snapshot_sha256": "8f226155501e2e305f272eac1cee37e6ee85d9dcc31b5bd192a6e4e0ef4abb7d",
+  "files": {
+    "labels.json": "b7a4600f21bf2e030390ecb7b749c5c2d9ac6feb9fc826250de7665baa1a22e6",
+    "approval.json": "1bfc70d3ba562252d6a710909d7ef78cba4d393cebb4cf901c7dcffc228c0515",
+    "execution-budget.json": "d270b3c1a054cc1830e553267109c8e28901e518dddf082aaf28fcf0b014901e",
+    "labels.sha256": "ff9f15da034fc83961b71bf7e93cb8230bb66f18ac1352059047929cedbab752"
+  },
+  "actual_embedding_requests": 0,
+  "actual_generation_requests": 0,
+  "model_downloads": 0,
+  "baseline_index_opened_for_query_or_write": false,
+  "evaluator_defaults": "Unchanged; existing baseline/holdout runners still use original labels. No new live runner or execution authorization is introduced."
+}

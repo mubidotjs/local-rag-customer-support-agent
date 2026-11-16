@@ -1,0 +1,26 @@
+{
+  "record_type": "Record of explicit owner instruction in this Codex conversation; not a cryptographic signature.",
+  "recorded_at_utc": "2026-11-16T12:17:59.973386+00:00",
+  "proposal_id": "review-v2-proposed",
+  "approved_proposal_commit": "620d970c01232e28a73b72e37385b28c6d90203a",
+  "approved_proposal_file": "evaluation/proposals/review-v2-proposed.json",
+  "approved_proposal_sha256": "6e9bf1de19f1c3dec1e44eae730334debafc23d5b6df5d071d32967ddd420578",
+  "label_version": "v2",
+  "labels_sha256": "b7a4600f21bf2e030390ecb7b749c5c2d9ac6feb9fc826250de7665baa1a22e6",
+  "owner_approval_received": true,
+  "approval_scope": "label_finalization_only",
+  "approved_corrections": [
+    "golden/reset: require both exact holding and release sentences with original source locations",
+    "holdout/lexical-paraphrase: preserve supported, abstain=false, and the existing false-abstention finding",
+    "holdout/document-injection: preserve abstention; security-quarantine; expected_verification_reason=untrusted_source"
+  ],
+  "independent_review_of_all_cases_claimed": false,
+  "metadata_handling": "All candidate case labels and probes are copied exactly. The historical holdout label_status is omitted; schema_version and baseline_commit retain their original provenance. Approval scope is recorded at version level.",
+  "phase_d_authorized": false,
+  "inference_budget_approved_for_execution": false,
+  "owner_instruction_excerpt": [
+    "I approve `review-v2-proposed` at commit `620d970c01232e28a73b72e37385b28c6d90203a` for **label finalization only**.",
+    "**Phase D is NOT authorized. Do not run embeddings, generation, live evaluation or model downloads.**",
+    "This budget remains unapproved for execution until I provide separate explicit authorization."
+  ]
+}
