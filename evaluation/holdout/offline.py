@@ -30,7 +30,10 @@ def baseline_preserved():
             path = ROOT / name
             if group == "local_artifacts" and not path.exists():
                 continue  # Ignored local files are not present on a fresh CI checkout.
-            if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            allowed = {digest}
+            if group == "required":
+                allowed.add(manifest["required_git_blob_sha256"][name])
+            if hashlib.sha256(path.read_bytes()).hexdigest() not in allowed:
                 raise ValueError(f"Baseline artifact changed: {name}")
     return True
 

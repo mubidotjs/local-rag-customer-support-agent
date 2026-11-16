@@ -4,7 +4,7 @@
 
 ## Preservation
 
-The original 13 corpus files, `evaluation/golden.json`, `reports/local-evaluation.json`, and `reports/verification.md` are unchanged. Their hashes are pinned in `evaluation/baseline-manifest.json`. The existing local `data/support.sqlite3` and both original model-backed browser screenshots are also fingerprinted and preserved. Local Playwright used a separate output directory. A read-only structural audit of the existing baseline index passed (13 chunks, 768 dimensions), with no model calls or index writes.
+The original 13 corpus files, `evaluation/golden.json`, `reports/local-evaluation.json`, and `reports/verification.md` are unchanged. Their hashes are pinned in `evaluation/baseline-manifest.json`, separately recording original local bytes and original baseline Git blob bytes where line endings differ. Only those exact representations are accepted; unrelated edits still fail. The existing local `data/support.sqlite3` and both original model-backed browser screenshots are also fingerprinted and preserved. Local Playwright used a separate output directory. A read-only structural audit of the existing baseline index passed (13 chunks, 768 dimensions), with no model calls or index writes.
 
 ## Review packages
 
@@ -28,7 +28,7 @@ All existing exact-ID, exact-quote, finite-vector, request/context/token/time an
 
 ## Offline results
 
-- pytest: **65 passed, 1 opt-in actual-inference test skipped**. Unmocked HTTP is blocked by an autouse fixture, with an explicit test confirming the block.
+- pytest: **66 passed, 1 opt-in actual-inference test skipped**. Unmocked HTTP is blocked by an autouse fixture, with an explicit test confirming the block. A cross-platform preservation regression checks Git LF versus original local CRLF bytes while still rejecting content edits.
 - Vitest: **3 passed**. TypeScript/Vite build: **PASS**.
 - Playwright: **4 synthetic desktop/mobile tests passed, 2 actual-model project variants skipped**. Original screenshot output was untouched.
 - [Scripted holdout report](holdout-offline.json): **11/12** scripted outcomes match their fixed expected labels, and all synthetic answering databases remained unchanged. **One known false abstention remains: `lexical-paraphrase`.** Its supported label was not altered. Constant vectors and oracle/scripted selections test guards only; these are not real retrieval recall or generation correctness scores.

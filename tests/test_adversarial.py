@@ -40,6 +40,23 @@ def test_frozen_label_locations_and_baseline_artifacts():
             assert normalize(raw[a:b])[0] == evidence["quote"]
 
 
+def test_baseline_exact_git_line_endings_are_portable_but_edits_fail(tmp_path, monkeypatch):
+    from evaluation.holdout import offline
+    manifest = json.loads(Path("evaluation/baseline-manifest.json").read_text())
+    for name in manifest["required"]:
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(Path(name).read_bytes().replace(b"\r\n", b"\n"))
+    target_manifest = tmp_path / "evaluation/baseline-manifest.json"
+    target_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+    monkeypatch.setattr(offline, "ROOT", tmp_path)
+    assert offline.baseline_preserved()
+    report = tmp_path / "reports/local-evaluation.json"
+    report.write_bytes(report.read_bytes() + b" ")
+    with pytest.raises(ValueError, match="Baseline artifact changed"):
+        offline.baseline_preserved()
+
+
 def test_long_offsets_correct_chunk_not_adjacent(scenario):
     settings, model = scenario("long")
     passages = retrieve("amber recovery code remains valid", settings, model)
