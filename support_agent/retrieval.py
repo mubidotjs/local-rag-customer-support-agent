@@ -10,7 +10,15 @@ def retrieve(question, settings, model):
     if settings.db_path.stat().st_size > settings.max_db_bytes:
         raise ModelError("Stored database exceeds size limit")
     with connect(settings.db_path) as db:
-        rows, dimension = checked_index(db, settings)
+        rows, dimension = checked_index(db, settings, allow_empty=True)
+        if not rows:
+            return []
+        meta = dict(db.execute("SELECT key,value FROM metadata"))
+        if "embed_digest" in meta:
+            from .embeddings import adapter_binding
+            binding = adapter_binding(model, settings)
+            if (binding.digest, binding.config) != (meta["embed_digest"], meta["embed_config"]):
+                raise ModelError("Query embedding identity differs from the index")
         vectors = model.embed([question], query=True)
         if not isinstance(vectors, list) or len(vectors) != 1:
             raise ModelError("Query embedding count mismatch")

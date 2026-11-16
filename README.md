@@ -48,7 +48,7 @@ On macOS/Linux use `.venv/bin/python` in place of `.\.venv\Scripts\python`. No e
 7. Make one bounded `qwen3:4b` `/api/chat` call per eligible question. Its structured schema restricts choices to actual retrieved IDs and exact complete sentences. The backend independently validates every selection. Answers contain only verified copied sentences with `[document-id:chunk-id]` labels; **this MVP is intentionally extractive**.
 8. Abstain on insufficient relevance, ambiguous active sources, invalid model output, fabricated IDs, altered/partial quotes, or generation failure. Model unavailability during retrieval returns an actionable HTTP 503. No answer cache, conversation memory, customer records, or writes during answering.
 
-Identical ingestion is a no-op without embedding requests. Changed corpora are rejected against an existing index. Update/delete/reindex operations are outside this milestone; select a fresh `RAG_DB` for a separate corpus.
+Identical ingestion is a no-op without embedding requests. The original ingestion command still rejects changed populated corpora. [CLI document lifecycle](docs/document-lifecycle.md) now provides separately previewed and explicitly confirmed additions, updates, deletions and incremental reindexing. This milestone is verified entirely with synthetic vectors and databases; real managed reindexing remains unverified and requires separate authorization. [Offline acceptance and limits](reports/document-lifecycle/report.md).
 
 ## Verification
 

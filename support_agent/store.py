@@ -1,10 +1,10 @@
-import hashlib
 from contextlib import contextmanager
 import json
 from pathlib import Path
 import sqlite3
 from .config import Settings
-from .text import HEADER, chunks, normalize
+from .documents import local_path, read_document
+from .ollama import unit
 
 
 SCHEMA = """
@@ -23,6 +23,16 @@ CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 @contextmanager
 def connect(path: Path, *, readonly=True):
+    path = Path(path)
+    if path.exists() or path.is_symlink():
+        local_path(path)
+        if path.stat().st_nlink != 1:
+            raise ValueError("Hardlinked SQLite indexes are not allowed")
+    else:
+        ancestor = path.parent
+        while not ancestor.exists():
+            ancestor = ancestor.parent
+        local_path(ancestor)
     if readonly:
         db = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
         db.execute("PRAGMA query_only=ON")
@@ -34,6 +44,8 @@ def connect(path: Path, *, readonly=True):
     db.execute("PRAGMA trusted_schema=OFF")
     try:
         with db:
+            if readonly:
+                db.execute("BEGIN")  # One snapshot across all integrity/retrieval SELECTs.
             yield db
     finally:
         db.close()
@@ -41,58 +53,85 @@ def connect(path: Path, *, readonly=True):
 
 def ingest(directory: Path, settings: Settings, model):
     """CLI-only ingestion. All validation and embedding happens before atomic storage."""
-    root = directory.resolve(strict=True)
-    files = sorted(root.iterdir(), key=lambda p: p.name)
+    root = local_path(directory)
+    files = []
+    for count, path in enumerate(root.iterdir(),1):
+        if count > 1000:
+            raise ValueError("Source directory entry limit exceeded")
+        if path.suffix.lower() in (".md", ".txt"):
+            files.append(path)
+    files.sort(key=lambda p:p.name)
     docs, passages = [], []
     for path in files:
         if path.suffix.lower() not in (".md", ".txt"):
             continue
-        if path.is_symlink() or not path.is_file() or path.resolve().parent != root:
-            raise ValueError("Only regular files directly inside the corpus directory are allowed")
-        # Open with a capped read as well as stat to bound races and memory.
-        with path.open("rb") as stream:
-            raw = stream.read(settings.max_file_bytes + 1)
-        if len(raw) > settings.max_file_bytes:
-            raise ValueError("Document exceeds byte limit")
-        source = raw.decode("utf-8")
-        text, offsets = normalize(source)
-        match = HEADER.match(text)
-        if not match:
-            raise ValueError(f"Missing required metadata header: {path.name}")
-        doc_id, title, version, topic = match.groups()
-        docs.append((doc_id, title, version, topic, path.name, hashlib.sha256(raw).hexdigest(), source, text))
-        for ordinal, (start, end, chunk) in enumerate(chunks(text[match.end():], settings.chunk_chars)):
-            start, end = start + match.end(), end + match.end()
-            passages.append((f"{doc_id}:c{ordinal:03d}", doc_id, ordinal, start, end,
-                             offsets[start][0], offsets[end - 1][1], chunk))
+        document, pieces = read_document(root, path.name, settings)
+        docs.append(document)
+        passages.extend(pieces)
         if len(docs) > settings.max_documents or len(passages) > settings.max_chunks:
             raise ValueError("Corpus exceeds document or chunk limit")
-    if not docs or not passages or len({d[0] for d in docs}) != len(docs):
+    if not docs or not passages or len({d[0] for d in docs}) != len(docs) or len({d[4].casefold() for d in docs}) != len(docs):
         raise ValueError("Corpus must be nonempty with unique document IDs")
     if settings.db_path.is_file():
+        local_path(settings.db_path)
+        if settings.db_path.stat().st_size > settings.max_db_bytes:
+            raise ValueError("Index exceeds database size limit")
         with connect(settings.db_path) as db:
+            from .integrity import checked_index, checked_schema
+            checked_schema(db)
+            if db.execute("SELECT count(*) FROM metadata").fetchone()[0]:
+                checked_index(db,settings,allow_empty=True)
             stored = db.execute("SELECT id,sha256 FROM documents ORDER BY id").fetchall()
             meta = dict(db.execute("SELECT key,value FROM metadata"))
             if stored:
                 same_docs = [tuple(r) for r in stored] == sorted((d[0], d[5]) for d in docs)
                 if same_docs and meta.get("embed_model") == settings.embed_model and meta.get("chunk_chars") == str(settings.chunk_chars):
+                    from .integrity import checked_index
+                    checked_index(db, settings, allow_empty=True)
+                    if getattr(model,"binding",None) is not None:
+                        from .embeddings import adapter_binding
+                        binding = adapter_binding(model,settings)
+                        if (meta.get("embed_digest"),meta.get("embed_config")) != (binding.digest,binding.config):
+                            raise ValueError("Index identity is immutable; use an explicit full reindex")
                     return {"documents": len(docs), "chunks": len(passages), "unchanged": True}
                 raise ValueError("Index is immutable; choose a new RAG_DB for a different corpus")
+            if meta:
+                raise ValueError("Initialized index is immutable; use explicit lifecycle add after deletion")
     vectors = []
-    for i in range(0, len(passages), 16):
-        vectors.extend(model.embed([p[-1] for p in passages[i:i + 16]]))
+    if getattr(model,"binding",None) is not None:
+        from .embeddings import embed_batches
+        encoded, _ = embed_batches([p[-1] for p in passages],model,settings)
+        vectors = [json.loads(v) for v in encoded]
+    else:
+        for i in range(0, len(passages), 16):
+            result = model.embed([p[-1] for p in passages[i:i + 16]])
+            if not isinstance(result, list) or len(result) != len(passages[i:i+16]):
+                raise ValueError("Embedding dimensions or count mismatch")
+            vectors.extend(unit(v) for v in result)
     if len(vectors) != len(passages) or len({len(v) for v in vectors}) != 1:
         raise ValueError("Embedding dimensions or count mismatch")
     with connect(settings.db_path, readonly=False) as db:
         db.executescript(SCHEMA)
+        db.execute("BEGIN IMMEDIATE")
+        from .integrity import checked_schema
+        checked_schema(db)
         existing = db.execute("SELECT count(*) FROM documents").fetchone()[0]
         if existing:
             stored = db.execute("SELECT id,sha256 FROM documents ORDER BY id").fetchall()
             same_docs = [tuple(r) for r in stored] == sorted((d[0], d[5]) for d in docs)
             meta = dict(db.execute("SELECT key,value FROM metadata"))
             if same_docs and meta.get("embed_model") == settings.embed_model and meta.get("chunk_chars") == str(settings.chunk_chars):
+                from .integrity import checked_index
+                checked_index(db,settings,allow_empty=True)
+                if getattr(model,"binding",None) is not None:
+                    from .embeddings import adapter_binding
+                    binding=adapter_binding(model,settings)
+                    if (meta.get("embed_digest"),meta.get("embed_config")) != (binding.digest,binding.config):
+                        raise ValueError("Concurrent index identity is immutable; preview a full reindex")
                 return {"documents": len(docs), "chunks": len(passages), "unchanged": True}
             raise ValueError("Index is immutable; choose a new RAG_DB for a different corpus")
+        if db.execute("SELECT count(*) FROM metadata").fetchone()[0]:
+            raise ValueError("Initialized index is immutable; use explicit lifecycle add after deletion")
         db.executemany("INSERT INTO documents VALUES (?,?,?,?,?,?,?,?)", docs)
         db.executemany("INSERT INTO chunks VALUES (?,?,?,?,?,?,?,?,?)",
                        [(*p, json.dumps(v)) for p, v in zip(passages, vectors, strict=True)])
@@ -101,4 +140,13 @@ def ingest(directory: Path, settings: Settings, model):
             ("embed_model", settings.embed_model), ("dimension", str(len(vectors[0]))),
             ("chunk_chars", str(settings.chunk_chars)), ("schema_version", "1"),
         ])
+        if getattr(model, "binding", None) is not None:
+            from .embeddings import adapter_binding
+            binding = adapter_binding(model, settings)
+            db.executemany("INSERT INTO metadata VALUES (?,?)", [
+                ("embed_digest", binding.digest), ("embed_config", binding.config), ("index_revision", "0")])
+        from .integrity import checked_index
+        checked_index(db, settings)
+        if db.execute("PRAGMA page_count").fetchone()[0] * db.execute("PRAGMA page_size").fetchone()[0] > settings.max_db_bytes:
+            raise ValueError("Index exceeds database size limit")
     return {"documents": len(docs), "chunks": len(passages), "dimension": len(vectors[0]), "unchanged": False}

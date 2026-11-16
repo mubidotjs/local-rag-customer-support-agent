@@ -12,10 +12,9 @@ from .store import SCHEMA
 from .text import HEADER, chunks, has_instructions, normalize, sentence_spans
 
 
-def checked_index(db, settings):
-    def reject():
+def checked_schema(db):
+    if db.execute("SELECT 1 FROM sqlite_master WHERE type IN ('trigger','view') LIMIT 1").fetchone():
         raise ModelError("Stored index integrity check failed")
-
     def sql_form(text):
         return re.sub(r"\s+", " ", text.replace(" IF NOT EXISTS", "")).strip().lower()
 
@@ -27,10 +26,18 @@ def checked_index(db, settings):
         name = re.search(r"TABLE IF NOT EXISTS (\w+)", statement).group(1)
         obj = db.execute("SELECT type,sql FROM sqlite_master WHERE name=?", (name,)).fetchone()
         if obj is None or obj[0] != "table" or sql_form(obj[1]) != sql_form(statement):
-            reject()
+            raise ModelError("Stored index integrity check failed")
+
+
+def checked_index(db, settings, *, allow_empty=False, allow_old_config=False):
+    def reject():
+        raise ModelError("Stored index integrity check failed")
+
+    checked_schema(db)
 
     for table, limit in (("documents", settings.max_documents), ("chunks", settings.max_chunks), ("chunks_fts", settings.max_chunks), ("metadata", 8)):
-        if not 1 <= db.execute(f"SELECT count(*) FROM {table}").fetchone()[0] <= limit:
+        minimum = 0 if allow_empty and table != "metadata" else 1
+        if not minimum <= db.execute(f"SELECT count(*) FROM {table}").fetchone()[0] <= limit:
             reject()
     if db.execute("""SELECT 1 FROM documents WHERE
         length(CAST(source AS BLOB)) > ? OR length(CAST(normalized AS BLOB)) > ?
@@ -43,10 +50,20 @@ def checked_index(db, settings):
     if db.execute("SELECT 1 FROM metadata WHERE length(key)>40 OR length(value)>120 LIMIT 1").fetchone():
         reject()
     meta = dict(db.execute("SELECT key,value FROM metadata"))
-    if set(meta) != {"embed_model", "dimension", "chunk_chars", "schema_version"}:
+    if not all(isinstance(k,str) and isinstance(v,str) for k,v in meta.items()):
+        reject()
+    required = {"embed_model", "dimension", "chunk_chars", "schema_version"}
+    optional = {"embed_digest", "embed_config", "index_revision"}
+    if not required <= set(meta) or set(meta)-required-optional or (("embed_digest" in meta) != ("embed_config" in meta)) or ("embed_digest" in meta and "index_revision" not in meta):
         reject()
     if meta["embed_model"] != settings.embed_model or meta["schema_version"] != "1" or meta["chunk_chars"] != str(settings.chunk_chars):
         reject()
+    if "index_revision" in meta and not re.fullmatch(r"0|[1-9][0-9]{0,15}", meta["index_revision"]):
+        reject()
+    if "embed_digest" in meta:
+        from .embeddings import config_digest
+        if not all(re.fullmatch(r"[0-9a-f]{64}", meta[k]) for k in ("embed_digest", "embed_config")) or (not allow_old_config and meta["embed_config"] != config_digest(settings)):
+            reject()
     try:
         dimension = int(meta["dimension"])
     except (ValueError, TypeError):
@@ -64,7 +81,7 @@ def checked_index(db, settings):
             reject()
         if text != d["normalized"] or hashlib.sha256(d["source"].encode("utf-8")).hexdigest() != d["sha256"]:
             reject()
-        if Path(d["filename"]).name != d["filename"] or "/" in d["filename"] or "\\" in d["filename"]:
+        if Path(d["filename"]).name != d["filename"] or any(c in d["filename"] for c in '/\\:') or Path(d["filename"]).suffix.lower() not in {".md", ".txt"}:
             reject()
         body_start = header.end()
         full_sentences = list(sentence_spans(text[body_start:]))
@@ -83,6 +100,10 @@ def checked_index(db, settings):
             expected[cid] = (d["id"], ordinal, start, end, offsets[start][0], offsets[end-1][1], body, quotes)
             if len(expected) > settings.max_chunks:
                 reject()
+    if len({d["filename"].casefold() for d in documents.values()}) != len(documents):
+        reject()
+    if not documents and (not allow_empty or int(meta.get("index_revision","0")) <= 0):
+        reject()
     rows = []
     for row in db.execute("SELECT * FROM chunks ORDER BY id"):
         p = dict(row)

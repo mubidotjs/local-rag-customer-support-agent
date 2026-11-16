@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from .answer import answer
 from .config import SETTINGS
 from .ollama import ModelError, Ollama
+from .embeddings import ManagedOllama
 
 
 class Question(BaseModel):
@@ -16,7 +17,7 @@ class Question(BaseModel):
 
 def create_app(settings=SETTINGS, model=None):
     app = FastAPI(title="Local Support / evidence only", docs_url=None, redoc_url=None)
-    model = model or Ollama(settings)
+    model = model or (ManagedOllama(settings) if settings.managed_embeddings else Ollama(settings))
     lock = Lock()
     app.add_middleware(CORSMiddleware, allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
                        allow_methods=["GET", "POST"], allow_headers=["Content-Type"])

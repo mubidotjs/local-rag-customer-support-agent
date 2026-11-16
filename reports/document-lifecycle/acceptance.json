@@ -1,0 +1,97 @@
+{
+  "kind": "offline synthetic document lifecycle acceptance; not live embedding acceptance",
+  "baseline_commit": "4d10e3b59a55dce71a5252f78939882f75b0ad20",
+  "real_model_status": "NOT RUN",
+  "real_requests": {
+    "embedding": 0,
+    "generation": 0,
+    "metadata": 0,
+    "download": 0
+  },
+  "preservation": {
+    "historical_manifest_entries": 139,
+    "prior_offline_artifacts_verified": 7,
+    "ignored_local_entries_available": 15
+  },
+  "initial_documents": 2,
+  "initial_chunks": 2,
+  "operations": [
+    {
+      "case": "unchanged reindex",
+      "vectors_reused": 2,
+      "vectors_required": 0,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 2,
+      "applied": false,
+      "synthetic_embedding_batches": 0,
+      "fts_and_source_integrity": true
+    },
+    {
+      "case": "add",
+      "vectors_reused": 2,
+      "vectors_required": 1,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 3,
+      "applied": true,
+      "synthetic_embedding_batches": 1,
+      "fts_and_source_integrity": true
+    },
+    {
+      "case": "content update",
+      "vectors_reused": 2,
+      "vectors_required": 1,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 3,
+      "applied": true,
+      "synthetic_embedding_batches": 1,
+      "fts_and_source_integrity": true
+    },
+    {
+      "case": "metadata and offset update",
+      "vectors_reused": 3,
+      "vectors_required": 0,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 3,
+      "applied": true,
+      "synthetic_embedding_batches": 0,
+      "fts_and_source_integrity": true
+    },
+    {
+      "case": "two replacement chunks",
+      "vectors_reused": 2,
+      "vectors_required": 2,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 4,
+      "applied": true,
+      "synthetic_embedding_batches": 1,
+      "fts_and_source_integrity": true
+    },
+    {
+      "case": "boundary/ordinal shift",
+      "vectors_reused": 4,
+      "vectors_required": 1,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 5,
+      "applied": true,
+      "synthetic_embedding_batches": 1,
+      "fts_and_source_integrity": true
+    },
+    {
+      "case": "delete",
+      "vectors_reused": 2,
+      "vectors_required": 0,
+      "unchanged_chunk_rows": 2,
+      "chunks_after": 2,
+      "applied": true,
+      "synthetic_embedding_batches": 0,
+      "fts_and_source_integrity": true
+    }
+  ],
+  "read_only_answer_citation_valid": true,
+  "deleted_document_not_retrieved": true,
+  "embedding_exception_preserved_previous_index": true,
+  "final_documents": [
+    "marlow",
+    "vesper"
+  ]
+}

@@ -18,6 +18,7 @@ class Settings:
     top_k: int = 6
     min_similarity: float = 0.40
     timeout_seconds: float = 90
+    managed_embeddings: bool = os.environ.get("RAG_MANAGED_EMBEDDINGS") == "1"
 
 
 SETTINGS = Settings()
