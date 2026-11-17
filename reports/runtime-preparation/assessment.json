@@ -1,0 +1,46 @@
+{
+  "status": "BLOCKED",
+  "scope": "Read-only metadata only; no container, image build/load/pull, Ubuntu boot or model endpoint used",
+  "host_platform": "Windows",
+  "context": "desktop-linux",
+  "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+  "desktop_version": "4.98.0 (owner verified; CLI plugin agrees)",
+  "client_version": "29.9.2",
+  "server_version": "29.9.2",
+  "engine": {
+    "ID": "d86d0c2c-42a0-4420-9f0d-0027845314bf",
+    "OSType": "linux",
+    "Architecture": "x86_64",
+    "OperatingSystem": "Docker Desktop",
+    "KernelVersion": "6.18.58.1-microsoft-standard-WSL2",
+    "NCPU": 4,
+    "MemTotal": 8265449472,
+    "CgroupVersion": "2",
+    "DefaultRuntime": "runc",
+    "MemoryLimit": true,
+    "PidsLimit": true,
+    "CpuCfsQuota": true,
+    "CpuCfsPeriod": true,
+    "SecurityOptions": [
+      "name=seccomp,profile=builtin",
+      "name=cgroupns"
+    ]
+  },
+  "wsl_listing": "NAME              STATE           VERSION\r\n* Ubuntu            Stopped         2\r\n  docker-desktop    Running         2",
+  "ubuntu_started_by_task": false,
+  "docker_desktop_vm_uid_map_observed": "0 0 4294967295; this is VM process metadata, not a container attestation",
+  "docker_desktop_vm_memory_available_kib_observed": 7507788,
+  "container_uid_map_observed": false,
+  "ubuntu_bind_mount_contract_verified": false,
+  "project5_local_images": [],
+  "runtime_containers_started": 0,
+  "actual_ollama_requests": 0,
+  "blockers": [
+    "Current orchestrator is Windows; Linux UID/GID 10001 and ext4 checks not established",
+    "Ubuntu WSL2 is stopped; integration/native local socket and filesystem remain unverified",
+    "No prepared Project 5 images are present; runtime may not build or pull"
+  ],
+  "linux_workspace_state": "Not created by task; absence within stopped Ubuntu is unverified",
+  "actual_claim_and_output": "Absent in repository",
+  "smallest_safe_alternative": "Owner starts Ubuntu and confirms Docker Desktop native WSL integration; provision UID/GID 10001 with trusted local Docker access and readable Linux Python environment; prepare pinned-source images separately, then rerun read-only readiness. No native Windows Ollama access."
+}

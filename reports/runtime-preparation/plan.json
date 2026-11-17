@@ -1,0 +1,179 @@
+{
+  "kind": "FROZEN_MODEL_DISABLED_SYNTHETIC_RUNTIME_PLAN_NOT_EXECUTED",
+  "predecessor": "f267a6dbfd3a67aae1e8285e8cca3e05897b1539",
+  "run_id": "container-runtime-5b-once",
+  "docker_project": "project5-runtime-5b-once",
+  "engine_id": "d86d0c2c-42a0-4420-9f0d-0027845314bf",
+  "context": "default",
+  "docker_endpoint": "unix:///var/run/docker.sock",
+  "orchestrator": "Linux uid=10001 gid=10001; ext4 /var/tmp; rootful runc, no userns/ECI",
+  "workspace": "/var/tmp/project5-runtime-5b-once",
+  "database": "/var/tmp/project5-runtime-5b-once/data/support.sqlite3",
+  "claim": ".local/container-runtime-5b-once.claim.json",
+  "output": "reports/container-runtime-5b-once",
+  "image_tags": {
+    "backend": "project5-backend:5b-prepared",
+    "frontend": "project5-frontend:5b-prepared"
+  },
+  "image_source_label": "org.project5.source",
+  "image_context_label": "org.project5.context",
+  "build_context_sha256": "3691f6470f429d194e5b21eaffc75dc1e9df659141fb1d75dfb2c1c43de7d91a",
+  "build_context_files": {
+    ".dockerignore": "6694d73c8a885646daec52b08c8d3f035cf8c57fb8732d88eb9cb8fe98c06e4f",
+    "containers/backend.Dockerfile": "19b35dfbab5d78ebfe483b4d38786e0fc665a2efd7af68fb7280234f70fb69d4",
+    "containers/frontend.Dockerfile": "67a64b274b582e9fa6cd180c481d841b6664d32360c5530c1995cfc727e21e7e",
+    "containers/nginx.conf": "6710d7d25cc668f167c0470d2c3fda1b5ac16b6921a41949424bc27853b43016",
+    "containers/requirements-runtime.lock": "c2c965d54a564420618aa12a34287240ee9b8a5d346c8d4c1e345e2f0cb9eac4",
+    "frontend/index.html": "d1e6b4d87bed5f2fa6ef5abd4a5834497da930c88ec8b79eb1588d2845ee92de",
+    "frontend/package-lock.json": "65df9c1483b8d42b5bbfbb5776d28d2c75fecf8492d5f167940317dae8b6e504",
+    "frontend/package.json": "0da2d14c59937f2dce9eb7066623c8470efd40fcbd69fc358316eeb964436a38",
+    "frontend/src/App.test.tsx": "6bcd54ae51a2afb2ac1af9dd2a7d680e8f5fe0feaefbd06408e312acca5731a6",
+    "frontend/src/App.tsx": "8e3401df59074d88f5f9d8ed5a7c770ac4fbadf9b86fd30c11e54e7722956e99",
+    "frontend/src/main.tsx": "7e8d9e72e1c9e5dabe84f2061f6f0a249d5614666f454b46d17d09674680c1d2",
+    "frontend/src/style.css": "91e2adfe5b92b30d4088edd54a421aa9bdea57533975a919ff77855196b234bf",
+    "frontend/src/test-setup.ts": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685",
+    "frontend/tsconfig.json": "c5785545487b3fb8386c1598dbc3f8df9d04f40388b78787b47c3f41441ab442",
+    "frontend/vite.config.ts": "c0013bebc9b758bd6a22ef45ceaa07c347018eb1b6a742f711e4d067c351649e",
+    "support_agent/__init__.py": "960c25e8622b04947a6bfd0f1008d02518ed8e93243a4021465b05855ccd85d5",
+    "support_agent/answer.py": "eba8c4fba6c727f963a7474fc6016357ed07066dbf8d6e356af3c7082b0f07a7",
+    "support_agent/api.py": "a8ba15b609c510d00993b3daac0a85ee2b4d2b859a876902f626055b7c46703b",
+    "support_agent/cli.py": "778a32576889b4564b468656dcec558ed943742d6ee4a215b03154fb5dd7338a",
+    "support_agent/config.py": "022af92e46c96e69a15b5ee24b8d5ca22eb3e3fda71f40cd6f7e68e074b6ba5e",
+    "support_agent/documents.py": "d61829f4999d9738f38faaf181b6bc92297f5d7904035d5b4a80f55de2ba62f0",
+    "support_agent/embeddings.py": "6b3bdf359e510526809c69683150e2c7d406a0af5db6b297e620ac86c371b858",
+    "support_agent/integrity.py": "57bfaaca645c461b9ccf735a06906cfc2f928b09782e291eb7961d9a6b4412f2",
+    "support_agent/investigation/__init__.py": "dcf78217fbc0830080a8ac45066aa3eb466207db84ce2bea129f7704ed5756c7",
+    "support_agent/investigation/__main__.py": "3a7fe3bbfd77f4ae506063525b11fe7a6273d18bff3df03bc225ed7554d8f92d",
+    "support_agent/investigation/contracts.py": "bca583d2c16b31baef3dcede7b556a948583be35faf4e97573b3765bee565037",
+    "support_agent/investigation/managed.py": "0f8089d83d5b03bb12cc4b5f03118b67fde0b772f04083ce2b2a938b9de992ba",
+    "support_agent/investigation/mcp_server.py": "3edb1922adb8bb46d8b83a07402364035e7b10e06131c53b33833126b2ce863c",
+    "support_agent/investigation/tools.py": "bace32c38da7066cd65d7476c90a2a920edaac703a4d5a7f11ccfdfe33e828b8",
+    "support_agent/investigation/workflow.py": "e70eeeff6475bdc84e9fb00c3cee689825fac7a32447c678aba6f5b81e925072",
+    "support_agent/lifecycle.py": "67330d51537083da3174918ff8bd51892acc9dfc2d401eb871490ccb30b03c8d",
+    "support_agent/ollama.py": "970a572d9198c24907e896c90741d79ae041c6b13ff432fdbffc09973986dafa",
+    "support_agent/production/__init__.py": "527f94e98490dc8a317bc4b827c6de2d9e8d6c850be3e66754b4ff7482892ab8",
+    "support_agent/production/__main__.py": "cf1dac6060348874cb730043250045c9d09a2fde4b63b87c981c304b6c1a8535",
+    "support_agent/production/app.py": "0833ee0cf3412a979294a9d6503f4185d2037f7682f74ecc7b0ecc2412dc5349",
+    "support_agent/production/config.py": "b05865133f9847245bfb210230429df2076dcd6c7b08c49679c799b6cc5a3315",
+    "support_agent/production/maintenance.py": "59b1309e14734794bf54ed093134870c24e10f87723b98797e176dcfe5ada468",
+    "support_agent/production/model.py": "bb906c2047fd98fce9669ba08868d3b921afc4a8732b10e755a768b8f794b471",
+    "support_agent/production/relay.py": "38913ace1fb5e258a5be6fcdaba3de319d9442316a9248fa4ac1ea9a83193b1e",
+    "support_agent/production/storage.py": "589e6267a93e9d6e39f35a705c4c4212b0a0a7bc0f9effc4ad6985b3cb6654bd",
+    "support_agent/production/volume.py": "bd697cc012644f000ca1461e7ce122fc5a773f4db792fbb1325753adef647a55",
+    "support_agent/relevance.py": "d656baf744baf1a179b5ce6deb5de27b5425ed25f2b2686cd46c955ddf9ae6ec",
+    "support_agent/retrieval.py": "f9b7e5b6ad10d6ea1a9de7c0ac7ae986045de50d27ddf4ce471c5991e246b840",
+    "support_agent/store.py": "e4e8d5fde3676550db4950668e84ca8c0dfa57c9110eb934d81599181945e55d",
+    "support_agent/text.py": "e3bcf8f2e24e5603cb13fce2c7297948408fa0a4afd2e2159b56b595b15f6bfa"
+  },
+  "model_mode": "disabled",
+  "fake_uds_endpoint": false,
+  "fixture_kind": "DETERMINISTIC_FAKE_768D_VECTORS_NOT_NOMIC_INFERENCE; pinned-shaped compatibility metadata only",
+  "corpus": [
+    {
+      "id": "hazel",
+      "body": "The hazel service token remains valid for 24 minutes.",
+      "source": "---\nid: hazel\ntitle: Hazel Runtime Fixture\nversion: 1\ntopic: hazel\n---\nThe hazel service token remains valid for 24 minutes.\n"
+    },
+    {
+      "id": "birch",
+      "body": "Each birch renewal request creates 4 receipts.",
+      "source": "---\nid: birch\ntitle: Birch Runtime Fixture\nversion: 1\ntopic: birch\n---\nEach birch renewal request creates 4 receipts.\n"
+    }
+  ],
+  "limits": {
+    "overall_seconds": 600,
+    "work_seconds": 540,
+    "docker_preflight_commands": 8,
+    "docker_normal_actions": 17,
+    "docker_failure_cleanup_actions": 6,
+    "http_requests": 9,
+    "command_seconds": 20,
+    "http_seconds": 3,
+    "startup_wait_seconds": 2,
+    "restart_wait_seconds": 2,
+    "stack_starts": 1,
+    "backend_restarts": 1,
+    "final_stops": 1,
+    "retries": 0,
+    "real_ollama_metadata": 0,
+    "real_embeddings": 0,
+    "real_generation": 0,
+    "downloads": 0,
+    "cloud_requests": 0
+  },
+  "actions": [
+    "network_create",
+    "frontend_create",
+    "frontend_start",
+    "backend_create",
+    "backend_start",
+    "inspect_started",
+    "probe_started",
+    "backend_restart",
+    "inspect_restarted",
+    "probe_restarted",
+    "backend_stop",
+    "frontend_stop",
+    "inspect_stopped",
+    "backend_logs",
+    "backend_remove",
+    "frontend_remove",
+    "network_remove"
+  ],
+  "http": [
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "status": 503,
+      "detail": "model_disabled"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ask",
+      "status": 503,
+      "question": "How long does the hazel service token remain valid?",
+      "detail": "model_disabled"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ask",
+      "status": 403,
+      "question": "How long does the hazel service token remain valid?",
+      "origin": "https://external.invalid"
+    },
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "status": 400,
+      "host": "external.invalid"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "status": 503,
+      "detail": "model_disabled"
+    }
+  ],
+  "readiness_expectation": "503 model_disabled is expected degraded readiness, not a health success or model acceptance",
+  "retention": "Never remove claim/output; only remove exact created Docker IDs after proof. Retain fictional workspace and backup after execution; no host-wide cleanup."
+}

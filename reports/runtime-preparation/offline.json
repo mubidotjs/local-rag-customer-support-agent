@@ -1,0 +1,61 @@
+{
+  "kind": "OFFLINE_ONLY_NOT_RUNTIME_ACCEPTANCE",
+  "predecessor": "f267a6dbfd3a67aae1e8285e8cca3e05897b1539",
+  "plan_sha256": "3be4f849bff92b4e836328f4082b8a531259349814a3b145fac870602296c0e3",
+  "preservation_inventory_sha256": "77fd1dccf602fc6669ef0d63965b03f7754357fac5e435d60041b48989d7e6df",
+  "protected_verified": 397,
+  "predecessor_inventory": {
+    "protected_files": 367,
+    "verified_available": 367,
+    "skipped_optional": []
+  },
+  "tests": {
+    "focused_fake_docker": {
+      "passed": 37
+    },
+    "backend_optional_windows": {
+      "passed": 481,
+      "skipped": 5
+    },
+    "backend_base_windows": {
+      "passed": 377,
+      "skipped": 40
+    },
+    "vitest": {
+      "passed": 4
+    },
+    "synthetic_playwright": {
+      "passed": 4,
+      "skipped_real": 2
+    },
+    "production_build": "PASS"
+  },
+  "coverage": {
+    "covered_lines": 367,
+    "num_statements": 380,
+    "percent_covered": 90.65743944636678,
+    "percent_covered_display": "91",
+    "missing_lines": 13,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.57894736842105,
+    "percent_statements_covered_display": "97",
+    "num_branches": 198,
+    "num_partial_branches": 41,
+    "covered_branches": 157,
+    "missing_branches": 41,
+    "percent_branches_covered": 79.29292929292929,
+    "percent_branches_covered_display": "79"
+  },
+  "log_sha256": {
+    ".local/runtime-5b-offline-tests.log": "459ed1ca589d80b828d2e89c2b7ca5397d3c3680c9769f25237334800991c55b",
+    ".local/runtime-5b-base-tests.log": "c87d90aa2a891f2d945694f2fc445d0834703d2c6a917a16a1caa7413bf76706"
+  },
+  "real_model_requests": 0,
+  "runtime_container_actions": 0,
+  "actual_runtime_http_requests": 0,
+  "live_claim_consumed": false,
+  "claim_absent": true,
+  "output_absent": true,
+  "linux_workspace_absence": "Not created by task; unverified inside stopped Ubuntu",
+  "readiness": "BLOCKED"
+}
