@@ -114,6 +114,10 @@ accessed or modified.
 [offline.json](offline.json) records local results, new source hashes, base-image
 manifests and explicit model/runtime status. CI image/config/coverage/network
 artifacts are attached to the exact source run.
+The new workflow explicitly uploads only five known proof files from the hidden
+`.local` directory and fails when they are absent. This corrects the initial
+upload action's hidden-file exclusion; tests/builds had passed but no artifact had
+been published. No historical workflow was rewritten.
 
 ## Findings, blockers and next scope
 

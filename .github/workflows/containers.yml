@@ -40,8 +40,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: packaging-proof
+          include-hidden-files: true
+          if-no-files-found: error
           path: |
             .local/container-coverage.json
             .local/container-network-proof.json
-            .local/compose*.json
+            .local/compose.json
+            .local/compose-uds.json
             .local/images.json
