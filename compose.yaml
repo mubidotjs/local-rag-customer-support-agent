@@ -1,0 +1,81 @@
+name: project5-local-rag
+services:
+  frontend:
+    image: project5-frontend:local
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: containers/frontend.Dockerfile
+    user: "101:101"
+    ports: ["127.0.0.1:5173:8080"]
+    networks: [isolated]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    init: true
+    restart: "on-failure:3"
+    stop_grace_period: 20s
+    cpus: 0.25
+    mem_limit: 128m
+    mem_reservation: 32m
+    pids_limit: 32
+    tmpfs: ["/tmp:rw,noexec,nosuid,nodev,size=16m,uid=101,gid=101,mode=0700"]
+    logging: {driver: local, options: {max-size: "1m", max-file: "3"}}
+  backend:
+    image: project5-backend:local
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: containers/backend.Dockerfile
+    user: "10001:10001"
+    network_mode: "service:frontend"
+    depends_on:
+      frontend: {condition: service_started}
+    environment:
+      RAG_MODEL_MODE: disabled
+    volumes:
+      - type: bind
+        source: ${RAG_DATA_DIR:?Set an existing private absolute data directory}
+        target: /var/lib/rag
+        read_only: true
+        bind: {create_host_path: false}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    init: true
+    restart: "on-failure:3"
+    stop_grace_period: 20s
+    cpus: 1.0
+    mem_limit: 768m
+    mem_reservation: 256m
+    pids_limit: 64
+    tmpfs: ["/tmp:rw,noexec,nosuid,nodev,size=16m,uid=10001,gid=10001,mode=0700"]
+    logging: {driver: local, options: {max-size: "1m", max-file: "3"}}
+  maintenance:
+    image: project5-backend:local
+    platform: linux/amd64
+    profiles: [maintenance]
+    healthcheck: {disable: true}
+    user: "10001:10001"
+    entrypoint: [python, -m, support_agent.production.maintenance]
+    command: [status]
+    network_mode: none
+    volumes:
+      - type: bind
+        source: ${RAG_DATA_DIR:?Set an existing private absolute data directory}
+        target: /var/lib/rag
+        bind: {create_host_path: false}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    init: true
+    restart: "no"
+    stop_grace_period: 20s
+    cpus: 1.0
+    mem_limit: 768m
+    pids_limit: 64
+    tmpfs: ["/tmp:rw,noexec,nosuid,nodev,size=16m,uid=10001,gid=10001,mode=0700"]
+    logging: {driver: none}
+networks:
+  isolated:
+    internal: true

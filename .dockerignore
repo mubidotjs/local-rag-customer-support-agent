@@ -1,0 +1,19 @@
+# Allowlist: no corpus, indexes, reports, claims, models, secrets or workspace data.
+**
+!support_agent/
+!support_agent/**
+!containers/
+!containers/backend.Dockerfile
+!containers/frontend.Dockerfile
+!containers/nginx.conf
+!containers/requirements-runtime.lock
+!frontend/
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/index.html
+!frontend/src/
+!frontend/src/**
+!frontend/tsconfig.json
+!frontend/vite.config.ts
+**/__pycache__/
+**/*.pyc

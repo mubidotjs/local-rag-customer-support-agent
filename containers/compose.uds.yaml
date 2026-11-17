@@ -1,0 +1,11 @@
+# Explicit opt-in for same-Linux-host UDS relay; never a host networking bypass.
+services:
+  backend:
+    environment:
+      RAG_MODEL_MODE: uds
+    volumes:
+      - type: bind
+        source: ${RAG_RELAY_DIR:?Set the existing private Linux relay directory}
+        target: /run/ollama-relay
+        read_only: true
+        bind: {create_host_path: false}

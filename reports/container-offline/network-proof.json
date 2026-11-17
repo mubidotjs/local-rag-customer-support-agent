@@ -1,0 +1,9 @@
+{
+  "kind": "Known model socket guard; Python test process only",
+  "blocked_tcp_port": 11434,
+  "blocked_unix_socket_name": "ollama.sock",
+  "attempted_model_connections": 0,
+  "violations": [],
+  "native_server_fixture_mode": "disabled",
+  "containers_executed": 0
+}

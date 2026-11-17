@@ -1,0 +1,47 @@
+name: Offline packaging
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+env:
+  RUN_REAL_OLLAMA: '0'
+  RAG_REAL_E2E: '0'
+  PYTHONUTF8: '1'
+  COVERAGE_FILE: '.local/container.coverage'
+jobs:
+  static-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements.lock coverage==7.17.3
+      - run: mkdir -p .local
+      - run: python -m coverage run --branch --source=support_agent.production,evaluation.container_offline -m pytest -p evaluation.container_no_models tests/test_production.py tests/test_production_edges.py tests/test_container_packaging.py -q
+      - run: python -m coverage report --fail-under=80
+      - run: python -m coverage json -o .local/container-coverage.json
+      - name: Render base and explicit UDS configuration (no daemon required)
+        env:
+          RAG_DATA_DIR: /tmp/project5-fictional-data
+          RAG_RELAY_DIR: /tmp/project5-fictional-relay
+        run: |
+          docker compose --profile maintenance config --format json > .local/compose.json
+          python -m evaluation.container_offline --compose .local/compose.json
+          docker compose -f compose.yaml -f containers/compose.uds.yaml --profile maintenance config --format json > .local/compose-uds.json
+          python -m evaluation.container_offline --compose .local/compose-uds.json
+      - name: Build images only; no containers or model services started
+        run: |
+          docker build --platform linux/amd64 -f containers/backend.Dockerfile -t project5-backend:ci .
+          docker build --platform linux/amd64 -f containers/frontend.Dockerfile -t project5-frontend:ci .
+          docker image inspect project5-backend:ci project5-frontend:ci > .local/images.json
+          python -c "import json; images=json.load(open('.local/images.json')); assert all(i['Config']['User'] in {'10001:10001','101:101'} and not i['Config'].get('Volumes') and i['Config'].get('Healthcheck') for i in images)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packaging-proof
+          path: |
+            .local/container-coverage.json
+            .local/container-network-proof.json
+            .local/compose*.json
+            .local/images.json

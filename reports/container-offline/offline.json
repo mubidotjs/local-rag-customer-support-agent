@@ -1,0 +1,85 @@
+{
+  "kind": "Milestone 5A model-free packaging and operational hardening",
+  "predecessor": "d5c7cfad14c2ce1499a7e6459ddea6f464ac6332",
+  "local_runtime_container_acceptance": "PENDING_5B_ENGINE_UNAVAILABLE",
+  "containers_executed": 0,
+  "docker_client": "29.9.2",
+  "docker_context": "desktop-linux",
+  "docker_server": null,
+  "actual_model_requests": {
+    "embeddings": 0,
+    "generation": 0,
+    "ollama_metadata": 0,
+    "model_downloads": 0
+  },
+  "tests": {
+    "optional_backend": {
+      "passed": 444,
+      "skipped": 5
+    },
+    "base_without_sdk": {
+      "passed": 340,
+      "skipped": 40
+    },
+    "new_cases": 61,
+    "vitest_passed": 4,
+    "playwright_synthetic_passed": 4,
+    "playwright_real_skipped": 2,
+    "production_frontend_build": "PASS"
+  },
+  "preservation": {
+    "protected_files": 367,
+    "verified_available": 367,
+    "skipped_optional": []
+  },
+  "coverage": {
+    "covered_lines": 467,
+    "num_statements": 519,
+    "percent_covered": 84.53188602442334,
+    "percent_covered_display": "85",
+    "missing_lines": 52,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.98073217726397,
+    "percent_statements_covered_display": "90",
+    "num_branches": 218,
+    "num_partial_branches": 46,
+    "covered_branches": 156,
+    "missing_branches": 62,
+    "percent_branches_covered": 71.55963302752293,
+    "percent_branches_covered_display": "72"
+  },
+  "source_sha256": {
+    "support_agent/production/app.py": "0833ee0cf3412a979294a9d6503f4185d2037f7682f74ecc7b0ecc2412dc5349",
+    "support_agent/production/config.py": "b05865133f9847245bfb210230429df2076dcd6c7b08c49679c799b6cc5a3315",
+    "support_agent/production/maintenance.py": "59b1309e14734794bf54ed093134870c24e10f87723b98797e176dcfe5ada468",
+    "support_agent/production/model.py": "bb906c2047fd98fce9669ba08868d3b921afc4a8732b10e755a768b8f794b471",
+    "support_agent/production/relay.py": "38913ace1fb5e258a5be6fcdaba3de319d9442316a9248fa4ac1ea9a83193b1e",
+    "support_agent/production/storage.py": "589e6267a93e9d6e39f35a705c4c4212b0a0a7bc0f9effc4ad6985b3cb6654bd",
+    "support_agent/production/volume.py": "bd697cc012644f000ca1461e7ce122fc5a773f4db792fbb1325753adef647a55",
+    "support_agent/production/__init__.py": "527f94e98490dc8a317bc4b827c6de2d9e8d6c850be3e66754b4ff7482892ab8",
+    "support_agent/production/__main__.py": "cf1dac6060348874cb730043250045c9d09a2fde4b63b87c981c304b6c1a8535",
+    ".dockerignore": "6694d73c8a885646daec52b08c8d3f035cf8c57fb8732d88eb9cb8fe98c06e4f",
+    "compose.yaml": "160e74f31a88b80a8429214e28c9fb1d419491c65e393ba428d484f7e588247a",
+    ".github/workflows/containers.yml": "b229861413c3c254ac65ad454fadae4f56314ec9b04c9cec879abe34fd7ab626",
+    "evaluation/container_offline.py": "8c65c07dc3c43ba9d9c7470678893716742901fba5ff8393dc1b7b776bc8369c",
+    "evaluation/container_no_models.py": "8c9f44f7054c14ec8c8234d8019abef14ec41ebcc238e3340242b247d644c7fe",
+    "tests/test_production.py": "65c671089d69f8eaea6fa788e67b4630a9f9e2357ebf8536aa3d174892645fef",
+    "tests/test_production_edges.py": "bf73019219009387d5a7719aa7cee74ed205f1e566ea0594c3ad08d688dfef51",
+    "tests/test_container_packaging.py": "d4ea9f535939b7dae72c0eec604c8101d5f09c0cb670f61e9f16b86a0667b831",
+    "containers/backend.Dockerfile": "6e41dc767909657cec0a6617cd4c47551b40ab2f4cbd2f516575f679ec96bc39",
+    "containers/compose.uds.yaml": "a8023609c7b71dd9a6b7d7ecd4144a22a6de4ebfec46b6b9f74a47e2018e3b97",
+    "containers/frontend.Dockerfile": "ac20696fd85d3aca3e4ee614e0ff27cb8b82c5420a1f4db7af574953017a429c",
+    "containers/local.env.example": "a21cc5bd57c8dbe2668650848db61ad028ad4114ca19ff33b5b5c0818fbeaf7e",
+    "containers/nginx.conf": "6710d7d25cc668f167c0470d2c3fda1b5ac16b6921a41949424bc27853b43016",
+    "containers/requirements-runtime.lock": "c2c965d54a564420618aa12a34287240ee9b8a5d346c8d4c1e345e2f0cb9eac4"
+  },
+  "runtime_dependency_count": 17,
+  "base_manifests": {
+    "python": "sha256:f3dac913ab53b78c64f26d5518fcd7043d5a1a46522d6a493b598c3ed12f62a6",
+    "node": "sha256:d8d97e479cdc64f052f81f129362168717c59783ade8dcc1abd22e1cca8dbd7c",
+    "nginx": "sha256:e2a8fca8aa356d66159aaf8a877a9c126773635adf210503eefaaeaffeed6ad7"
+  },
+  "live_claims_consumed": 0,
+  "historical_consumed_claims_unchanged": true,
+  "next_scope": "PROPOSED_ONLY: separately authorized fake-only Linux container runtime acceptance; no 5B runner implemented"
+}
