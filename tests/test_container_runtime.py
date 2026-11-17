@@ -17,13 +17,26 @@ NETWORK='c'*64
 NATIVE_COMMAND=run.Native.command
 NATIVE_HTTP=run.Native.http
 
+# Captured via read-only inspect of the unchanged approved image IDs.
+BACKEND_ENV=[
+    'PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+    'LANG=C.UTF-8','GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305',
+    'PYTHON_VERSION=3.13.18',
+    'PYTHON_SHA256=abb0102e6d4ae027509bcb82327d9dd85515b44a3ba8ad538cfc5e9847029f68',
+    'PYTHONPATH=/runtime:/app','PYTHONDONTWRITEBYTECODE=1','PYTHONUNBUFFERED=1','PYTHONUTF8=1',
+]
+FRONTEND_ENV=[
+    'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+    'NGINX_VERSION=1.30.6','PKG_RELEASE=1','DYNPKG_RELEASE=1','NJS_VERSION=1.0.2','NJS_RELEASE=1',
+]
+
 class FakeDocker:
     def __init__(self,root=None,mode=None): self.root=root; self.mode=mode; self.calls=[]; self.http_calls=[]; self.running=False; self.restart=False
     def image_info(self):
         p=run.plan()
         return [{'Id':IMAGES[role],'Os':'linux','Architecture':'amd64','Config':{'User':'10001:10001' if role=='backend' else '101:101',
             'Entrypoint':['python','-m','support_agent.production'] if role=='backend' else ['nginx','-g','daemon off;'],
-            'Labels':{'org.project5.source':run.BASELINE,'org.project5.context':p['build_context_sha256']},'Healthcheck':{'Test':['CMD','fixture']},'Env':['PATH=/bin']}}
+            'Labels':{'org.project5.source':run.BASELINE,'org.project5.context':p['build_context_sha256']},'Healthcheck':{'Test':['CMD','fixture']},'Env':list(BACKEND_ENV if role=='backend' else FRONTEND_ENV)}}
             for role in ('backend','frontend')]
     def info(self):
         return {'ID':run.plan()['engine_id'],'DefaultRuntime':'runc','Architecture':'x86_64','SecurityOptions':['name=seccomp'],
@@ -342,3 +355,65 @@ def test_runtime_caps_readonly_memory_and_model_flags_are_individually_checked()
         with pytest.raises(run.StopRun): run.verify_containers(items,IDS,NETWORK,IMAGES)
     items=docker.containers(); items[1]['Config']['Env']=['RAG_MODEL_MODE=uds']
     with pytest.raises(run.StopRun): run.verify_containers(items,IDS,NETWORK,IMAGES)
+
+
+def test_pinned_image_environments_accept_order_independent_exact_values(sandbox):
+    root,_=sandbox; docker=FakeDocker(root); original=docker.image_info
+    def reversed_env():
+        images=original()
+        for image in images: image['Config']['Env'].reverse()
+        return images
+    docker.image_info=reversed_env
+    assert run.preflight(docker)['engine']['images']==IMAGES
+    assert not run.paths()['claim'].exists()
+
+
+@pytest.mark.parametrize('role,operation,entry',[
+    ('backend','replace','LANG=en_US.UTF-8'),
+    ('backend','replace','GPG_KEY=0000000000000000000000000000000000000000'),
+    ('backend','append','LANG=C.UTF-8'),
+    ('backend','append','GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305'),
+    ('backend','append','LANG=untrusted'),
+    ('backend','append','UNKNOWN=untrusted'),
+    ('backend','append','PYTHONSTARTUP=/tmp/start.py'),
+    ('backend','append','PYTHON_API_KEY=fictional'),
+    ('backend','replace','PATH=/tmp:/usr/bin'),
+    ('backend','replace','PYTHONPATH=/tmp'),
+    ('backend','append','HTTP_PROXY=http://external.invalid'),
+    ('backend','append','http_proxy=http://external.invalid'),
+    ('backend','append','HTTPS_PROXY='),
+    ('backend','append','ALL_PROXY=socks5://external.invalid'),
+    ('backend','append','OLLAMA_HOST=http://127.0.0.1:11434'),
+    ('backend','append','RAG_MODEL_MODE=uds'),
+    ('backend','append','AWS_ACCESS_KEY_ID=fictional'),
+    ('backend','append','GOOGLE_APPLICATION_CREDENTIALS=/tmp/fictional.json'),
+    ('backend','append','LD_PRELOAD=/tmp/untrusted.so'),
+    ('backend','append','LD_LIBRARY_PATH=/tmp'),
+    ('backend','remove','LANG=C.UTF-8'),
+    ('backend','append','BROKEN_ENTRY'),
+    ('backend','append',None),
+    ('frontend','append','LANG=C.UTF-8'),
+    ('frontend','append','GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305'),
+    ('frontend','append','NGINX_UNKNOWN=untrusted'),
+    ('frontend','append','NJS_VERSION=1.0.2'),
+    ('frontend','replace','PATH=/tmp:/usr/bin'),
+    ('frontend','append','OLLAMA_HOST=http://127.0.0.1:11434'),
+    ('frontend','append','HTTPS_PROXY=http://external.invalid'),
+])
+def test_image_environment_manipulation_refuses_without_claim(sandbox,role,operation,entry):
+    root,_=sandbox; docker=FakeDocker(root); images=docker.image_info()
+    env=next(i['Config']['Env'] for i in images if i['Config']['User']==('10001:10001' if role=='backend' else '101:101'))
+    if operation=='replace':
+        key=entry.split('=',1)[0]
+        env[:]=[entry if e.split('=',1)[0]==key else e for e in env]
+    elif operation=='remove': env.remove(entry)
+    else: env.append(entry)
+    docker.image_info=lambda:images
+    with pytest.raises(run.Blocked,match='unexpected_image_environment'): run.preflight(docker)
+    assert not run.paths()['claim'].exists() and not run.paths()['output'].exists()
+
+
+@pytest.mark.parametrize('entries',[None,{},'PATH=/bin',42])
+def test_image_environment_requires_a_structured_list(entries):
+    with pytest.raises(run.Blocked,match='unexpected_image_environment'):
+        run.validate_image_environment(entries,'backend')

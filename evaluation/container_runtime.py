@@ -143,6 +143,38 @@ class Native:
             return {'status':response.status,'body':raw.decode('utf-8')}
         finally: connection.close()
 
+# Exact environments observed in the frozen, digest-pinned runtime images.
+# The GPG fingerprint is public Python base-image build metadata, not a secret.
+# No role gains a variable outside the previous allowlist except the two
+# explicitly approved backend-only inherited entries. Avoid prefix matching:
+# PYTHONSTARTUP, a changed PATH, duplicate keys and route/proxy keys must fail.
+IMAGE_ENVIRONMENTS={
+    'backend':{
+        'PATH':'/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        'LANG':'C.UTF-8',
+        'GPG_KEY':'7169605F62C751356D054A26A821E680E5FA6305',
+        'PYTHON_VERSION':'3.13.18',
+        'PYTHON_SHA256':'abb0102e6d4ae027509bcb82327d9dd85515b44a3ba8ad538cfc5e9847029f68',
+        'PYTHONPATH':'/runtime:/app',
+        'PYTHONDONTWRITEBYTECODE':'1','PYTHONUNBUFFERED':'1','PYTHONUTF8':'1',
+    },
+    'frontend':{
+        'PATH':'/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        'NGINX_VERSION':'1.30.6','PKG_RELEASE':'1','DYNPKG_RELEASE':'1',
+        'NJS_VERSION':'1.0.2','NJS_RELEASE':'1',
+    },
+}
+
+def validate_image_environment(entries,role):
+    if not isinstance(entries,list): raise Blocked('unexpected_image_environment')
+    values={}
+    for entry in entries:
+        if not isinstance(entry,str) or '=' not in entry: raise Blocked('unexpected_image_environment')
+        key,value=entry.split('=',1)
+        if key in values: raise Blocked('unexpected_image_environment')
+        values[key]=value
+    if role not in IMAGE_ENVIRONMENTS or values!=IMAGE_ENVIRONMENTS[role]: raise Blocked('unexpected_image_environment')
+
 def docker_gate(transport):
     value=plan(); commands=[['context','show'],['context','inspect','default'],['version','--format','{{json .}}'],
         ['info','--format','{{json .}}'],['image','inspect',*value['image_tags'].values()],
@@ -165,8 +197,7 @@ def docker_gate(transport):
             raise Blocked('image_source_or_configuration_mismatch')
         user=config['User']; role='backend' if user=='10001:10001' else 'frontend' if user=='101:101' else None
         if role is None or role in images or not image['Id'].startswith('sha256:') or len(image['Id'])!=71 or any(c not in '0123456789abcdef' for c in image['Id'][7:]): raise Blocked('image_identity_mismatch')
-        allowed=('PATH=','PYTHON','NGINX_','PKG_RELEASE=','DYNPKG_RELEASE=','NJS_')
-        if any(not e.startswith(allowed) for e in config.get('Env',[])): raise Blocked('unexpected_image_environment')
+        validate_image_environment(config.get('Env'),role)
         expected=['python','-m','support_agent.production'] if role=='backend' else ['nginx','-g','daemon off;']
         if config['Entrypoint']!=expected: raise Blocked('image_entrypoint_mismatch')
         images[role]=image['Id']

@@ -165,3 +165,37 @@ internal-only networking, fixed commands and fake transports in preparation;
 it is not a packet-capture claim about unrelated host processes. This task made
 zero actual model, runtime-container or runtime-HTTP requests. No live acceptance
 claim has been consumed. Milestone 5C remains out of scope.
+
+
+## Narrow inherited-environment correction
+
+The first Ubuntu read-only checker run stopped before claim creation because the
+pinned Python base inherits `LANG=C.UTF-8` and the public build fingerprint
+`GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305`. Image history recorded those
+inherited layers. These entries belong solely to the backend; the frontend has
+neither. The correction changes only this checker, its tests and this guide.
+The frozen plan and every build input remain unchanged. Existing source ancestry
+and added-file allowlist permit these edits; the image source/context labels
+continue to attest the unchanged predecessor application. Images are not rebuilt
+or retagged for a checker correction.
+
+The checker now compares exact, independently inspected per-role key/value maps
+rather than accepting arbitrary names with a Python/NGINX/NJS prefix. Only the
+backend gains the two approved entries. All previously observed pinned values
+remain accepted; malformed/duplicate/missing/unknown entries, altered values,
+PATH/PYTHONPATH overrides, loader settings, proxies, credentials, cloud settings
+and model routes fail closed. This tightens validation without expanding any
+other variable family or changing image/user/platform/entrypoint/label checks.
+
+Read-only inspected image IDs (unchanged):
+
+- Backend: `sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f`.
+- Frontend: `sha256:436dc7373b582d32ef61a5da7fdd6ba7dc3a76299ef7b3c58fb99196f8cf569c`.
+
+The historical preparation report and its BLOCKED observations are retained as
+original evidence. Any new readiness result is a separate ignored local record,
+not a rewrite of that report. Fresh full-suite proof must bind to the correction
+commit before invoking only `--check-preparation`. This correction authorizes no
+runtime acceptance, claim creation, model requests or container start. Linux
+host readiness does not establish actual container mount/UID behavior; those
+remain future runtime assertions under a separate explicit authorization.
