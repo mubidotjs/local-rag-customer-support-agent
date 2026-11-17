@@ -1,0 +1,210 @@
+{
+  "status": "PASS",
+  "verification": "Offline read-only checks of the one recorded live execution; no new model requests",
+  "prepared_sha": "eae02b56217e5231ece73b0c8641614875e4c1f3",
+  "execution_sha": "31d995bbe97db9d6eab7d10770ca369deb7d97b2",
+  "plan_sha256": "d2f68baa13c4732a7d5a88c6fce2ffa04a6cbb4ea496ba08cc527a6c7882dec2",
+  "preservation_sha256": "f33c8f5df9d1bb763156f5e09e0cfc2091a3c119f0aeb3842c2d9ab7c433aab0",
+  "original_artifacts_manifest_sha256": "581e1350850c2ae2695ef7e8a7f5947f1362fa9bc0b52827900036542883d35d",
+  "original_raw_artifacts_verified": 30,
+  "protected_files_verified": 309,
+  "consumed_claim_sha256": "e82a991cfc892e93b2380fb6a2d9b7ac3500247d2a5cadb0f410be4d6d00a807",
+  "index": {
+    "index_sha256": "871c74019540f913059d70d7534e42110671012bfd2739f22db89538d6ba17a2",
+    "dimension": 768,
+    "metadata": {
+      "embed_model": "nomic-embed-text:latest",
+      "dimension": "768",
+      "chunk_chars": "800",
+      "schema_version": "1",
+      "embed_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "embed_config": "3ea4ea6ad62da063a3b8c8e9dca1b14657030b8afdd7b4c2133cecfc0bbc8ffb",
+      "index_revision": "0"
+    },
+    "vector_sha256": {
+      "marin:c000": "8ef8fefb77c918b22ef2244d2807bec4fd1b017809f1a54dcc779cb9b6071d39",
+      "tessel:c000": "51c4405e46865beb193ba674b8315a43564b9b4819f4e26328820634e00f5590"
+    },
+    "source_offsets_verified": true,
+    "fts5_correspondence_verified": true,
+    "sqlite_verified": true
+  },
+  "request_attempts_verified": 9,
+  "actual_embedding_posts": 3,
+  "actual_metadata_gets": 6,
+  "actual_generation_posts": 0,
+  "database_opens": 15,
+  "query_database_opens_all_readonly": true,
+  "request_latencies": [
+    {
+      "sequence": 1,
+      "stage": "ingestion",
+      "method": "GET",
+      "endpoint": "/api/tags",
+      "seconds": 0.074572
+    },
+    {
+      "sequence": 2,
+      "stage": "ingestion",
+      "method": "POST",
+      "endpoint": "/api/embed",
+      "seconds": 1.846715
+    },
+    {
+      "sequence": 3,
+      "stage": "ingestion",
+      "method": "GET",
+      "endpoint": "/api/tags",
+      "seconds": 0.029004
+    },
+    {
+      "sequence": 4,
+      "stage": "supported",
+      "method": "GET",
+      "endpoint": "/api/tags",
+      "seconds": 0.021207
+    },
+    {
+      "sequence": 5,
+      "stage": "supported",
+      "method": "POST",
+      "endpoint": "/api/embed",
+      "seconds": 0.114464
+    },
+    {
+      "sequence": 6,
+      "stage": "supported",
+      "method": "GET",
+      "endpoint": "/api/tags",
+      "seconds": 0.026144
+    },
+    {
+      "sequence": 7,
+      "stage": "unsupported",
+      "method": "GET",
+      "endpoint": "/api/tags",
+      "seconds": 0.022649
+    },
+    {
+      "sequence": 8,
+      "stage": "unsupported",
+      "method": "POST",
+      "endpoint": "/api/embed",
+      "seconds": 0.107534
+    },
+    {
+      "sequence": 9,
+      "stage": "unsupported",
+      "method": "GET",
+      "endpoint": "/api/tags",
+      "seconds": 0.024061
+    }
+  ],
+  "cases": [
+    {
+      "case": "supported",
+      "status": "PASS",
+      "abstained": false,
+      "reason": "verified_exact_quotes",
+      "steps": 12,
+      "tool_calls": 3,
+      "provenance_and_trace_verified": true,
+      "ranking_recomputed_from_saved_real_vectors": true,
+      "passages": [
+        {
+          "id": "marin:c000",
+          "similarity": 0.9512856155147589,
+          "semantic_rank": 1,
+          "keyword_rank": 1,
+          "rrf_score": 0.03278688524590164
+        },
+        {
+          "id": "tessel:c000",
+          "similarity": 0.49744387635911835,
+          "semantic_rank": 2,
+          "keyword_rank": null,
+          "rrf_score": 0.016129032258064516
+        }
+      ],
+      "grounding_checks": [
+        {
+          "chunk_id": "marin:c000",
+          "proofs": [
+            {
+              "intent": 0,
+              "facet": "validity_duration",
+              "entity": "marin access token",
+              "requested_entity": "marin access token",
+              "action": "",
+              "question_action_wording": "",
+              "source_action_wording": "",
+              "action_link": "literal_predicate",
+              "basis": "literal_entity_and_relation",
+              "support_chain": [
+                {
+                  "chunk_id": "marin:c000",
+                  "document_id": "marin",
+                  "title": "Marin Fictional Guide",
+                  "version": "1",
+                  "quote": "The marin access token remains valid for 18 minutes.",
+                  "normalized_start": 71,
+                  "normalized_end": 123,
+                  "source_start": 71,
+                  "source_end": 123
+                }
+              ]
+            }
+          ],
+          "reason": ""
+        },
+        {
+          "chunk_id": "tessel:c000",
+          "proofs": [],
+          "reason": "unsupported_relation"
+        }
+      ]
+    },
+    {
+      "case": "unsupported",
+      "status": "PASS",
+      "abstained": true,
+      "reason": "invalid_selection",
+      "steps": 12,
+      "tool_calls": 3,
+      "provenance_and_trace_verified": true,
+      "ranking_recomputed_from_saved_real_vectors": true,
+      "passages": [
+        {
+          "id": "marin:c000",
+          "similarity": 0.7577509715409486,
+          "semantic_rank": 1,
+          "keyword_rank": 1,
+          "rrf_score": 0.03278688524590164
+        },
+        {
+          "id": "tessel:c000",
+          "similarity": 0.4889256852347212,
+          "semantic_rank": 2,
+          "keyword_rank": null,
+          "rrf_score": 0.016129032258064516
+        }
+      ],
+      "grounding_checks": [
+        {
+          "chunk_id": "marin:c000",
+          "proofs": [],
+          "reason": "entity_mismatch"
+        },
+        {
+          "chunk_id": "tessel:c000",
+          "proofs": [],
+          "reason": "unsupported_relation"
+        }
+      ]
+    }
+  ],
+  "execution_ci": {
+    "CI": "https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44069366524",
+    "Offline investigation": "https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44069366538"
+  }
+}

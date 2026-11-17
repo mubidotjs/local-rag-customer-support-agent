@@ -1,0 +1,86 @@
+{
+  "answer": "I cannot answer that from the available documentation.",
+  "abstained": true,
+  "citations": [],
+  "trace": [
+    {
+      "step": 1,
+      "state": "validate_request",
+      "outcome": "ok"
+    },
+    {
+      "step": 2,
+      "state": "investigation_plan",
+      "outcome": "ok"
+    },
+    {
+      "step": 3,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 4,
+      "state": "tool_execution",
+      "outcome": "ok",
+      "tool": "search_passages",
+      "arguments_sha256": "6ea33a945e21f0b942d503a30bff54f4fe85bd521b6f456b0d702ac3cc84c50e",
+      "result_sha256": "e61a56b23ce623e0679391610eb6c240a6d094d0693e8377b3e5e0b0190c6c35"
+    },
+    {
+      "step": 5,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 6,
+      "state": "tool_execution",
+      "outcome": "ok",
+      "tool": "inspect_versions",
+      "arguments_sha256": "b6a93d46a49de527ea4713a427271f3372cde1c867a2748716200ddfed3dba7b",
+      "result_sha256": "4c1a6bbb8b3c7ed20ff668041f4e64901f490a0bb24c714e5fed7329bb16e64f"
+    },
+    {
+      "step": 7,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 8,
+      "state": "tool_execution",
+      "outcome": "ok",
+      "tool": "citation_metadata",
+      "arguments_sha256": "dcda3ea551179666573d0774110c20435d67299ca8ad42532635786681d36205",
+      "result_sha256": "aef21b8fe2b2a69403ec345992b8806093cc78dcb750c7cb022c620fe726df22"
+    },
+    {
+      "step": 9,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 10,
+      "state": "evidence_assembly",
+      "outcome": "ok"
+    },
+    {
+      "step": 11,
+      "state": "grounding_validation",
+      "outcome": "abstain",
+      "reason": "invalid_selection"
+    },
+    {
+      "step": 12,
+      "state": "final_response",
+      "outcome": "ok"
+    }
+  ],
+  "diagnostics": {
+    "reason": "invalid_selection",
+    "steps": 12,
+    "tool_calls": 3,
+    "index_stamp": "42366981908ba2bc3bf32899e935d8e6e5e32677ef735cb4c8e488e2caacb475",
+    "model_calls": 1,
+    "mcp_protocol": "2026-07-28",
+    "mode": "local-managed-query"
+  }
+}

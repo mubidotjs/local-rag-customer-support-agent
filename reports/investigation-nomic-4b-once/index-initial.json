@@ -1,0 +1,20 @@
+{
+  "index_sha256": "871c74019540f913059d70d7534e42110671012bfd2739f22db89538d6ba17a2",
+  "dimension": 768,
+  "metadata": {
+    "embed_model": "nomic-embed-text:latest",
+    "dimension": "768",
+    "chunk_chars": "800",
+    "schema_version": "1",
+    "embed_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "embed_config": "3ea4ea6ad62da063a3b8c8e9dca1b14657030b8afdd7b4c2133cecfc0bbc8ffb",
+    "index_revision": "0"
+  },
+  "vector_sha256": {
+    "marin:c000": "8ef8fefb77c918b22ef2244d2807bec4fd1b017809f1a54dcc779cb9b6071d39",
+    "tessel:c000": "51c4405e46865beb193ba674b8315a43564b9b4819f4e26328820634e00f5590"
+  },
+  "source_offsets_verified": true,
+  "fts5_correspondence_verified": true,
+  "sqlite_verified": true
+}

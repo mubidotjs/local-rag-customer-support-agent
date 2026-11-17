@@ -1,0 +1,40 @@
+{
+  "status": "PASS_DOCUMENTATION_ONLY_DISCREPANCY",
+  "prepared_commit": "eae02b56217e5231ece73b0c8641614875e4c1f3",
+  "plan_sha256": "d2f68baa13c4732a7d5a88c6fce2ffa04a6cbb4ea496ba08cc527a6c7882dec2",
+  "documents": [
+    {
+      "id": "marin",
+      "quote": "The marin access token remains valid for 18 minutes.",
+      "quote_length": 52,
+      "normalized_offsets": [
+        71,
+        123
+      ],
+      "source_offsets": [
+        71,
+        123
+      ],
+      "source_sha256": "c1b9d212956c34629f78e55f8eda625d595a5860df872768a2b9e4cf60d9b588",
+      "chunk_id": "marin:c000"
+    },
+    {
+      "id": "tessel",
+      "quote": "Each tessel renewal request creates 3 receipts.",
+      "quote_length": 47,
+      "normalized_offsets": [
+        74,
+        121
+      ],
+      "source_offsets": [
+        74,
+        121
+      ],
+      "source_sha256": "6c5cc8e823c7956804de8ac3f09a31651bd9e6da4c73faeca00992116f7c213f",
+      "chunk_id": "tessel:c000"
+    }
+  ],
+  "protected_files": 309,
+  "all_live_paths_absent": true,
+  "actual_model_requests": 0
+}

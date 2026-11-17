@@ -78,14 +78,30 @@ def fake_transport(root,mode="valid"):
     return lambda:httpx.MockTransport(respond),calls
 
 
-def test_frozen_labels_and_all_prior_claims_remain_unchanged_and_new_paths_absent():
+def test_frozen_labels_and_all_prior_claims_remain_unchanged_and_run_state_is_safe():
     assert live.plan()["expectations_frozen_before_testing"] is True
     assert live.plan()["limits"]=={"embedding_posts":3,"metadata_gets":6,"generation_posts":0,"seconds":600,
         "query_embeddings":2,"retries":0,"downloads":0,"substitutions":0,"cloud_calls":0,
         "graph_steps_per_question":20,"tool_attempts_per_question":4,"tool_seconds":5.0,"graph_seconds":30.0}
     result=live.preservation()
     assert len(result["checked"])+len(result["skipped_optional"])==309
-    assert not any(p.exists() for p in live.unused_paths().values())
+    paths=live.fixed_paths()
+    if paths["output"].exists():
+        # Published consumed evidence blocks reuse even in CI without ignored
+        # local files. This replaces the preparation-only absence assertion;
+        # frozen labels, limits and the actual runner remain unchanged.
+        claim=json.loads((paths["output"]/"run-claim.json").read_text())
+        report=json.loads((paths["output"]/"report.json").read_text())
+        assert claim["consumed"] is True and claim["run_id"]==live.RUN_ID
+        assert claim["plan_sha256"]==report["plan_sha256"]==live.PLAN_SHA256
+        assert report["status"] in {"PASS","STOPPED"}
+        assert report["request_counts"]["embedding_posts"]<=3 and report["request_counts"]["metadata_gets"]<=6
+        manifest=json.loads((paths["output"]/"artifacts.sha256.json").read_text())
+        assert all(live.sha(paths["output"]/name)==expected for name,expected in manifest.items())
+        if paths["claim"].exists(): assert live.sha(paths["claim"])==live.sha(paths["output"]/"run-claim.json")
+        with pytest.raises(live.StopRun,match="already_exists"): live.unused_paths()
+    else:
+        assert not any(p.exists() for p in live.unused_paths().values())
     assert live.plan()["questions"][0]["abstain"] is False and live.plan()["questions"][1]["abstain"] is True
 
 

@@ -1,0 +1,24 @@
+{
+  "run_id": "investigation-nomic-4b-once",
+  "consumed": true,
+  "claimed_at_utc": "2026-11-17T10:59:22.409678+00:00",
+  "runner_commit": "31d995bbe97db9d6eab7d10770ca369deb7d97b2",
+  "plan_sha256": "d2f68baa13c4732a7d5a88c6fce2ffa04a6cbb4ea496ba08cc527a6c7882dec2",
+  "limits": {
+    "embedding_posts": 3,
+    "metadata_gets": 6,
+    "generation_posts": 0,
+    "seconds": 600,
+    "query_embeddings": 2,
+    "retries": 0,
+    "downloads": 0,
+    "substitutions": 0,
+    "cloud_calls": 0,
+    "graph_steps_per_question": 20,
+    "tool_attempts_per_question": 4,
+    "tool_seconds": 5.0,
+    "graph_seconds": 30.0
+  },
+  "database": "D:\\Web Projects\\GitHub\\local-rag-customer-support-agent\\.local\\investigation-nomic-4b-once\\fictional.sqlite3",
+  "rule": "Never delete, reuse or resume this claim"
+}

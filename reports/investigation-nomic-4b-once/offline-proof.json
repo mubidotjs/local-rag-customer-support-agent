@@ -1,0 +1,19 @@
+{
+  "commit": "31d995bbe97db9d6eab7d10770ca369deb7d97b2",
+  "exit_code": 0,
+  "source_sha256": {
+    "evaluation/investigation_live.py": "c7738cd5a4fb18c468f5d93f01043051ad07008c1b5efa1ac9eebd22e7062972",
+    "support_agent/investigation/managed.py": "0f8089d83d5b03bb12cc4b5f03118b67fde0b772f04083ce2b2a938b9de992ba",
+    "support_agent/investigation/tools.py": "bace32c38da7066cd65d7476c90a2a920edaac703a4d5a7f11ccfdfe33e828b8",
+    "support_agent/investigation/workflow.py": "e70eeeff6475bdc84e9fb00c3cee689825fac7a32447c678aba6f5b81e925072",
+    "support_agent/investigation/mcp_server.py": "3edb1922adb8bb46d8b83a07402364035e7b10e06131c53b33833126b2ce863c",
+    "tests/test_investigation_managed.py": "5b08e5b9553f59d8347f644cba66f5fa50a7b833c54df0d7f8f27d6aced35c2c",
+    "tests/test_investigation_live.py": "65f1328a1f666eb671b6025a095a9a4de055b6e6339e53005a8da86281307a74",
+    ".github/workflows/investigation.yml": "60f68c510b3279a585908a84c7e7e2c823ca35ec9723b673f694b396cf1e5079",
+    "requirements-investigation.lock": "b8b0c95000c359b83ae8b9acfde4d4589861cf4a85722b2bd7c5392470286b84",
+    "reports/investigation-live-preparation/plan.json": "d2f68baa13c4732a7d5a88c6fce2ffa04a6cbb4ea496ba08cc527a6c7882dec2",
+    "reports/investigation-live-preparation/preservation.json": "f33c8f5df9d1bb763156f5e09e0cfc2091a3c119f0aeb3842c2d9ab7c433aab0"
+  },
+  "log_sha256": "f52f3b94770270cded7f692335c8ebf008411bb459cd8157d758eff64a427e93",
+  "recorded_at_utc": "2026-11-17T10:57:42.606947+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "method": "POST",
+  "url": "http://127.0.0.1:11434/api/embed",
+  "payload": {
+    "model": "nomic-embed-text:latest",
+    "input": [
+      "search_document: The marin access token remains valid for 18 minutes.",
+      "search_document: Each tessel renewal request creates 3 receipts."
+    ],
+    "truncate": false,
+    "keep_alive": "5m",
+    "options": {
+      "num_ctx": 2048
+    }
+  }
+}

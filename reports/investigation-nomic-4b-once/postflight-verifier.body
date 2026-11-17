@@ -1,0 +1,129 @@
+"""Read saved evidence and the designated index only; no model/graph execution."""
+import json
+import math
+from dataclasses import replace
+from pathlib import Path
+import socket
+import sys
+sys.path.insert(0,str(Path.cwd()))
+
+def blocked(*args,**kwargs): raise AssertionError("No postflight model/network calls")
+socket.socket.connect=blocked
+socket.create_connection=blocked
+
+from evaluation.investigation_live import PLAN_SHA256,PRESERVATION_SHA256,ROOT,RUN_ID,plan,preservation,sha,save_new,inspect_index
+from support_agent.config import Settings
+from support_agent.embeddings import PINNED_MODEL,PINNED_DIGEST
+from support_agent.integrity import checked_index
+from support_agent.investigation.contracts import Chunk,OUTPUTS,parse_call,digest
+from support_agent.ollama import unit
+from support_agent.relevance import Grounding
+from support_agent.store import connect
+from support_agent.text import terms
+
+out=ROOT/"reports"/RUN_ID
+load=lambda name:json.loads((out/name).read_text(encoding="utf-8"))
+report=load("report.json"); value=plan(); original=load("artifacts.sha256.json")
+assert report["status"]=="PASS" and report["request_counts"]=={"embedding_posts":3,"metadata_gets":6}
+assert report["plan_sha256"]==PLAN_SHA256 and sha(out/"plan.json")==sha(ROOT/"reports/investigation-live-preparation/plan.json")
+assert report["runner_commit"]=="31d995bbe97db9d6eab7d10770ca369deb7d97b2"
+assert report["seconds"]<600 and all(sha(out/n)==expected for n,expected in original.items())
+claim=ROOT/".local"/(RUN_ID+".claim.json")
+assert sha(claim)==sha(out/"run-claim.json")
+events=[json.loads(s) for s in (out/"requests.jsonl").read_text().splitlines()]
+attempts=[e for e in events if e["event"]=="request_attempt"]
+finished=[e for e in events if e["event"]=="request_finished"]
+assert len(attempts)==len(finished)==9
+latencies=[]
+for a,f in zip(attempts,finished,strict=True):
+    n=a["sequence"]
+    assert n==f["sequence"] and events.index(a)<events.index(f)
+    assert f["outcome"]=="verified_response" and f["status_code"]==200
+    body=load(f"responses/{n:03d}.body")
+    request=load(f"requests/{n:03d}.json")
+    assert f["response_sha256"]==sha(out/f"responses/{n:03d}.body")
+    if a["kind"]=="metadata_gets":
+        matches=[m for m in body["models"] if m["name"]==PINNED_MODEL]
+        assert len(matches)==1 and matches[0]["digest"]==PINNED_DIGEST
+    else:
+        assert request["url"]=="http://127.0.0.1:11434/api/embed"
+        assert body["model"]==PINNED_MODEL and all(len(unit(v))==768 for v in body["embeddings"])
+    latencies.append({"sequence":n,"stage":a["stage"],"method":a["method"],"endpoint":a["endpoint"],"seconds":f["seconds"]})
+opens=[e for e in events if e["event"]=="database_open"]
+database=ROOT/".local"/RUN_ID/"fictional.sqlite3"
+assert all(Path(e["database"]).resolve()==database.resolve() for e in opens)
+assert all(e["readonly"] for e in opens if e["stage"]!="ingestion")
+settings=replace(Settings(),db_path=database,managed_embeddings=True)
+index=inspect_index(settings,value["documents"])
+assert index==load("index-initial.json") and index["index_sha256"]==report["final_index_sha256"]
+case_results=[]
+with connect(database) as db:
+    assert db.execute("PRAGMA query_only").fetchone()[0]==1
+    rows,dimension=checked_index(db,settings)
+    for case,n in zip(value["questions"],(5,8),strict=True):
+        result=load(case["id"]+".json")
+        receipts=load(case["id"]+"-tool-receipts.json")
+        trace=result["trace"]
+        assert result["abstained"]==case["abstain"] and len(receipts)==3
+        assert result["diagnostics"]["mode"]=="local-managed-query" and result["diagnostics"]["model_calls"]==1
+        assert result["diagnostics"]["steps"]==len(trace)==12 and result["diagnostics"]["tool_calls"]==3
+        assert [e["step"] for e in trace]==list(range(1,13))
+        tool_events=[e for e in trace if e["state"]=="tool_execution"]
+        assert all(e["outcome"]=="ok" for e in tool_events)
+        stamp=result["diagnostics"]["index_stamp"]
+        for (call,envelope),event in zip(receipts,tool_events,strict=True):
+            parsed=parse_call(call["name"],call["arguments"])
+            checked=OUTPUTS[parsed.name].model_validate(envelope).model_dump()
+            assert checked["index_stamp"]==stamp and checked["tool"]==event["tool"]==parsed.name
+            assert digest(parsed.arguments)==event["arguments_sha256"] and digest(checked)==event["result_sha256"]
+        passages=receipts[0][1]["data"]["passages"]
+        query=unit(unit(load(f"responses/{n:03d}.body")["embeddings"][0]))
+        similarities={r["id"]:sum(a*b for a,b in zip(query,r["vector"],strict=True)) for r in rows}
+        semantic=sorted(rows,key=lambda r:(-similarities[r["id"]],r["id"]))[:20]
+        expression=" OR ".join('"'+w+'"' for w in sorted(terms(case["question"]))[:32])
+        keyword=[r[0] for r in db.execute("SELECT chunk_id,bm25(chunks_fts) AS score FROM chunks_fts WHERE chunks_fts MATCH ? ORDER BY score,chunk_id LIMIT ?",(expression,settings.max_chunks+1))][:20]
+        sr={r["id"]:i+1 for i,r in enumerate(semantic)}; kr={cid:i+1 for i,cid in enumerate(keyword)}
+        ranks={cid:(1/(60+sr[cid]) if cid in sr else 0)+(1/(60+kr[cid]) if cid in kr else 0) for cid in similarities}
+        assert [p["id"] for p in passages]==sorted(similarities,key=lambda cid:(-ranks[cid],cid))
+        for p in passages:
+            canonical=next(r for r in rows if r["id"]==p["id"])
+            assert {k:p[k] for k in Chunk.model_fields}=={k:canonical[k] for k in Chunk.model_fields}
+            assert math.isclose(p["similarity"],similarities[p["id"]],abs_tol=1e-12)
+            assert p["semantic_rank"]==sr.get(p["id"]) and p["keyword_rank"]==kr.get(p["id"])
+            assert p["rrf_score"]==ranks[p["id"]]
+        assert receipts[2][1]["data"]["chunks"]==[{k:p[k] for k in Chunk.model_fields} for p in passages]
+        grounding=Grounding(case["question"],passages,settings)
+        proofs=[{"chunk_id":p["id"],"proofs":grounding.prove(p["id"],q["quote"])[0],
+                 "reason":grounding.prove(p["id"],q["quote"])[1]} for p in passages for q in p["quotes"]]
+        if not case["abstain"]:
+            c=result["citations"][0]; d=value["documents"][0]
+            assert len(result["citations"])==1 and all(c[k]==d[k] for k in ("chunk_id","quote","source_start","source_end","normalized_start","normalized_end"))
+            assert c["relevance"] and any(p["proofs"] for p in proofs)
+        else:
+            assert not result["citations"] and not any(p["proofs"] for p in proofs)
+            assert result["diagnostics"]["reason"] in case["allowed_verification_reasons"]
+            assert all(e["outcome"]=="ok" for e in trace if e["state"]!="grounding_validation")
+        case_results.append({"case":case["id"],"status":"PASS","abstained":result["abstained"],"reason":result["diagnostics"]["reason"],
+            "steps":12,"tool_calls":3,"provenance_and_trace_verified":True,"ranking_recomputed_from_saved_real_vectors":True,
+            "passages":[{k:p[k] for k in ("id","similarity","semantic_rank","keyword_rank","rrf_score")} for p in passages],
+            "grounding_checks":proofs})
+assert sha(database)==report["final_index_sha256"]
+history=preservation(require_local=True)
+for src,dest in [(ROOT/".local/investigation-4b-offset-preflight.json",out/"offset-preflight.json"),
+                 (ROOT/".local/investigation-4b-offline-proof.json",out/"offline-proof.json"),
+                 (ROOT/".local/investigation-4b-offline-tests.log",out/"offline-tests.body")]:
+    with dest.open("xb") as stream: stream.write(src.read_bytes())
+proof=load("offline-proof.json")
+assert proof==load("preflight.json")["offline_proof"] and proof["log_sha256"]==sha(out/"offline-tests.body")
+save_new(out/"postflight.json",{"status":"PASS","verification":"Offline read-only checks of the one recorded live execution; no new model requests",
+    "prepared_sha":"eae02b56217e5231ece73b0c8641614875e4c1f3","execution_sha":report["runner_commit"],
+    "plan_sha256":PLAN_SHA256,"preservation_sha256":PRESERVATION_SHA256,"original_artifacts_manifest_sha256":sha(out/"artifacts.sha256.json"),
+    "original_raw_artifacts_verified":len(original),"protected_files_verified":len(history["checked"]),
+    "consumed_claim_sha256":sha(claim),"index":index,"request_attempts_verified":9,
+    "actual_embedding_posts":3,"actual_metadata_gets":6,"actual_generation_posts":0,
+    "database_opens":len(opens),"query_database_opens_all_readonly":True,"request_latencies":latencies,"cases":case_results,
+    "execution_ci":{"CI":"https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44069366524",
+                    "Offline investigation":"https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44069366538"}})
+print(json.dumps({"postflight":"PASS","original_raw_artifacts_verified":len(original),"protected_files_verified":len(history["checked"]),
+    "index_sha256":index["index_sha256"],"claim_sha256":sha(claim),"cases":[{"case":c["case"],"reason":c["reason"],
+    "grounding_reasons":[g["reason"] for g in c["grounding_checks"]]} for c in case_results]},indent=2))

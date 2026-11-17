@@ -1,0 +1,123 @@
+{
+  "answer": "The marin access token remains valid for 18 minutes. [marin:c000]",
+  "abstained": false,
+  "citations": [
+    {
+      "chunk_id": "marin:c000",
+      "document_id": "marin",
+      "title": "Marin Fictional Guide",
+      "version": "1",
+      "quote": "The marin access token remains valid for 18 minutes.",
+      "normalized_start": 71,
+      "normalized_end": 123,
+      "source_start": 71,
+      "source_end": 123,
+      "relevance": [
+        {
+          "intent": 0,
+          "facet": "validity_duration",
+          "entity": "marin access token",
+          "requested_entity": "marin access token",
+          "action": "",
+          "question_action_wording": "",
+          "source_action_wording": "",
+          "action_link": "literal_predicate",
+          "basis": "literal_entity_and_relation",
+          "support_chain": [
+            {
+              "chunk_id": "marin:c000",
+              "document_id": "marin",
+              "title": "Marin Fictional Guide",
+              "version": "1",
+              "quote": "The marin access token remains valid for 18 minutes.",
+              "normalized_start": 71,
+              "normalized_end": 123,
+              "source_start": 71,
+              "source_end": 123
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "trace": [
+    {
+      "step": 1,
+      "state": "validate_request",
+      "outcome": "ok"
+    },
+    {
+      "step": 2,
+      "state": "investigation_plan",
+      "outcome": "ok"
+    },
+    {
+      "step": 3,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 4,
+      "state": "tool_execution",
+      "outcome": "ok",
+      "tool": "search_passages",
+      "arguments_sha256": "69f3661ffc07011a50a6265063e74c4d80b2f40de1db41b009365fdad65b7f52",
+      "result_sha256": "7318c077dbd89680bda621cb54b3d5aefc72a4eeff95df04e52d130478d2d00d"
+    },
+    {
+      "step": 5,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 6,
+      "state": "tool_execution",
+      "outcome": "ok",
+      "tool": "inspect_versions",
+      "arguments_sha256": "b6a93d46a49de527ea4713a427271f3372cde1c867a2748716200ddfed3dba7b",
+      "result_sha256": "4c1a6bbb8b3c7ed20ff668041f4e64901f490a0bb24c714e5fed7329bb16e64f"
+    },
+    {
+      "step": 7,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 8,
+      "state": "tool_execution",
+      "outcome": "ok",
+      "tool": "citation_metadata",
+      "arguments_sha256": "dcda3ea551179666573d0774110c20435d67299ca8ad42532635786681d36205",
+      "result_sha256": "aef21b8fe2b2a69403ec345992b8806093cc78dcb750c7cb022c620fe726df22"
+    },
+    {
+      "step": 9,
+      "state": "tool_selection",
+      "outcome": "ok"
+    },
+    {
+      "step": 10,
+      "state": "evidence_assembly",
+      "outcome": "ok"
+    },
+    {
+      "step": 11,
+      "state": "grounding_validation",
+      "outcome": "ok"
+    },
+    {
+      "step": 12,
+      "state": "final_response",
+      "outcome": "ok"
+    }
+  ],
+  "diagnostics": {
+    "reason": "verified_exact_quotes",
+    "steps": 12,
+    "tool_calls": 3,
+    "index_stamp": "42366981908ba2bc3bf32899e935d8e6e5e32677ef735cb4c8e488e2caacb475",
+    "model_calls": 1,
+    "mcp_protocol": "2026-07-28",
+    "mode": "local-managed-query"
+  }
+}

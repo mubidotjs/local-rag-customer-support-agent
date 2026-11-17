@@ -1,0 +1,86 @@
+{
+  "run_id": "investigation-nomic-4b-once",
+  "kind": "single bounded fictional local embedding-backed investigation; no generation",
+  "status": "PASS",
+  "source_baseline": "00261c7f421ad98ab980985c1e26ffb0beac7af4",
+  "runner_commit": "31d995bbe97db9d6eab7d10770ca369deb7d97b2",
+  "plan_sha256": "d2f68baa13c4732a7d5a88c6fce2ffa04a6cbb4ea496ba08cc527a6c7882dec2",
+  "model": "nomic-embed-text:latest",
+  "required_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+  "operations": [
+    {
+      "stage": "ingestion",
+      "status": "PASS",
+      "request_delta": {
+        "embedding_posts": 1,
+        "metadata_gets": 2
+      },
+      "index": {
+        "index_sha256": "871c74019540f913059d70d7534e42110671012bfd2739f22db89538d6ba17a2",
+        "dimension": 768,
+        "metadata": {
+          "embed_model": "nomic-embed-text:latest",
+          "dimension": "768",
+          "chunk_chars": "800",
+          "schema_version": "1",
+          "embed_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+          "embed_config": "3ea4ea6ad62da063a3b8c8e9dca1b14657030b8afdd7b4c2133cecfc0bbc8ffb",
+          "index_revision": "0"
+        },
+        "vector_sha256": {
+          "marin:c000": "8ef8fefb77c918b22ef2244d2807bec4fd1b017809f1a54dcc779cb9b6071d39",
+          "tessel:c000": "51c4405e46865beb193ba674b8315a43564b9b4819f4e26328820634e00f5590"
+        },
+        "source_offsets_verified": true,
+        "fts5_correspondence_verified": true,
+        "sqlite_verified": true
+      }
+    },
+    {
+      "stage": "supported",
+      "status": "PASS",
+      "abstained": false,
+      "reason": "verified_exact_quotes",
+      "seconds": 2.209207,
+      "request_delta": {
+        "embedding_posts": 1,
+        "metadata_gets": 2
+      },
+      "model_calls": 1,
+      "steps": 12,
+      "tool_calls": 3,
+      "index_unchanged": true,
+      "citation_offsets_verified": true
+    },
+    {
+      "stage": "unsupported",
+      "status": "PASS",
+      "abstained": true,
+      "reason": "invalid_selection",
+      "seconds": 0.427469,
+      "request_delta": {
+        "embedding_posts": 1,
+        "metadata_gets": 2
+      },
+      "model_calls": 1,
+      "steps": 12,
+      "tool_calls": 3,
+      "index_unchanged": true,
+      "citation_offsets_verified": true
+    }
+  ],
+  "generation_posts": 0,
+  "downloads": 0,
+  "retries": 0,
+  "substitutions": 0,
+  "started_at_utc": "2026-11-17T10:59:22.438278+00:00",
+  "request_counts": {
+    "embedding_posts": 3,
+    "metadata_gets": 6
+  },
+  "seconds": 7.286576,
+  "final_index_sha256": "871c74019540f913059d70d7534e42110671012bfd2739f22db89538d6ba17a2",
+  "preserved_files": 309,
+  "preservation": "PASS",
+  "ended_at_utc": "2026-11-17T10:59:27.907401+00:00"
+}

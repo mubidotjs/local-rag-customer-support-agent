@@ -1,0 +1,182 @@
+[
+  [
+    {
+      "name": "search_passages",
+      "arguments": {
+        "question": "How long does the marin access token remain valid?",
+        "limit": 6
+      }
+    },
+    {
+      "tool": "search_passages",
+      "index_stamp": "42366981908ba2bc3bf32899e935d8e6e5e32677ef735cb4c8e488e2caacb475",
+      "data": {
+        "passages": [
+          {
+            "id": "marin:c000",
+            "document_id": "marin",
+            "ordinal": 0,
+            "title": "Marin Fictional Guide",
+            "version": "1",
+            "topic": "marin",
+            "text": "The marin access token remains valid for 18 minutes.",
+            "normalized_start": 71,
+            "normalized_end": 123,
+            "source_start": 71,
+            "source_end": 123,
+            "quarantined": false,
+            "ambiguous_topic": false,
+            "quotes": [
+              {
+                "quote": "The marin access token remains valid for 18 minutes.",
+                "normalized_start": 71,
+                "normalized_end": 123,
+                "source_start": 71,
+                "source_end": 123
+              }
+            ],
+            "similarity": 0.9512856155147589,
+            "semantic_rank": 1,
+            "keyword_rank": 1,
+            "rrf_score": 0.03278688524590164,
+            "duplicate_ids": []
+          },
+          {
+            "id": "tessel:c000",
+            "document_id": "tessel",
+            "ordinal": 0,
+            "title": "Tessel Fictional Guide",
+            "version": "1",
+            "topic": "tessel",
+            "text": "Each tessel renewal request creates 3 receipts.",
+            "normalized_start": 74,
+            "normalized_end": 121,
+            "source_start": 74,
+            "source_end": 121,
+            "quarantined": false,
+            "ambiguous_topic": false,
+            "quotes": [
+              {
+                "quote": "Each tessel renewal request creates 3 receipts.",
+                "normalized_start": 74,
+                "normalized_end": 121,
+                "source_start": 74,
+                "source_end": 121
+              }
+            ],
+            "similarity": 0.49744387635911835,
+            "semantic_rank": 2,
+            "keyword_rank": null,
+            "rrf_score": 0.016129032258064516,
+            "duplicate_ids": []
+          }
+        ],
+        "algorithm": "RRF(k=60), equal semantic/FTS5 weights"
+      }
+    }
+  ],
+  [
+    {
+      "name": "inspect_versions",
+      "arguments": {
+        "document_ids": [
+          "marin",
+          "tessel"
+        ]
+      }
+    },
+    {
+      "tool": "inspect_versions",
+      "index_stamp": "42366981908ba2bc3bf32899e935d8e6e5e32677ef735cb4c8e488e2caacb475",
+      "data": {
+        "documents": [
+          {
+            "id": "marin",
+            "title": "Marin Fictional Guide",
+            "version": "1",
+            "topic": "marin",
+            "sha256": "c1b9d212956c34629f78e55f8eda625d595a5860df872768a2b9e4cf60d9b588",
+            "quarantined": false,
+            "ambiguous_topic": false
+          },
+          {
+            "id": "tessel",
+            "title": "Tessel Fictional Guide",
+            "version": "1",
+            "topic": "tessel",
+            "sha256": "6c5cc8e823c7956804de8ac3f09a31651bd9e6da4c73faeca00992116f7c213f",
+            "quarantined": false,
+            "ambiguous_topic": false
+          }
+        ]
+      }
+    }
+  ],
+  [
+    {
+      "name": "citation_metadata",
+      "arguments": {
+        "chunk_ids": [
+          "marin:c000",
+          "tessel:c000"
+        ]
+      }
+    },
+    {
+      "tool": "citation_metadata",
+      "index_stamp": "42366981908ba2bc3bf32899e935d8e6e5e32677ef735cb4c8e488e2caacb475",
+      "data": {
+        "chunks": [
+          {
+            "id": "marin:c000",
+            "document_id": "marin",
+            "ordinal": 0,
+            "title": "Marin Fictional Guide",
+            "version": "1",
+            "topic": "marin",
+            "text": "The marin access token remains valid for 18 minutes.",
+            "normalized_start": 71,
+            "normalized_end": 123,
+            "source_start": 71,
+            "source_end": 123,
+            "quarantined": false,
+            "ambiguous_topic": false,
+            "quotes": [
+              {
+                "quote": "The marin access token remains valid for 18 minutes.",
+                "normalized_start": 71,
+                "normalized_end": 123,
+                "source_start": 71,
+                "source_end": 123
+              }
+            ]
+          },
+          {
+            "id": "tessel:c000",
+            "document_id": "tessel",
+            "ordinal": 0,
+            "title": "Tessel Fictional Guide",
+            "version": "1",
+            "topic": "tessel",
+            "text": "Each tessel renewal request creates 3 receipts.",
+            "normalized_start": 74,
+            "normalized_end": 121,
+            "source_start": 74,
+            "source_end": 121,
+            "quarantined": false,
+            "ambiguous_topic": false,
+            "quotes": [
+              {
+                "quote": "Each tessel renewal request creates 3 receipts.",
+                "normalized_start": 74,
+                "normalized_end": 121,
+                "source_start": 74,
+                "source_end": 121
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+]
