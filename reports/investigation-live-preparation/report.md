@@ -35,7 +35,7 @@ fixed before the new tests ran. SHA-256:
 
 | Case | Frozen expectation |
 | --- | --- |
-| Marin token duration | Exact sentence “The marin access token remains valid for 18 minutes.” from `marin:c000`, source/normalized offsets `[71,121)` |
+| Marin token duration | Exact sentence “The marin access token remains valid for 18 minutes.” from `marin:c000`, source/normalized offsets `[71,123)` |
 | Varos token duration | Abstention without citations: neither document mentions Varos. A tool failure does not satisfy the evidence-abstention expectation. |
 
 The other document says each Tessel renewal creates 3 receipts. Both single chunks
@@ -43,6 +43,12 @@ fit in the retrieval window. These fictional labels are agent-authored, not an
 independently human-reviewed benchmark. Passing the future test would establish
 this bounded real-query/provenance path only; it would not demonstrate broad
 semantic retrieval quality or answer-generation correctness.
+
+Final preflight corrected only the earlier narrative offset typo `[71,121)`.
+Independent extraction verifies the 52-character quote at `[71,123)` in both
+source and normalized text. The frozen plan/digest, chunk mapping and runner
+assertions already used those correct offsets and remain unchanged. The original
+preparation results below describe the offline preparation, not the later live run.
 
 ## Offline verification
 

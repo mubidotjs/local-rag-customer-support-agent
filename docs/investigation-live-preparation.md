@@ -79,7 +79,7 @@ criteria, not independently human-validated benchmark labels.
 | Stage | Evidence or expected outcome | Maximum requests |
 | --- | --- | --- |
 | Ingest two single-chunk documents | Marin token: 18 minutes; Tessel renewal: 3 receipts | 1 embedding POST + 2 metadata GETs |
-| Supported question | “How long does the marin access token remain valid?” Exact quote “The marin access token remains valid for 18 minutes.” from `marin:c000`, source/normalized offsets `[71,121)` | 1 query embedding POST + 2 metadata GETs |
+| Supported question | “How long does the marin access token remain valid?” Exact quote “The marin access token remains valid for 18 minutes.” from `marin:c000`, source/normalized offsets `[71,123)` | 1 query embedding POST + 2 metadata GETs |
 | Unsupported question | “How long does the varos access token remain valid?” Abstain, no citations; Varos is absent from both documents | 1 query embedding POST + 2 metadata GETs |
 
 The supported question must produce exactly the specified sentence and citation
@@ -89,6 +89,11 @@ The two-document corpus ensures both chunks fit the retrieval window, making the
 outcomes independently checkable. This tests actual embedding plumbing, score
 computation and exact grounded selection; it does not establish broad semantic
 retrieval quality or generation capability. There is no generation call.
+
+Preflight prose correction: the earlier `[71,121)` description was a typo. The
+52-character Marin quote, frozen plan, extracted chunk/sentence mappings and
+runner assertions consistently use `[71,123)`. No frozen expectation or code
+changed for this correction.
 
 Proposed total ceiling: **3 embedding POSTs** (one document batch and two queries),
 **6 metadata GETs**, **0 generation calls**, **600 seconds overall**, one attempt
