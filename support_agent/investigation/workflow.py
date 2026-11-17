@@ -88,8 +88,8 @@ async def investigate(request,runtime,*,limits=None,selector=None,chooser=None,t
         return {"answer":"\n\n".join(f'{c["quote"]} [{c["chunk_id"]}]' for c in citations) if citations else ABSTENTION,
                 "abstained":not bool(citations),"citations":citations,"trace":deepcopy(trace),
                 "diagnostics":{"reason":reason,"steps":current["steps"],"tool_calls":current["tool_calls"],
-                               "index_stamp":runtime.index_stamp,"model_calls":0,"mcp_protocol":protocol,
-                               "mode":"offline-synthetic" if runtime.synthetic else "metadata-only-no-model"}}
+                               "index_stamp":runtime.index_stamp,"model_calls":runtime.model_calls,"mcp_protocol":protocol,
+                               "mode":"local-managed-query" if runtime.query_adapter else "offline-synthetic" if runtime.synthetic else "metadata-only-no-model"}}
     async def validate(s):
         try:
             if len(canonical(s["request"]).encode())>4096: raise ValueError()

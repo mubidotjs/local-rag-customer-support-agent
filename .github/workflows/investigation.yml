@@ -26,7 +26,7 @@ jobs:
           cache-dependency-path: requirements-investigation.lock
       - run: python -m pip install -r requirements-investigation.lock
       - run: mkdir -p .local
-      - run: python -m coverage run --branch --source=support_agent.investigation -m pytest -q
+      - run: python -m coverage run --branch --source=support_agent.investigation,evaluation.investigation_live -m pytest -q
       - run: python -m coverage report --fail-under=90
       - run: python -m coverage json -o .local/investigation-coverage.json
       - uses: actions/upload-artifact@v4

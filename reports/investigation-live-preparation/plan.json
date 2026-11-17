@@ -1,0 +1,90 @@
+{
+  "status": "OFFLINE_PREPARATION_ONLY_NOT_AUTHORIZED_NOT_EXECUTED",
+  "predecessor": "00261c7f421ad98ab980985c1e26ffb0beac7af4",
+  "run_id": "investigation-nomic-4b-once",
+  "workspace": ".local/investigation-nomic-4b-once",
+  "database": ".local/investigation-nomic-4b-once/fictional.sqlite3",
+  "claim": ".local/investigation-nomic-4b-once.claim.json",
+  "output": "reports/investigation-nomic-4b-once",
+  "model": "nomic-embed-text:latest",
+  "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+  "dimension": 768,
+  "limits": {
+    "embedding_posts": 3,
+    "metadata_gets": 6,
+    "generation_posts": 0,
+    "seconds": 600,
+    "query_embeddings": 2,
+    "retries": 0,
+    "downloads": 0,
+    "substitutions": 0,
+    "cloud_calls": 0,
+    "graph_steps_per_question": 20,
+    "tool_attempts_per_question": 4,
+    "tool_seconds": 5.0,
+    "graph_seconds": 30.0
+  },
+  "documents": [
+    {
+      "id": "marin",
+      "filename": "marin.md",
+      "source": "---\nid: marin\ntitle: Marin Fictional Guide\nversion: 1\ntopic: marin\n---\nThe marin access token remains valid for 18 minutes.\n",
+      "sha256": "c1b9d212956c34629f78e55f8eda625d595a5860df872768a2b9e4cf60d9b588",
+      "chunk_id": "marin:c000",
+      "quote": "The marin access token remains valid for 18 minutes.",
+      "normalized_start": 71,
+      "normalized_end": 123,
+      "source_start": 71,
+      "source_end": 123
+    },
+    {
+      "id": "tessel",
+      "filename": "tessel.md",
+      "source": "---\nid: tessel\ntitle: Tessel Fictional Guide\nversion: 1\ntopic: tessel\n---\nEach tessel renewal request creates 3 receipts.\n",
+      "sha256": "6c5cc8e823c7956804de8ac3f09a31651bd9e6da4c73faeca00992116f7c213f",
+      "chunk_id": "tessel:c000",
+      "quote": "Each tessel renewal request creates 3 receipts.",
+      "normalized_start": 74,
+      "normalized_end": 121,
+      "source_start": 74,
+      "source_end": 121
+    }
+  ],
+  "questions": [
+    {
+      "id": "supported",
+      "question": "How long does the marin access token remain valid?",
+      "abstain": false,
+      "expected_chunk_id": "marin:c000",
+      "expected_quote": "The marin access token remains valid for 18 minutes.",
+      "expected_document_id": "marin",
+      "reason": "The exact single sentence states the duration for the named token."
+    },
+    {
+      "id": "unsupported",
+      "question": "How long does the varos access token remain valid?",
+      "abstain": true,
+      "expected_chunk_id": null,
+      "expected_quote": null,
+      "expected_document_id": null,
+      "reason": "Neither fictional document mentions varos; a marin duration cannot answer this entity question.",
+      "allowed_verification_reasons": [
+        "incomplete_evidence",
+        "invalid_selection",
+        "insufficient_evidence"
+      ]
+    }
+  ],
+  "stages": [
+    "ingestion",
+    "supported",
+    "unsupported"
+  ],
+  "metadata_order_per_stage": [
+    "GET /api/tags",
+    "POST /api/embed",
+    "GET /api/tags"
+  ],
+  "expectations_frozen_before_testing": true,
+  "interpretation": "Exact source/provenance and conservative abstention acceptance only; no generation, human-validated benchmark, prompt tuning or semantic-quality claim"
+}

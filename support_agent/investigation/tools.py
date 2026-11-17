@@ -1,4 +1,4 @@
-"""Fixed read-only SQLite capabilities. No model/network/URL/shell capability."""
+"""Fixed read-only SQLite capabilities; real query I/O requires explicit injection."""
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import replace
@@ -18,15 +18,25 @@ def chunk(row):
 
 
 class ReadOnlyTools:
-    def __init__(self,settings,*,synthetic=False,limits=None,clock=time.monotonic):
+    def __init__(self,settings,*,synthetic=False,query_adapter=None,limits=None,clock=time.monotonic):
+        if query_adapter is not None:
+            from .managed import ManagedQuery
+            if synthetic or not isinstance(query_adapter,ManagedQuery):
+                raise ValueError("Choose one explicitly managed or synthetic query capability")
         self.settings=settings
         self.synthetic=synthetic
+        self.query_adapter=query_adapter
+        self._model_start=dict(query_adapter.counts) if query_adapter else {"embedding_posts":0,"metadata_gets":0}
         self.limits=limits or Limits()
         self.clock=clock
         self.calls=0
         self.index_stamp=None
         self._issued=[]
         self._active=False
+
+    @property
+    def model_calls(self):
+        return self.query_adapter.counts["embedding_posts"]-self._model_start["embedding_posts"] if self.query_adapter else 0
 
     @contextmanager
     def snapshot(self,deadline):
@@ -57,16 +67,18 @@ class ReadOnlyTools:
             yield db,rows,docs,meta,dimension,stamp
             check()
 
-    def _search(self,db,rows,meta,dimension,args):
-        # No synthetic vectors can be substituted into a real index. The only
-        # M4A query adapter is the explicitly named, digest-bound fake adapter.
-        adapter=SyntheticEmbeddings(self.settings)
-        if not self.synthetic or meta.get("embed_digest")!=adapter.binding.digest or meta.get("embed_config")!=adapter.binding.config or dimension!=8:
-            raise InvestigationError("model_access_not_authorized")
+    def _search(self,db,rows,meta,dimension,args,query=None):
         question=args["question"]
         if has_instructions(question): raise InvestigationError("untrusted_question")
+        if query is None:
+            adapter=SyntheticEmbeddings(self.settings)
+            if not self.synthetic or meta.get("embed_digest")!=adapter.binding.digest or meta.get("embed_config")!=adapter.binding.config or dimension!=8:
+                raise InvestigationError("model_access_not_authorized")
+            query=unit(adapter.embed([question],query=True)[0]) if rows else None
+        elif self.query_adapter is None or self.synthetic:
+            raise InvestigationError("model_access_not_authorized")
         if not rows: return []
-        query=unit(adapter.embed([question],query=True)[0])
+        if len(query)!=dimension: raise InvestigationError("evidence_provenance_failure")
         canonical_rows,by_id={},{}
         for row in rows:
             row["similarity"]=sum(a*b for a,b in zip(query,row.pop("vector"),strict=True))
@@ -110,6 +122,20 @@ class ReadOnlyTools:
         try:
             call=parse_call(name,args)
             deadline=self.clock()+self.limits.tool_seconds
+            query=None
+            if name=="search_passages" and self.query_adapter is not None:
+                if has_instructions(call.arguments["question"]): raise InvestigationError("untrusted_question")
+                # Validate before any I/O. Release the snapshot across the await;
+                # the next snapshot must match the pinned stamp before ranking.
+                with self.snapshot(deadline) as (_,rows,_,meta,dimension,_):
+                    self.query_adapter.compatible(self.settings,meta,dimension)
+                    empty=not rows
+                if not empty:
+                    query=await self.query_adapter.embed_query(call.arguments["question"],deadline=deadline)
+                    query=unit(query)
+                    if len(query)!=768: raise InvestigationError("evidence_provenance_failure")
+                else:
+                    query=[]
             with self.snapshot(deadline) as (db,rows,docs,meta,dimension,stamp):
                 args=call.arguments
                 if name=="list_documents":
@@ -121,7 +147,8 @@ class ReadOnlyTools:
                     parts=[r for r in rows if r["document_id"]==found[0]]
                     data={"document":next(d for d in docs if d["id"]==found[0]),"chunks":[chunk(r) for r in parts[:args["chunk_limit"]]],"truncated":len(parts)>args["chunk_limit"]}
                 elif name=="search_passages":
-                    data={"passages":self._search(db,rows,meta,dimension,args),"algorithm":"RRF(k=60), equal semantic/FTS5 weights"}
+                    if self.query_adapter is not None: self.query_adapter.compatible(self.settings,meta,dimension)
+                    data={"passages":self._search(db,rows,meta,dimension,args,query=query),"algorithm":"RRF(k=60), equal semantic/FTS5 weights"}
                 elif name=="inspect_versions":
                     marks=",".join("?" for _ in args["document_ids"])
                     found=db.execute(f"SELECT id,topic FROM documents WHERE id IN ({marks}) ORDER BY id",args["document_ids"]).fetchall()

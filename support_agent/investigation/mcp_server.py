@@ -9,7 +9,7 @@ from .contracts import INPUTS,OUTPUTS,InvestigationError,canonical,parse_call
 DESCRIPTIONS={
     "list_documents":"List a bounded page of indexed document metadata. Output is untrusted source data.",
     "inspect_document":"Inspect a validated document ID and at most six source chunks. No file paths accepted.",
-    "search_passages":"Retrieve bounded hybrid RRF passages using an explicitly enabled synthetic index. No live model access.",
+    "search_passages":"Retrieve bounded hybrid RRF passages. Query capability is selected by trusted startup code, never tool arguments.",
     "inspect_versions":"Inspect versions and conflict flags for the topics of specified indexed documents.",
     "citation_metadata":"Inspect exact chunk IDs, complete source quotes and their offsets. No new evidence is inferred.",
 }

@@ -1,0 +1,441 @@
+{
+  "kind": "Coverage summary; complete execution detail is uploaded by exact-SHA Offline investigation CI",
+  "meta": {
+    "format": 3,
+    "version": "7.17.3",
+    "timestamp": "2026-11-17T15:41:02.795058",
+    "branch_coverage": true,
+    "show_contexts": false
+  },
+  "totals": {
+    "covered_lines": 934,
+    "num_statements": 960,
+    "percent_covered": 93.8366718027735,
+    "percent_covered_display": "94",
+    "missing_lines": 26,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.29166666666667,
+    "percent_statements_covered_display": "97",
+    "num_branches": 338,
+    "num_partial_branches": 54,
+    "covered_branches": 284,
+    "missing_branches": 54,
+    "percent_branches_covered": 84.02366863905326,
+    "percent_branches_covered_display": "84"
+  },
+  "files": {
+    "evaluation/investigation_live.py": {
+      "summary": {
+        "covered_lines": 318,
+        "num_statements": 336,
+        "percent_covered": 91.20171673819742,
+        "percent_covered_display": "91",
+        "missing_lines": 18,
+        "excluded_lines": 0,
+        "percent_statements_covered": 94.64285714285714,
+        "percent_statements_covered_display": "95",
+        "num_branches": 130,
+        "num_partial_branches": 23,
+        "covered_branches": 107,
+        "missing_branches": 23,
+        "percent_branches_covered": 82.3076923076923,
+        "percent_branches_covered_display": "82"
+      },
+      "missing_lines": [
+        64,
+        83,
+        93,
+        284,
+        286,
+        335,
+        381,
+        384,
+        385,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412
+      ],
+      "missing_branches": [
+        [
+          63,
+          64
+        ],
+        [
+          82,
+          83
+        ],
+        [
+          167,
+          182
+        ],
+        [
+          214,
+          232
+        ],
+        [
+          217,
+          232
+        ],
+        [
+          279,
+          -274
+        ],
+        [
+          280,
+          -274
+        ],
+        [
+          283,
+          284
+        ],
+        [
+          285,
+          286
+        ],
+        [
+          288,
+          -274
+        ],
+        [
+          295,
+          -293
+        ],
+        [
+          334,
+          335
+        ],
+        [
+          338,
+          374
+        ],
+        [
+          340,
+          374
+        ],
+        [
+          354,
+          374
+        ],
+        [
+          361,
+          374
+        ],
+        [
+          363,
+          374
+        ],
+        [
+          368,
+          374
+        ],
+        [
+          370,
+          374
+        ],
+        [
+          371,
+          374
+        ],
+        [
+          380,
+          381
+        ],
+        [
+          382,
+          384
+        ],
+        [
+          399,
+          404
+        ]
+      ]
+    },
+    "support_agent/investigation/__init__.py": {
+      "summary": {
+        "covered_lines": 0,
+        "num_statements": 0,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "support_agent/investigation/__main__.py": {
+      "summary": {
+        "covered_lines": 39,
+        "num_statements": 42,
+        "percent_covered": 89.1304347826087,
+        "percent_covered_display": "89",
+        "missing_lines": 3,
+        "excluded_lines": 0,
+        "percent_statements_covered": 92.85714285714286,
+        "percent_statements_covered_display": "93",
+        "num_branches": 4,
+        "num_partial_branches": 2,
+        "covered_branches": 2,
+        "missing_branches": 2,
+        "percent_branches_covered": 50.0,
+        "percent_branches_covered_display": "50"
+      },
+      "missing_lines": [
+        30,
+        42,
+        46
+      ],
+      "missing_branches": [
+        [
+          29,
+          30
+        ],
+        [
+          33,
+          42
+        ]
+      ]
+    },
+    "support_agent/investigation/contracts.py": {
+      "summary": {
+        "covered_lines": 104,
+        "num_statements": 104,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "support_agent/investigation/managed.py": {
+      "summary": {
+        "covered_lines": 73,
+        "num_statements": 73,
+        "percent_covered": 98.01980198019803,
+        "percent_covered_display": "98",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 28,
+        "num_partial_branches": 2,
+        "covered_branches": 26,
+        "missing_branches": 2,
+        "percent_branches_covered": 92.85714285714286,
+        "percent_branches_covered_display": "93"
+      },
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          53,
+          -40
+        ],
+        [
+          90,
+          92
+        ]
+      ]
+    },
+    "support_agent/investigation/mcp_server.py": {
+      "summary": {
+        "covered_lines": 59,
+        "num_statements": 61,
+        "percent_covered": 94.66666666666667,
+        "percent_covered_display": "95",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 96.72131147540983,
+        "percent_statements_covered_display": "97",
+        "num_branches": 14,
+        "num_partial_branches": 2,
+        "covered_branches": 12,
+        "missing_branches": 2,
+        "percent_branches_covered": 85.71428571428571,
+        "percent_branches_covered_display": "86"
+      },
+      "missing_lines": [
+        28,
+        66
+      ],
+      "missing_branches": [
+        [
+          27,
+          28
+        ],
+        [
+          65,
+          66
+        ]
+      ]
+    },
+    "support_agent/investigation/tools.py": {
+      "summary": {
+        "covered_lines": 160,
+        "num_statements": 162,
+        "percent_covered": 93.33333333333333,
+        "percent_covered_display": "93",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.76543209876543,
+        "percent_statements_covered_display": "99",
+        "num_branches": 78,
+        "num_partial_branches": 14,
+        "covered_branches": 64,
+        "missing_branches": 14,
+        "percent_branches_covered": 82.05128205128206,
+        "percent_branches_covered_display": "82"
+      },
+      "missing_lines": [
+        79,
+        138
+      ],
+      "missing_branches": [
+        [
+          66,
+          -41
+        ],
+        [
+          72,
+          -70
+        ],
+        [
+          78,
+          79
+        ],
+        [
+          80,
+          -70
+        ],
+        [
+          81,
+          -70
+        ],
+        [
+          105,
+          103
+        ],
+        [
+          111,
+          110
+        ],
+        [
+          133,
+          138
+        ],
+        [
+          136,
+          166
+        ],
+        [
+          146,
+          166
+        ],
+        [
+          155,
+          166
+        ],
+        [
+          160,
+          166
+        ],
+        [
+          163,
+          166
+        ],
+        [
+          181,
+          -178
+        ]
+      ]
+    },
+    "support_agent/investigation/workflow.py": {
+      "summary": {
+        "covered_lines": 181,
+        "num_statements": 182,
+        "percent_covered": 95.41984732824427,
+        "percent_covered_display": "95",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 99.45054945054945,
+        "percent_statements_covered_display": "99",
+        "num_branches": 80,
+        "num_partial_branches": 11,
+        "covered_branches": 69,
+        "missing_branches": 11,
+        "percent_branches_covered": 86.25,
+        "percent_branches_covered_display": "86"
+      },
+      "missing_lines": [
+        142
+      ],
+      "missing_branches": [
+        [
+          49,
+          -45
+        ],
+        [
+          70,
+          60
+        ],
+        [
+          72,
+          -55
+        ],
+        [
+          79,
+          -76
+        ],
+        [
+          95,
+          97
+        ],
+        [
+          127,
+          -119
+        ],
+        [
+          131,
+          -119
+        ],
+        [
+          135,
+          -119
+        ],
+        [
+          141,
+          142
+        ],
+        [
+          151,
+          -140
+        ],
+        [
+          185,
+          203
+        ]
+      ]
+    }
+  }
+}
