@@ -1,0 +1,21 @@
+{
+  "verified_at_utc": "2026-11-17T08:21:02.576674+00:00",
+  "historical_files_verified": 233,
+  "execution_artifacts_verified": 40,
+  "execution_manifest_sha256": "a57210f0b623e259e53abc1e0ad583c6bff5006ea571d8de40f32b5bc048f359",
+  "claim_matches_copy": true,
+  "final_index_sha256": "081adff9cb8c20f5584f5fdad7744005e171e2a22f8e3148639771642962fa8b",
+  "application_and_runner_source_unchanged": true,
+  "unchanged_preparation_files": {
+    "evaluation/lifecycle_live_fresh.py": true,
+    "docs/lifecycle-fresh-preparation.md": true,
+    "reports/lifecycle-fresh-preparation/plan.json": true,
+    "reports/lifecycle-fresh-preparation/preservation.json": true,
+    "reports/lifecycle-fresh-preparation/offline.json": true,
+    "reports/lifecycle-fresh-preparation/report.md": true
+  },
+  "original_preparation_proof_and_log_preserved": true,
+  "post_execution_model_requests": 0,
+  "local_browser_tests_after_execution": 0,
+  "method": "strictly offline immutable file/journal/snapshot review; no new SQLite queries or model calls"
+}

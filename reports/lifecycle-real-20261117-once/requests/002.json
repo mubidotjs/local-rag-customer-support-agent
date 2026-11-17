@@ -1,0 +1,16 @@
+{
+  "method": "POST",
+  "url": "http://127.0.0.1:11434/api/embed",
+  "payload": {
+    "model": "nomic-embed-text:latest",
+    "input": [
+      "search_document: The selene recovery token remains valid for 32 minutes.",
+      "search_document: The torin archive grace period is 19 days."
+    ],
+    "truncate": false,
+    "keep_alive": "5m",
+    "options": {
+      "num_ctx": 2048
+    }
+  }
+}

@@ -11,7 +11,7 @@ from evaluation import lifecycle_live_fresh as fresh
 REAL_ROOT=Path(__file__).resolve().parents[1]
 
 
-def test_real_history_is_preserved_and_actual_fresh_paths_are_unused():
+def test_real_history_is_preserved_and_published_run_cannot_be_reused():
     history=fresh.preservation()
     assert len(history["checked"])+len(history["skipped_optional"])==233
     assert history["previous_run"]=="consumed STOPPED; unchanged"
@@ -19,7 +19,18 @@ def test_real_history_is_preserved_and_actual_fresh_paths_are_unused():
         assert len(fresh.preservation(require_local=True)["checked"])==233
     assert original.RUN_ID=="lifecycle-real-once"
     assert original.sha(Path(original.__file__))==fresh.ENGINE_SHA256
-    assert all(not p.exists() for p in fresh.unused_paths().values())
+    paths=fresh.fixed_paths()
+    if (paths["output"]/"report.json").exists():
+        # After the one authorized execution, the published consumed state must
+        # block reuse even in CI where ignored local workspace files are absent.
+        report=json.loads((paths["output"]/"report.json").read_text())
+        claim=json.loads((paths["output"]/"run-claim.json").read_text())
+        assert report["run_id"]==fresh.RUN_ID and report["status"] in {"PASS","STOPPED"}
+        assert claim["consumed"] is True
+        with pytest.raises(fresh.StopRun,match="already_exists"):
+            fresh.unused_paths()
+    else:
+        assert all(not p.exists() for p in fresh.unused_paths().values())
 
 
 def test_plan_retains_the_exact_model_and_request_ceiling():

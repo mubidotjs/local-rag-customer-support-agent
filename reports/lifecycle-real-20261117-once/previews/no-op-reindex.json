@@ -1,0 +1,44 @@
+{
+  "plan": {
+    "format": 1,
+    "database": "D:\\Web Projects\\GitHub\\local-rag-customer-support-agent\\.local\\lifecycle-real-20261117-once\\fictional.sqlite3",
+    "database_identity": [
+      15311214522884971254,
+      844424931180561
+    ],
+    "base": "e7e4e75ae6c587b5e1084824f6021c54b5b35848ebf6a1d0b79433b6c96f5441",
+    "operation": "reindex",
+    "document_id": null,
+    "directory": null,
+    "filename": null,
+    "binding": {
+      "model": "nomic-embed-text:latest",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "config": "3ea4ea6ad62da063a3b8c8e9dca1b14657030b8afdd7b4c2133cecfc0bbc8ffb"
+    },
+    "limits": {
+      "chunk_chars": 800,
+      "max_documents": 50,
+      "max_chunks": 500,
+      "max_file_bytes": 64000,
+      "max_db_bytes": 64000000
+    },
+    "source_sha256": null,
+    "summary": {
+      "documents_before": 3,
+      "documents_after": 3,
+      "chunks_before": 3,
+      "chunks_after": 3,
+      "vectors_reused": 3,
+      "vectors_required": 0,
+      "unchanged_chunk_rows": 3,
+      "removed_chunk_ids": [],
+      "selected_document": null,
+      "previous_version": null,
+      "new_version": null,
+      "changed_chunks": [],
+      "no_op": true
+    }
+  },
+  "confirmation": "41bd535bf06d111eb128c6e6443a0928cd0a39b2c75a1b5831c1b78149698e56"
+}

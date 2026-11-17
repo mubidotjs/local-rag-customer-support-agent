@@ -1,0 +1,42 @@
+{
+  "plan": {
+    "format": 1,
+    "database": "D:\\Web Projects\\GitHub\\local-rag-customer-support-agent\\.local\\lifecycle-real-20261117-once\\fictional.sqlite3",
+    "database_identity": [
+      15311214522884971254,
+      844424931180561
+    ],
+    "base": "e7e4e75ae6c587b5e1084824f6021c54b5b35848ebf6a1d0b79433b6c96f5441",
+    "operation": "delete",
+    "document_id": "wren",
+    "directory": null,
+    "filename": null,
+    "binding": null,
+    "limits": {
+      "chunk_chars": 800,
+      "max_documents": 50,
+      "max_chunks": 500,
+      "max_file_bytes": 64000,
+      "max_db_bytes": 64000000
+    },
+    "source_sha256": null,
+    "summary": {
+      "documents_before": 3,
+      "documents_after": 2,
+      "chunks_before": 3,
+      "chunks_after": 2,
+      "vectors_reused": 2,
+      "vectors_required": 0,
+      "unchanged_chunk_rows": 2,
+      "removed_chunk_ids": [
+        "wren:c000"
+      ],
+      "selected_document": "wren",
+      "previous_version": "2.1",
+      "new_version": null,
+      "changed_chunks": [],
+      "no_op": false
+    }
+  },
+  "confirmation": "dcbe489fc472bbe3ad969a161b34a4f43548ad829a122b81ceee57940b8735f5"
+}

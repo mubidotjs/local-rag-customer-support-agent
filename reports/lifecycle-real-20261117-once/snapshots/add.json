@@ -1,0 +1,88 @@
+{
+  "index_sha256": "374e21542e5e7a737882bcf5f80fd835b261bfc6377abdc8ed689c6e872dfe5f",
+  "dimension": 768,
+  "metadata": {
+    "embed_model": "nomic-embed-text:latest",
+    "dimension": "768",
+    "chunk_chars": "800",
+    "schema_version": "1",
+    "embed_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "embed_config": "3ea4ea6ad62da063a3b8c8e9dca1b14657030b8afdd7b4c2133cecfc0bbc8ffb",
+    "index_revision": "1"
+  },
+  "documents": [
+    {
+      "id": "selene",
+      "title": "Selene Fictional Guide",
+      "version": "1",
+      "topic": "selene",
+      "filename": "selene.md",
+      "sha256": "aa8f8c35e3d4756789b862e71adbbc47d7466f7e9b4a7637a3e8522cdee8180a",
+      "source": "---\nid: selene\ntitle: Selene Fictional Guide\nversion: 1\ntopic: selene\n---\nThe selene recovery token remains valid for 32 minutes.\n",
+      "normalized": "---\nid: selene\ntitle: Selene Fictional Guide\nversion: 1\ntopic: selene\n---\nThe selene recovery token remains valid for 32 minutes.\n"
+    },
+    {
+      "id": "torin",
+      "title": "Torin Fictional Guide",
+      "version": "1",
+      "topic": "torin",
+      "filename": "torin.md",
+      "sha256": "ac6bf97bf36806611a1ae14f94a220c4fa372265a99c0f396524e2d3c2b5677d",
+      "source": "---\nid: torin\ntitle: Torin Fictional Guide\nversion: 1\ntopic: torin\n---\nThe torin archive grace period is 19 days.\n",
+      "normalized": "---\nid: torin\ntitle: Torin Fictional Guide\nversion: 1\ntopic: torin\n---\nThe torin archive grace period is 19 days.\n"
+    },
+    {
+      "id": "wren",
+      "title": "Wren Fictional Guide",
+      "version": "1",
+      "topic": "wren",
+      "filename": "wren.md",
+      "sha256": "f488fc2c141d519697b4fa491994aba048f13556cd9fe91915f8defc6dc3dd66",
+      "source": "---\nid: wren\ntitle: Wren Fictional Guide\nversion: 1\ntopic: wren\n---\nThe wren service pass remains valid for 14 minutes.\n",
+      "normalized": "---\nid: wren\ntitle: Wren Fictional Guide\nversion: 1\ntopic: wren\n---\nThe wren service pass remains valid for 14 minutes.\n"
+    }
+  ],
+  "chunks": [
+    {
+      "id": "selene:c000",
+      "document_id": "selene",
+      "ordinal": 0,
+      "normalized_start": 74,
+      "normalized_end": 129,
+      "source_start": 74,
+      "source_end": 129,
+      "text": "The selene recovery token remains valid for 32 minutes.",
+      "embedding_sha256": "d1d42bba35778739d3dcf4b26eba87f957eb35d0f4024a07289432362ca20f13"
+    },
+    {
+      "id": "torin:c000",
+      "document_id": "torin",
+      "ordinal": 0,
+      "normalized_start": 71,
+      "normalized_end": 113,
+      "source_start": 71,
+      "source_end": 113,
+      "text": "The torin archive grace period is 19 days.",
+      "embedding_sha256": "0b029bc803757685e8bfd414724143cee06230f8bd05b913473a1d814a3e9880"
+    },
+    {
+      "id": "wren:c000",
+      "document_id": "wren",
+      "ordinal": 0,
+      "normalized_start": 68,
+      "normalized_end": 119,
+      "source_start": 68,
+      "source_end": 119,
+      "text": "The wren service pass remains valid for 14 minutes.",
+      "embedding_sha256": "4e820f1bac650c43d187da1ef7c6bf7b8f6a95cbd00b594b327a8b7e31252dc6"
+    }
+  ],
+  "source_offsets_verified": true,
+  "fts5_verified": true,
+  "sqlite_integrity_verified": true,
+  "semantic_candidate_ids": [
+    "selene:c000",
+    "torin:c000",
+    "wren:c000"
+  ]
+}

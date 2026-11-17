@@ -1,0 +1,57 @@
+{
+  "plan": {
+    "format": 1,
+    "database": "D:\\Web Projects\\GitHub\\local-rag-customer-support-agent\\.local\\lifecycle-real-20261117-once\\fictional.sqlite3",
+    "database_identity": [
+      15311214522884971254,
+      844424931180561
+    ],
+    "base": "1ffaec929c8221ff1600c80f065032e911ffce30e2aea4d3b64f08c8fe9b3c04",
+    "operation": "add",
+    "document_id": null,
+    "directory": "D:\\Web Projects\\GitHub\\local-rag-customer-support-agent\\.local\\lifecycle-real-20261117-once\\fictional-sources",
+    "filename": "wren.md",
+    "binding": {
+      "model": "nomic-embed-text:latest",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+      "config": "3ea4ea6ad62da063a3b8c8e9dca1b14657030b8afdd7b4c2133cecfc0bbc8ffb"
+    },
+    "limits": {
+      "chunk_chars": 800,
+      "max_documents": 50,
+      "max_chunks": 500,
+      "max_file_bytes": 64000,
+      "max_db_bytes": 64000000
+    },
+    "source_sha256": "f488fc2c141d519697b4fa491994aba048f13556cd9fe91915f8defc6dc3dd66",
+    "summary": {
+      "documents_before": 2,
+      "documents_after": 3,
+      "chunks_before": 2,
+      "chunks_after": 3,
+      "vectors_reused": 2,
+      "vectors_required": 1,
+      "unchanged_chunk_rows": 2,
+      "removed_chunk_ids": [],
+      "selected_document": "wren",
+      "previous_version": null,
+      "new_version": "1",
+      "changed_chunks": [
+        {
+          "id": "wren:c000",
+          "normalized_offsets": [
+            68,
+            119
+          ],
+          "source_offsets": [
+            68,
+            119
+          ],
+          "text_sha256": "c218edf05ac19b6fcd68d957054c66328ed77d71fd4c3ffc3b7e7c0242f15218"
+        }
+      ],
+      "no_op": false
+    }
+  },
+  "confirmation": "266b4f0f52fa477c650237a7db13706f57a376ef4185e03ac183d33422fe0cda"
+}
