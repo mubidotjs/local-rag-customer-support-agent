@@ -1,0 +1,4 @@
+{
+  "name": "cleanup_stop",
+  "stdout": "Flag --time has been deprecated, use --timeout instead\n63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef\n"
+}

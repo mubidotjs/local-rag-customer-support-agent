@@ -1,0 +1,17 @@
+{
+  "phase": "PRE_EXECUTION_READINESS_SEPARATE_FROM_FROZEN_EXECUTION",
+  "docker_metadata_commands": 7,
+  "preserved_each_checkout": 397,
+  "readiness": {
+    "status": "READY_FOR_SEPARATE_AUTHORIZATION",
+    "commit": "5b1719c068e96b317f59cd24f26aa883361978b3",
+    "images": {
+      "backend": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f",
+      "frontend": "sha256:436dc7373b582d32ef61a5da7fdd6ba7dc3a76299ef7b3c58fb99196f8cf569c"
+    },
+    "plan_sha256": "3be4f849bff92b4e836328f4082b8a531259349814a3b145fac870602296c0e3",
+    "claim_consumed": false
+  },
+  "offline_proof_sha256": "5b0415bad167fc97b9ec96afe7ae5d00dc84189c4cdbff01b950d51c394b35fe",
+  "claim_consumed": false
+}

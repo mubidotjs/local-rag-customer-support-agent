@@ -1,0 +1,255 @@
+{
+  "status": "STOPPED",
+  "run_id": "container-runtime-5b-once",
+  "execution_sha": "5b1719c068e96b317f59cd24f26aa883361978b3",
+  "plan_sha256": "3be4f849bff92b4e836328f4082b8a531259349814a3b145fac870602296c0e3",
+  "model_mode": "disabled",
+  "actual_ollama_requests": 0,
+  "downloads": 0,
+  "retries": 0,
+  "actions": [
+    {
+      "name": "network_create",
+      "argv": [
+        "network",
+        "create",
+        "--internal",
+        "--label",
+        "org.project5.run=container-runtime-5b-once",
+        "project5-runtime-5b-once-isolated"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "frontend_create",
+      "argv": [
+        "create",
+        "--pull=never",
+        "--runtime=runc",
+        "--name",
+        "project5-runtime-5b-once-frontend",
+        "--label",
+        "org.project5.run=container-runtime-5b-once",
+        "--user",
+        "101:101",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges:true",
+        "--init",
+        "--restart=on-failure:3",
+        "--stop-timeout=20",
+        "--cpus",
+        ".25",
+        "--memory",
+        "128m",
+        "--memory-reservation",
+        "32m",
+        "--pids-limit",
+        "32",
+        "--tmpfs",
+        "/tmp:rw,noexec,nosuid,nodev,size=16m,uid=101,gid=101,mode=0700",
+        "--log-driver=local",
+        "--log-opt=max-size=1m",
+        "--log-opt=max-file=3",
+        "--env",
+        "HTTP_PROXY=",
+        "--env",
+        "HTTPS_PROXY=",
+        "--env",
+        "ALL_PROXY=",
+        "--env",
+        "http_proxy=",
+        "--env",
+        "https_proxy=",
+        "--env",
+        "all_proxy=",
+        "--env",
+        "NO_PROXY=127.0.0.1,localhost",
+        "--env",
+        "no_proxy=127.0.0.1,localhost",
+        "--network",
+        "01a0870e02d361baeb647154556d3929ed5cc82f72c608ea45ab993d7fbbc543",
+        "--publish",
+        "127.0.0.1:5173:8080",
+        "sha256:436dc7373b582d32ef61a5da7fdd6ba7dc3a76299ef7b3c58fb99196f8cf569c"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "frontend_start",
+      "argv": [
+        "start",
+        "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "backend_create",
+      "argv": [
+        "create",
+        "--pull=never",
+        "--runtime=runc",
+        "--name",
+        "project5-runtime-5b-once-backend",
+        "--label",
+        "org.project5.run=container-runtime-5b-once",
+        "--user",
+        "10001:10001",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges:true",
+        "--init",
+        "--restart=on-failure:3",
+        "--stop-timeout=20",
+        "--cpus",
+        "1",
+        "--memory",
+        "768m",
+        "--memory-reservation",
+        "256m",
+        "--pids-limit",
+        "64",
+        "--tmpfs",
+        "/tmp:rw,noexec,nosuid,nodev,size=16m,uid=10001,gid=10001,mode=0700",
+        "--log-driver=local",
+        "--log-opt=max-size=1m",
+        "--log-opt=max-file=3",
+        "--env",
+        "HTTP_PROXY=",
+        "--env",
+        "HTTPS_PROXY=",
+        "--env",
+        "ALL_PROXY=",
+        "--env",
+        "http_proxy=",
+        "--env",
+        "https_proxy=",
+        "--env",
+        "all_proxy=",
+        "--env",
+        "NO_PROXY=127.0.0.1,localhost",
+        "--env",
+        "no_proxy=127.0.0.1,localhost",
+        "--network",
+        "container:63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef",
+        "--env",
+        "RAG_MODEL_MODE=disabled",
+        "--mount",
+        "type=bind,source=/var/tmp/project5-runtime-5b-once/data,target=/var/lib/rag,readonly,bind-propagation=rprivate",
+        "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "backend_start",
+      "argv": [
+        "start",
+        "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "inspect_started",
+      "argv": [
+        "inspect",
+        "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef",
+        "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "probe_started",
+      "argv": [
+        "exec",
+        "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135",
+        "python",
+        "-c",
+        "import os,json,stat,ctypes,hashlib,sqlite3,sys\nfrom pathlib import Path\nfor name,expected in json.loads(sys.argv[1]).items():\n assert name.startswith('support_agent/') and hashlib.sha256((Path('/app')/name).read_bytes()).hexdigest()==expected\nfrom support_agent.store import connect\nfrom support_agent.production.config import Config\nfrom support_agent.production.storage import Guard\nc=Config.environment(); guard=Guard(c); ready,reason=guard.check()\nassert c.mode=='disabled' and not ready and reason=='model_disabled'\np=c.database; s=p.stat(); d=c.data_dir.stat()\nlib=ctypes.CDLL(None,use_errno=True); buf=ctypes.create_string_buffer(256)\nassert lib.statfs(os.fsencode(c.data_dir),ctypes.byref(buf))==0\nassert ctypes.c_long.from_buffer(buf).value==0xef53\nwith connect(p) as db:\n assert db.execute('PRAGMA query_only').fetchone()[0]==1\n try: db.execute('DELETE FROM documents')\n except sqlite3.OperationalError: pass\n else: raise AssertionError('SQL mutation accepted')\nfor path in (p,Path('/app/support_agent/api.py')):\n try: fd=os.open(path,os.O_WRONLY)\n except OSError: pass\n else: os.close(fd); raise AssertionError('Filesystem writable')\nassert os.statvfs(p).f_flag & os.ST_RDONLY and os.statvfs('/app').f_flag & os.ST_RDONLY\nassert Path('/proc/self/uid_map').read_text().split()==['0','0','4294967295']\nassert Path('/proc/self/gid_map').read_text().split()==['0','0','4294967295']\nassert int(Path('/sys/fs/cgroup/memory.max').read_text())==805306368\nassert int(Path('/sys/fs/cgroup/pids.max').read_text())==64\nquota,period=map(int,Path('/sys/fs/cgroup/cpu.max').read_text().split()); assert quota==period\nprint(json.dumps({'uid':os.getuid(),'gid':os.getgid(),'data_uid':d.st_uid,'data_gid':d.st_gid,'data_mode':stat.S_IMODE(d.st_mode),'mode':c.mode,'index_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'data_identity':[d.st_dev,d.st_ino],'database_identity':[s.st_dev,s.st_ino],'model_socket_exists':c.socket.exists(),'mutation_rejected':True,'root_readonly':True,'data_readonly':True}))\n",
+        "{\"support_agent/__init__.py\": \"960c25e8622b04947a6bfd0f1008d02518ed8e93243a4021465b05855ccd85d5\", \"support_agent/answer.py\": \"eba8c4fba6c727f963a7474fc6016357ed07066dbf8d6e356af3c7082b0f07a7\", \"support_agent/api.py\": \"a8ba15b609c510d00993b3daac0a85ee2b4d2b859a876902f626055b7c46703b\", \"support_agent/cli.py\": \"778a32576889b4564b468656dcec558ed943742d6ee4a215b03154fb5dd7338a\", \"support_agent/config.py\": \"022af92e46c96e69a15b5ee24b8d5ca22eb3e3fda71f40cd6f7e68e074b6ba5e\", \"support_agent/documents.py\": \"d61829f4999d9738f38faaf181b6bc92297f5d7904035d5b4a80f55de2ba62f0\", \"support_agent/embeddings.py\": \"6b3bdf359e510526809c69683150e2c7d406a0af5db6b297e620ac86c371b858\", \"support_agent/integrity.py\": \"57bfaaca645c461b9ccf735a06906cfc2f928b09782e291eb7961d9a6b4412f2\", \"support_agent/investigation/__init__.py\": \"dcf78217fbc0830080a8ac45066aa3eb466207db84ce2bea129f7704ed5756c7\", \"support_agent/investigation/__main__.py\": \"3a7fe3bbfd77f4ae506063525b11fe7a6273d18bff3df03bc225ed7554d8f92d\", \"support_agent/investigation/contracts.py\": \"bca583d2c16b31baef3dcede7b556a948583be35faf4e97573b3765bee565037\", \"support_agent/investigation/managed.py\": \"0f8089d83d5b03bb12cc4b5f03118b67fde0b772f04083ce2b2a938b9de992ba\", \"support_agent/investigation/mcp_server.py\": \"3edb1922adb8bb46d8b83a07402364035e7b10e06131c53b33833126b2ce863c\", \"support_agent/investigation/tools.py\": \"bace32c38da7066cd65d7476c90a2a920edaac703a4d5a7f11ccfdfe33e828b8\", \"support_agent/investigation/workflow.py\": \"e70eeeff6475bdc84e9fb00c3cee689825fac7a32447c678aba6f5b81e925072\", \"support_agent/lifecycle.py\": \"67330d51537083da3174918ff8bd51892acc9dfc2d401eb871490ccb30b03c8d\", \"support_agent/ollama.py\": \"970a572d9198c24907e896c90741d79ae041c6b13ff432fdbffc09973986dafa\", \"support_agent/production/__init__.py\": \"527f94e98490dc8a317bc4b827c6de2d9e8d6c850be3e66754b4ff7482892ab8\", \"support_agent/production/__main__.py\": \"cf1dac6060348874cb730043250045c9d09a2fde4b63b87c981c304b6c1a8535\", \"support_agent/production/app.py\": \"0833ee0cf3412a979294a9d6503f4185d2037f7682f74ecc7b0ecc2412dc5349\", \"support_agent/production/config.py\": \"b05865133f9847245bfb210230429df2076dcd6c7b08c49679c799b6cc5a3315\", \"support_agent/production/maintenance.py\": \"59b1309e14734794bf54ed093134870c24e10f87723b98797e176dcfe5ada468\", \"support_agent/production/model.py\": \"bb906c2047fd98fce9669ba08868d3b921afc4a8732b10e755a768b8f794b471\", \"support_agent/production/relay.py\": \"38913ace1fb5e258a5be6fcdaba3de319d9442316a9248fa4ac1ea9a83193b1e\", \"support_agent/production/storage.py\": \"589e6267a93e9d6e39f35a705c4c4212b0a0a7bc0f9effc4ad6985b3cb6654bd\", \"support_agent/production/volume.py\": \"bd697cc012644f000ca1461e7ce122fc5a773f4db792fbb1325753adef647a55\", \"support_agent/relevance.py\": \"d656baf744baf1a179b5ce6deb5de27b5425ed25f2b2686cd46c955ddf9ae6ec\", \"support_agent/retrieval.py\": \"f9b7e5b6ad10d6ea1a9de7c0ac7ae986045de50d27ddf4ce471c5991e246b840\", \"support_agent/store.py\": \"e4e8d5fde3676550db4950668e84ca8c0dfa57c9110eb934d81599181945e55d\", \"support_agent/text.py\": \"e3bcf8f2e24e5603cb13fce2c7297948408fa0a4afd2e2159b56b595b15f6bfa\"}"
+      ],
+      "cleanup": false,
+      "outcome": "ok"
+    },
+    {
+      "name": "cleanup_inspect",
+      "argv": [
+        "inspect",
+        "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef",
+        "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+      ],
+      "cleanup": true,
+      "outcome": "ok"
+    },
+    {
+      "name": "cleanup_stop",
+      "argv": [
+        "stop",
+        "--time",
+        "20",
+        "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+      ],
+      "cleanup": true,
+      "outcome": "ok"
+    },
+    {
+      "name": "cleanup_stop",
+      "argv": [
+        "stop",
+        "--time",
+        "20",
+        "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef"
+      ],
+      "cleanup": true,
+      "outcome": "ok"
+    },
+    {
+      "name": "cleanup_remove",
+      "argv": [
+        "rm",
+        "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+      ],
+      "cleanup": true,
+      "outcome": "ok"
+    },
+    {
+      "name": "cleanup_remove",
+      "argv": [
+        "rm",
+        "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef"
+      ],
+      "cleanup": true,
+      "outcome": "ok"
+    },
+    {
+      "name": "cleanup_network",
+      "argv": [
+        "network",
+        "rm",
+        "01a0870e02d361baeb647154556d3929ed5cc82f72c608ea45ab993d7fbbc543"
+      ],
+      "cleanup": true,
+      "outcome": "ok"
+    }
+  ],
+  "http": [],
+  "seconds": 19.309327,
+  "created_ids": {
+    "frontend": "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef",
+    "backend": "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+  },
+  "network_id": null,
+  "normal_actions": 7,
+  "cleanup_actions": 6,
+  "failure": {
+    "type": "ConnectionRefusedError",
+    "reason": "[Errno 111] Connection refused"
+  },
+  "cleanup": "complete for captured IDs",
+  "preservation": "PASS"
+}

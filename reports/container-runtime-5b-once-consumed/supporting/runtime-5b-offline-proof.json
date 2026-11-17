@@ -1,0 +1,13 @@
+{
+  "commit": "5b1719c068e96b317f59cd24f26aa883361978b3",
+  "source_sha256": {
+    "evaluation/container_runtime.py": "263af0aedd82d4484a6efa78967dc27c979dfc5d08975674a6227b6cca09ce3a",
+    "tests/test_container_runtime.py": "54c275dacc0fbbc3a404e341463a734b81a8ed6d0b57a9a860765662d0403db7",
+    ".github/workflows/runtime-preparation.yml": "164f861cb1b2df27cc7b44f9ca71a05886bc6c08c49d4553f638901f69053f72",
+    "reports/runtime-preparation/plan.json": "3be4f849bff92b4e836328f4082b8a531259349814a3b145fac870602296c0e3",
+    "reports/runtime-preparation/preservation.json": "77fd1dccf602fc6669ef0d63965b03f7754357fac5e435d60041b48989d7e6df"
+  },
+  "log_sha256": "1362460606b857f5d8bc8bb2896ed5d8a2d04afc639fd2eaa37cfc916ae1e1fe",
+  "exit_code": 0,
+  "recorded_at_utc": "2026-11-17T16:48:34.994327+00:00"
+}

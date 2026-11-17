@@ -1,0 +1,4 @@
+{
+  "name": "probe_started",
+  "stdout": "{\"uid\": 10001, \"gid\": 10001, \"data_uid\": 10001, \"data_gid\": 10001, \"data_mode\": 448, \"mode\": \"disabled\", \"index_sha256\": \"eb88217100ded903b9625cf632d9ff79788e7154b8a0c2611e0dd44258dfa0bd\", \"data_identity\": [2096, 59883], \"database_identity\": [2096, 59887], \"model_socket_exists\": false, \"mutation_rejected\": true, \"root_readonly\": true, \"data_readonly\": true}\n"
+}

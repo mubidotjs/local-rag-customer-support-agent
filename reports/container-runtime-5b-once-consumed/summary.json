@@ -1,0 +1,79 @@
+{
+  "status": "STOPPED",
+  "execution_sha": "5b1719c068e96b317f59cd24f26aa883361978b3",
+  "delivery_sha_rule": "The Git commit introducing this archive is the delivery SHA; it does not authorize execution",
+  "run_id": "container-runtime-5b-once",
+  "plan_sha256": "3be4f849bff92b4e836328f4082b8a531259349814a3b145fac870602296c0e3",
+  "failure": {
+    "type": "ConnectionRefusedError",
+    "reason": "[Errno 111] Connection refused"
+  },
+  "seconds": 19.309327,
+  "counts": {
+    "execution_preflight_metadata_commands": 7,
+    "normal_docker_actions": 7,
+    "cleanup_docker_commands": 6,
+    "execution_total_docker_commands": 20,
+    "separate_pre_execution_readiness_metadata_commands": 7,
+    "all_readiness_and_execution_docker_commands": 27,
+    "http_attempts": 1,
+    "http_responses": 0,
+    "backend_restarts": 0,
+    "runner_retries": 0,
+    "real_ollama_metadata": 0,
+    "real_embeddings": 0,
+    "real_generation": 0,
+    "model_downloads": 0,
+    "cloud_inference": 0
+  },
+  "images": {
+    "backend": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f",
+    "frontend": "sha256:436dc7373b582d32ef61a5da7fdd6ba7dc3a76299ef7b3c58fb99196f8cf569c"
+  },
+  "cleanup": "complete for captured IDs",
+  "captured_ids": {
+    "frontend": "63d639844105e15c35fa8484e23909d0b20376063fc205acf476362cc5d733ef",
+    "backend": "53d4d743f43256981a98c8af2aeca52f4b34a0cb645b405d07bcb851e3d34135"
+  },
+  "created_network_id": "01a0870e02d361baeb647154556d3929ed5cc82f72c608ea45ab993d7fbbc543",
+  "unresolved_captured_resources": "None reported by frozen cleanup; successful exact-ID removal receipts retained; no additional Docker inspection performed",
+  "index_sha256": "eb88217100ded903b9625cf632d9ff79788e7154b8a0c2611e0dd44258dfa0bd",
+  "probe": {
+    "uid": 10001,
+    "gid": 10001,
+    "data_uid": 10001,
+    "data_gid": 10001,
+    "data_mode": 448,
+    "mode": "disabled",
+    "index_sha256": "eb88217100ded903b9625cf632d9ff79788e7154b8a0c2611e0dd44258dfa0bd",
+    "data_identity": [
+      2096,
+      59883
+    ],
+    "database_identity": [
+      2096,
+      59887
+    ],
+    "model_socket_exists": false,
+    "mutation_rejected": true,
+    "root_readonly": true,
+    "data_readonly": true
+  },
+  "checks": {
+    "runtime_inspect_security": "PASS",
+    "backend_readonly_probe": "PASS",
+    "sqlite_source_offsets_fts_and_shape_validation": "PASS before first HTTP; existing Guard.checked_index",
+    "query_only_mutation_rejection": "PASS",
+    "same_origin_http": "NOT_VERIFIED; first GET / failed to connect",
+    "http_liveness": "NOT_REACHED",
+    "http_readiness_model_disabled": "NOT_REACHED; direct Guard reason model_disabled passed",
+    "restart_persistence": "NOT_REACHED",
+    "normal_graceful_shutdown": "NOT_REACHED; cleanup stops succeeded, graceful log check not reached",
+    "stopped_writer_backup_restore": "NOT_REACHED",
+    "historical_preservation": "PASS 397 files in execution, delivery and Windows original at publication preparation"
+  },
+  "claim_retained": true,
+  "claim_sha256": "659781019cfe636c16ec5100a37541a16e7e35b1f4595acb5128bf080a49362b",
+  "fake_embeddings_disclosure": "DETERMINISTIC_FAKE_768D_VECTORS_NOT_NOMIC_INFERENCE; pinned-shaped compatibility metadata only",
+  "limitation": "No second HTTP, warm-up, retry, networking investigation or model call. Cause of refused host-loopback connection is unresolved."
+}
