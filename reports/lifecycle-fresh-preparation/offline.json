@@ -1,0 +1,62 @@
+{
+  "status": "OFFLINE PREPARATION PASS; LIVE AUTHORIZATION PENDING",
+  "preparation_baseline": "a90b553394a5d5312734eac16346c1ac603a224b",
+  "application_source_baseline": "9c3bdb0879b247969a9bc67cda044ad095b97a07",
+  "new_run_id": "lifecycle-real-20261117-once",
+  "protected_files_verified": 233,
+  "preservation_sha256": "9a37569d38fdb00ebdfdfd468dc5f4c50422ddc39701e5677987775ef267817e",
+  "plan_sha256": "0aeca1c4ac2aabebf2f5d2d64ca8a4ed34661a446e61260b3bf8ebf54a17c5d3",
+  "source_sha256": {
+    "evaluation/lifecycle_live_fresh.py": "047a9fe20e8fed69a5374de3aeb90546c014839a88a5d781a268ed23fa30703e",
+    "tests/test_lifecycle_live_fresh.py": "33208889e1cf904459b8f16527bcabb13a63ef525756d6803dd27caba94b1ad7",
+    "evaluation/lifecycle_live.py": "1f3a68e97dc784d2a5211657e002acb72bd62c8524b5c1a4801f601ba897dcdc",
+    "reports/lifecycle-fresh-preparation/plan.json": "0aeca1c4ac2aabebf2f5d2d64ca8a4ed34661a446e61260b3bf8ebf54a17c5d3",
+    "reports/lifecycle-fresh-preparation/preservation.json": "9a37569d38fdb00ebdfdfd468dc5f4c50422ddc39701e5677987775ef267817e"
+  },
+  "actual_model_requests": {
+    "embedding_posts": 0,
+    "metadata_gets": 0,
+    "query_embeddings": 0,
+    "generation_posts": 0,
+    "downloads": 0,
+    "cloud_calls": 0
+  },
+  "new_live_claim_consumed": false,
+  "live_paths_exist": {
+    "workspace": false,
+    "database": false,
+    "claim": false,
+    "output": false
+  },
+  "previous_run_state": "consumed STOPPED; unchanged",
+  "tests": {
+    "pytest_passed": 235,
+    "pytest_real_skipped": 1,
+    "vitest_passed": 4,
+    "production_build": "PASS",
+    "synthetic_playwright_passed": 4,
+    "real_playwright_skipped": 2,
+    "new_preparation_tests": 22
+  },
+  "synthetic_only": {
+    "embedding_posts": 3,
+    "metadata_gets": 6,
+    "vectors_reused": [
+      0,
+      2,
+      2,
+      3,
+      3,
+      2
+    ],
+    "vectors_generated": [
+      2,
+      1,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "readiness_gate": "Exact-commit local test proof and --check-preparation must pass after commit; neither grants live authorization"
+}
