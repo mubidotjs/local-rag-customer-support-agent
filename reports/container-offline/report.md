@@ -9,6 +9,9 @@ workflows on that same SHA. Final delivery reports their exact run links.
 Docker CLI 29.9.2 is present; the `desktop-linux` Engine pipe was unavailable.
 No Docker containers, Ollama services or relay services were started. CI builds
 images and records image metadata; build success is distinct from runtime success.
+Builds also run Nginx's syntax check and import the production backend against its
+minimal runtime dependencies, asserting optional SDKs are absent. They do not
+start a server or contact a model.
 Actual embedding, generation, Ollama metadata and model-download requests: **0**.
 No historical one-shot claim was reset/reused and no new live claim was consumed.
 

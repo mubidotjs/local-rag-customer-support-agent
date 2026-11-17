@@ -66,9 +66,9 @@
     "tests/test_production.py": "65c671089d69f8eaea6fa788e67b4630a9f9e2357ebf8536aa3d174892645fef",
     "tests/test_production_edges.py": "bf73019219009387d5a7719aa7cee74ed205f1e566ea0594c3ad08d688dfef51",
     "tests/test_container_packaging.py": "d4ea9f535939b7dae72c0eec604c8101d5f09c0cb670f61e9f16b86a0667b831",
-    "containers/backend.Dockerfile": "6e41dc767909657cec0a6617cd4c47551b40ab2f4cbd2f516575f679ec96bc39",
+    "containers/backend.Dockerfile": "19b35dfbab5d78ebfe483b4d38786e0fc665a2efd7af68fb7280234f70fb69d4",
     "containers/compose.uds.yaml": "a8023609c7b71dd9a6b7d7ecd4144a22a6de4ebfec46b6b9f74a47e2018e3b97",
-    "containers/frontend.Dockerfile": "ac20696fd85d3aca3e4ee614e0ff27cb8b82c5420a1f4db7af574953017a429c",
+    "containers/frontend.Dockerfile": "67a64b274b582e9fa6cd180c481d841b6664d32360c5530c1995cfc727e21e7e",
     "containers/local.env.example": "a21cc5bd57c8dbe2668650848db61ad028ad4114ca19ff33b5b5c0818fbeaf7e",
     "containers/nginx.conf": "6710d7d25cc668f167c0470d2c3fda1b5ac16b6921a41949424bc27853b43016",
     "containers/requirements-runtime.lock": "c2c965d54a564420618aa12a34287240ee9b8a5d346c8d4c1e345e2f0cb9eac4"

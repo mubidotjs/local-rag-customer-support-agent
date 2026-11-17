@@ -9,6 +9,7 @@ FROM nginxinc/nginx-unprivileged:stable-alpine@sha256:e2a8fca8aa356d66159aaf8a87
 COPY containers/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /build/dist /usr/share/nginx/html
 USER 101:101
+RUN nginx -t
 STOPSIGNAL SIGQUIT
 HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=3 CMD wget -Y off -q -O /dev/null http://127.0.0.1:8080/health/live || exit 1
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

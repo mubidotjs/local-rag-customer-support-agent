@@ -12,6 +12,7 @@ COPY support_agent /app/support_agent
 RUN rm -rf /usr/local/lib/python3.13/site-packages/pip* /usr/local/bin/pip* /usr/local/include /root/.cache \
     && mkdir -p /var/lib/rag && chown 10001:10001 /var/lib/rag && chmod 700 /var/lib/rag
 USER 10001:10001
+RUN python -c "import support_agent.production.app, support_agent.production.relay, support_agent.production.maintenance; import importlib.util; from support_agent.production.config import Config; assert Config.environment({}).mode == 'disabled'; assert importlib.util.find_spec('mcp') is None and importlib.util.find_spec('langgraph') is None"
 STOPSIGNAL SIGTERM
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 CMD ["python", "-c", "import urllib.request; urllib.request.build_opener(urllib.request.ProxyHandler({})).open('http://127.0.0.1:8000/health/ready', timeout=2).close()"]
 ENTRYPOINT ["python", "-m", "support_agent.production"]
