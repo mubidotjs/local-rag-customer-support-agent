@@ -1,0 +1,70 @@
+{
+  "kind": "offline Milestone 4A acceptance; agent-authored synthetic fixtures, not human-validated benchmark",
+  "source_baseline": "6cfff9488f63809df1310205da1379e475c7b072",
+  "sdk_pins": {
+    "langgraph": "1.2.22",
+    "mcp": "2.3.0",
+    "mcp-types": "2.3.0",
+    "coverage": "7.17.3"
+  },
+  "protocol": "2026-07-28",
+  "actual_model_requests": {
+    "embedding_posts": 0,
+    "generation_posts": 0,
+    "ollama_metadata_gets": 0,
+    "downloads": 0
+  },
+  "preservation": {
+    "protected_files": 293,
+    "verified_available": 293,
+    "skipped_optional": []
+  },
+  "consumed_historical_claims_retained": true,
+  "new_live_claim_consumed": false,
+  "existing_tracked_files_modified": false,
+  "tests": {
+    "optional_backend": {
+      "passed": 313,
+      "skipped": 1
+    },
+    "base_without_optional_sdks": {
+      "passed": 242,
+      "skipped": 3
+    },
+    "vitest_passed": 4,
+    "playwright_synthetic_passed": 4,
+    "playwright_real_skipped": 2,
+    "production_build": "PASS"
+  },
+  "coverage": {
+    "covered_lines": 520,
+    "num_statements": 526,
+    "percent_covered": 95.49418604651163,
+    "percent_covered_display": "95",
+    "missing_lines": 6,
+    "excluded_lines": 0,
+    "percent_statements_covered": 98.85931558935361,
+    "percent_statements_covered_display": "99",
+    "num_branches": 162,
+    "num_partial_branches": 25,
+    "covered_branches": 137,
+    "missing_branches": 25,
+    "percent_branches_covered": 84.5679012345679,
+    "percent_branches_covered_display": "85"
+  },
+  "new_source_sha256": {
+    "support_agent/investigation/__init__.py": "dcf78217fbc0830080a8ac45066aa3eb466207db84ce2bea129f7704ed5756c7",
+    "support_agent/investigation/__main__.py": "3a7fe3bbfd77f4ae506063525b11fe7a6273d18bff3df03bc225ed7554d8f92d",
+    "support_agent/investigation/contracts.py": "bca583d2c16b31baef3dcede7b556a948583be35faf4e97573b3765bee565037",
+    "support_agent/investigation/mcp_server.py": "c1dd77597c7512358c16a9707b627a5990c8c73286210be56b0b68742cbe2e3e",
+    "support_agent/investigation/tools.py": "7be331ef664af07e3048220423582be4376c70455880d30dcd0adbab3fef5222",
+    "support_agent/investigation/workflow.py": "4eb313d4df2afa9760e8fb8320d51ef84df8fbe4ae7a5e57f154bf2fd3196498"
+  },
+  "historical_runner_sha256": "1f3a68e97dc784d2a5211657e002acb72bd62c8524b5c1a4801f601ba897dcdc",
+  "demonstrations": {
+    "fixed_expectation_cases": 4,
+    "passed": 4,
+    "databases_unchanged": 4
+  },
+  "phase_4b": "PROPOSED_ONLY_NOT_AUTHORIZED_NOT_EXECUTED"
+}

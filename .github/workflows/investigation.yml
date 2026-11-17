@@ -1,0 +1,35 @@
+name: Offline investigation
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+env:
+  RUN_REAL_OLLAMA: '0'
+  RAG_REAL_E2E: '0'
+  LANGSMITH_TRACING: 'false'
+  LANGCHAIN_TRACING_V2: 'false'
+  COVERAGE_FILE: '.local/investigation.coverage'
+  PYTHONUTF8: '1'
+jobs:
+  investigation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '${{ matrix.python }}'
+          cache: pip
+          cache-dependency-path: requirements-investigation.lock
+      - run: python -m pip install -r requirements-investigation.lock
+      - run: mkdir -p .local
+      - run: python -m coverage run --branch --source=support_agent.investigation -m pytest -q
+      - run: python -m coverage report --fail-under=90
+      - run: python -m coverage json -o .local/investigation-coverage.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: investigation-coverage-${{ matrix.python }}
+          path: .local/investigation-coverage.json

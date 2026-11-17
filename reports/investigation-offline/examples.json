@@ -1,0 +1,405 @@
+{
+  "kind": "agent-authored synthetic workflow demonstrations; not human-validated or live AI acceptance",
+  "actual_model_requests": 0,
+  "records": [
+    {
+      "case": "supported",
+      "question": "How long does the harbor access token remain valid?",
+      "kind": "invented offline demonstration, not real-model benchmark",
+      "database_unchanged": true,
+      "expected_abstention": false,
+      "result": {
+        "answer": "The harbor access token remains valid for 16 minutes. [harbor:c000]",
+        "abstained": false,
+        "citations": [
+          {
+            "chunk_id": "harbor:c000",
+            "document_id": "harbor",
+            "title": "Harbor Demo Guide",
+            "version": "1",
+            "quote": "The harbor access token remains valid for 16 minutes.",
+            "normalized_start": 69,
+            "normalized_end": 122,
+            "source_start": 69,
+            "source_end": 122,
+            "relevance": [
+              {
+                "intent": 0,
+                "facet": "validity_duration",
+                "entity": "harbor access token",
+                "requested_entity": "harbor access token",
+                "action": "",
+                "question_action_wording": "",
+                "source_action_wording": "",
+                "action_link": "literal_predicate",
+                "basis": "literal_entity_and_relation",
+                "support_chain": [
+                  {
+                    "chunk_id": "harbor:c000",
+                    "document_id": "harbor",
+                    "title": "Harbor Demo Guide",
+                    "version": "1",
+                    "quote": "The harbor access token remains valid for 16 minutes.",
+                    "normalized_start": 69,
+                    "normalized_end": 122,
+                    "source_start": 69,
+                    "source_end": 122
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "trace": [
+          {
+            "step": 1,
+            "state": "validate_request",
+            "outcome": "ok"
+          },
+          {
+            "step": 2,
+            "state": "investigation_plan",
+            "outcome": "ok"
+          },
+          {
+            "step": 3,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 4,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "search_passages",
+            "arguments_sha256": "92a25bd6898cd25ca0537c181273ad4934f14f0a821791db92a8cedfa555d78c",
+            "result_sha256": "c8b8e71942e5ff72a03bd8019a429076ccd8defc71beec536cdfca307a744159"
+          },
+          {
+            "step": 5,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 6,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "inspect_versions",
+            "arguments_sha256": "d1bc49636c879ed2509f5e5fa509b481bbc7e5ab6c9578d2adc00bb31ffe37cd",
+            "result_sha256": "c549420fa129795a3b8e9e529954e974d730b30de50b14e297e8fd0d0cbd05e3"
+          },
+          {
+            "step": 7,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 8,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "citation_metadata",
+            "arguments_sha256": "8e0ea36b4759c571fe6baa0c3bee08ef8a7fcc498b074196737dba50798b1e46",
+            "result_sha256": "6069d495d75cf43776b59af8d2bd825a9049bdf3a67c7173c22298819712070f"
+          },
+          {
+            "step": 9,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 10,
+            "state": "evidence_assembly",
+            "outcome": "ok"
+          },
+          {
+            "step": 11,
+            "state": "grounding_validation",
+            "outcome": "ok"
+          },
+          {
+            "step": 12,
+            "state": "final_response",
+            "outcome": "ok"
+          }
+        ],
+        "diagnostics": {
+          "reason": "verified_exact_quotes",
+          "steps": 12,
+          "tool_calls": 3,
+          "index_stamp": "92d03e1e5f49cd2b700cbdd1c0b24137e326f3a98595dab23cb288ceb7ee1703",
+          "model_calls": 0,
+          "mcp_protocol": "2026-07-28",
+          "mode": "offline-synthetic"
+        }
+      }
+    },
+    {
+      "case": "unsupported",
+      "question": "How long does the visitor pass remain valid?",
+      "kind": "invented offline demonstration, not real-model benchmark",
+      "database_unchanged": true,
+      "expected_abstention": true,
+      "result": {
+        "answer": "I cannot answer that from the available documentation.",
+        "abstained": true,
+        "citations": [],
+        "trace": [
+          {
+            "step": 1,
+            "state": "validate_request",
+            "outcome": "ok"
+          },
+          {
+            "step": 2,
+            "state": "investigation_plan",
+            "outcome": "ok"
+          },
+          {
+            "step": 3,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 4,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "search_passages",
+            "arguments_sha256": "94f5cc37a517210d1915b723202a226f8d035ec5dc998e537a644c7f57e8b38b",
+            "result_sha256": "c2f23d54df329974375308975ea4a4084a774c6ee94afaae229493b9a91fdfaa"
+          },
+          {
+            "step": 5,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 6,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "inspect_versions",
+            "arguments_sha256": "d1bc49636c879ed2509f5e5fa509b481bbc7e5ab6c9578d2adc00bb31ffe37cd",
+            "result_sha256": "c549420fa129795a3b8e9e529954e974d730b30de50b14e297e8fd0d0cbd05e3"
+          },
+          {
+            "step": 7,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 8,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "citation_metadata",
+            "arguments_sha256": "8e0ea36b4759c571fe6baa0c3bee08ef8a7fcc498b074196737dba50798b1e46",
+            "result_sha256": "6069d495d75cf43776b59af8d2bd825a9049bdf3a67c7173c22298819712070f"
+          },
+          {
+            "step": 9,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 10,
+            "state": "evidence_assembly",
+            "outcome": "ok"
+          },
+          {
+            "step": 11,
+            "state": "grounding_validation",
+            "outcome": "abstain",
+            "reason": "invalid_selection"
+          },
+          {
+            "step": 12,
+            "state": "final_response",
+            "outcome": "ok"
+          }
+        ],
+        "diagnostics": {
+          "reason": "invalid_selection",
+          "steps": 12,
+          "tool_calls": 3,
+          "index_stamp": "92d03e1e5f49cd2b700cbdd1c0b24137e326f3a98595dab23cb288ceb7ee1703",
+          "model_calls": 0,
+          "mcp_protocol": "2026-07-28",
+          "mode": "offline-synthetic"
+        }
+      }
+    },
+    {
+      "case": "source-injection",
+      "question": "How long does the harbor access token remain valid?",
+      "kind": "invented offline demonstration, not real-model benchmark",
+      "database_unchanged": true,
+      "expected_abstention": true,
+      "result": {
+        "answer": "I cannot answer that from the available documentation.",
+        "abstained": true,
+        "citations": [],
+        "trace": [
+          {
+            "step": 1,
+            "state": "validate_request",
+            "outcome": "ok"
+          },
+          {
+            "step": 2,
+            "state": "investigation_plan",
+            "outcome": "ok"
+          },
+          {
+            "step": 3,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 4,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "search_passages",
+            "arguments_sha256": "92a25bd6898cd25ca0537c181273ad4934f14f0a821791db92a8cedfa555d78c",
+            "result_sha256": "ee5e38f3b3d2069342b0da6b024bdff093b31f5c61d980c336bf665fde822ee9"
+          },
+          {
+            "step": 5,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 6,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "inspect_versions",
+            "arguments_sha256": "d1bc49636c879ed2509f5e5fa509b481bbc7e5ab6c9578d2adc00bb31ffe37cd",
+            "result_sha256": "c06ca5b47fdd108c80ea11581a4397cad9a5d543180dde79aa084b0185454446"
+          },
+          {
+            "step": 7,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 8,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "citation_metadata",
+            "arguments_sha256": "8e0ea36b4759c571fe6baa0c3bee08ef8a7fcc498b074196737dba50798b1e46",
+            "result_sha256": "6403b264027a1cfe2f23b90762fbf7e3c9a2b6fd90a38e1d226634263e1f0af7"
+          },
+          {
+            "step": 9,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 10,
+            "state": "evidence_assembly",
+            "outcome": "abstain",
+            "reason": "untrusted_source"
+          },
+          {
+            "step": 11,
+            "state": "final_response",
+            "outcome": "ok"
+          }
+        ],
+        "diagnostics": {
+          "reason": "untrusted_source",
+          "steps": 11,
+          "tool_calls": 3,
+          "index_stamp": "e53cb54eed7c178da2d1ef4fb3d90222692f5dd6d2a84059fda56a601523f8cf",
+          "model_calls": 0,
+          "mcp_protocol": "2026-07-28",
+          "mode": "offline-synthetic"
+        }
+      }
+    },
+    {
+      "case": "conflict",
+      "question": "How long does the harbor access token remain valid?",
+      "kind": "invented offline demonstration, not real-model benchmark",
+      "database_unchanged": true,
+      "expected_abstention": true,
+      "result": {
+        "answer": "I cannot answer that from the available documentation.",
+        "abstained": true,
+        "citations": [],
+        "trace": [
+          {
+            "step": 1,
+            "state": "validate_request",
+            "outcome": "ok"
+          },
+          {
+            "step": 2,
+            "state": "investigation_plan",
+            "outcome": "ok"
+          },
+          {
+            "step": 3,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 4,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "search_passages",
+            "arguments_sha256": "92a25bd6898cd25ca0537c181273ad4934f14f0a821791db92a8cedfa555d78c",
+            "result_sha256": "cb4588e441028d3eae543397b343b353890c522a78f6ad27bf8b317a363eca0d"
+          },
+          {
+            "step": 5,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 6,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "inspect_versions",
+            "arguments_sha256": "2a3d967e25826380184d943746deb43ea671c93bfe836ab111558cfb193a7d79",
+            "result_sha256": "412676c20012ced218455373080bdfb94cc10ce9d1d368561ffe83e51dbf5985"
+          },
+          {
+            "step": 7,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 8,
+            "state": "tool_execution",
+            "outcome": "ok",
+            "tool": "citation_metadata",
+            "arguments_sha256": "ccf0da91fd398321d91618a022ef5d29d91ad6f7bcfa85c044ea1c9c494e1c1e",
+            "result_sha256": "b8c98c84ddd393370b2b983a7becacb6e924cabf96ca8c4212e483ad9d31c5c9"
+          },
+          {
+            "step": 9,
+            "state": "tool_selection",
+            "outcome": "ok"
+          },
+          {
+            "step": 10,
+            "state": "evidence_assembly",
+            "outcome": "abstain",
+            "reason": "conflicting_sources"
+          },
+          {
+            "step": 11,
+            "state": "final_response",
+            "outcome": "ok"
+          }
+        ],
+        "diagnostics": {
+          "reason": "conflicting_sources",
+          "steps": 11,
+          "tool_calls": 3,
+          "index_stamp": "b27810f5721b3b0986cd3c652afb50edc10a3c91c51af6c81c096a40e7e8b593",
+          "model_calls": 0,
+          "mcp_protocol": "2026-07-28",
+          "mode": "offline-synthetic"
+        }
+      }
+    }
+  ]
+}
