@@ -23,9 +23,16 @@ jobs:
         run: python -m coverage run --branch --source=evaluation.container_runtime -m pytest tests/test_container_runtime.py -q
       - run: python -m coverage report --fail-under=75
       - run: python -m coverage json -o .local/runtime-preparation-coverage.json
+      - name: Isolated ingress diagnostic fake transport only
+        run: |
+          python -m coverage run --branch --source=evaluation.container_port_diagnostic -m pytest tests/test_container_port_diagnostic.py -q
+          python -m coverage report --fail-under=70
+          python -m coverage json -o .local/port-diagnostic-coverage.json
       - uses: actions/upload-artifact@v4
         with:
           name: runtime-preparation-proof
           include-hidden-files: true
           if-no-files-found: error
-          path: .local/runtime-preparation-coverage.json
+          path: |
+            .local/runtime-preparation-coverage.json
+            .local/port-diagnostic-coverage.json
