@@ -1,0 +1,391 @@
+{
+  "result": {
+    "status": "DIAGNOSTIC_COMPLETE",
+    "run_id": "container-port-diag-5b-v4-once",
+    "source": "24707cacf6e55a0d6a9f5e8bd04b6af68cfa7757",
+    "plan_sha256": "ced9a01a7cc79553244fc2c4f69742cee4d54e13f3e391898ab580d6183f9129",
+    "unresolved_cleanup": {},
+    "results": {
+      "publication": "requested_but_not_effective",
+      "inside_http": {
+        "status": 200,
+        "body": "project5-fictional-ingress-diagnostic\n"
+      },
+      "cross_bridge_tcp": "denied_with_positive_control",
+      "ubuntu_published_http": "skipped_no_effective_mapping",
+      "ubuntu_private_socket_http": {
+        "status": 200,
+        "body": "project5-fictional-ingress-diagnostic\n"
+      }
+    },
+    "captured_ids": {
+      "net_responder": "84e6278bf2ccaa73101d3d329deb116c1a0da877922e406ee982d664fd522d7d",
+      "net_sentinel": "39e390336cbefed64b864d3685c436ed4e3d74240704f49677ba0daaaa0c1470",
+      "responder": "c741e8dd420a5ecc3013ab0cd9a3de5b6a143f1b9667798f9e9aba92b1bdff99",
+      "sentinel": "a3390049a8af0ae16f6d039b62ef287daf61ed419384ca24d8166abe1804f945"
+    },
+    "normal_docker": 14,
+    "cleanup_docker": 6,
+    "http_attempts": 2,
+    "normal_cli_launches": 14,
+    "cleanup_cli_launches": 6,
+    "actual_model_requests": 0,
+    "windows_localhost": "not_tested",
+    "claim_created": true,
+    "docker_uncertainty": null,
+    "cleanup_owner_review": false,
+    "preflight_sha256": "7ba6557e4d35e63ea4bc4fb7114b4f41d07f38abba36f4ee0b8b8898af2fcd8c",
+    "journal_sha256": "c88242f132287f2dc869b1b6ab22bb3d8b2c37d37ca33e6351d59470214618c0"
+  },
+  "preservation": {
+    "protected": 397,
+    "original_5b_archive": 31,
+    "v3_archive": 5,
+    "original_claim_sha256": "659781019cfe636c16ec5100a37541a16e7e35b1f4595acb5128bf080a49362b",
+    "v3_original_audit": {
+      "actions.jsonl": "d62fd2324204818a130ff5471bd429ec83979bd2a3d6a2d3e2cdc7434a19465f",
+      "intent.json": "53dd9b5d1c5b63d9558125a4026cf57935609f467676feb0bbc0f28ea96e866c",
+      "result.json": "10e34cb0b6da54c2ff38cb58f612faeb11e729740bd63d981c54a70b3516673b"
+    },
+    "plans": {
+      "plan.json": "fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74",
+      "plan-preclaim-v2.json": "7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471",
+      "plan-bounded-cli-v3.json": "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7",
+      "plan-split-cli-home-v4.json": "ced9a01a7cc79553244fc2c4f69742cee4d54e13f3e391898ab580d6183f9129"
+    }
+  },
+  "context": {
+    "name": "default",
+    "endpoint": "unix:///var/run/docker.sock"
+  },
+  "engine": {
+    "ID": "d86d0c2c-42a0-4420-9f0d-0027845314bf",
+    "OSType": "linux",
+    "Architecture": "x86_64",
+    "DefaultRuntime": "runc",
+    "CgroupVersion": "2",
+    "SecurityOptions": [
+      "name=seccomp,profile=builtin",
+      "name=cgroupns"
+    ]
+  },
+  "image": {
+    "id": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f",
+    "os": "linux",
+    "arch": "amd64",
+    "user": "10001:10001",
+    "labels": {
+      "org.project5.source": "f267a6dbfd3a67aae1e8285e8cca3e05897b1539",
+      "org.project5.context": "3691f6470f429d194e5b21eaffc75dc1e9df659141fb1d75dfb2c1c43de7d91a"
+    }
+  },
+  "containers": [
+    {
+      "Id": "c741e8dd420a5ecc3013ab0cd9a3de5b6a143f1b9667798f9e9aba92b1bdff99",
+      "Name": "/container-port-diagnostic-v4-responder",
+      "Image": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f",
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/tmp/project5-port-diag-5b-v4-once/ingress",
+          "Destination": "/ingress",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "user": "10001:10001",
+      "labels": {
+        "org.project5.diagnostic": "container-port-diag-5b-v4-once"
+      },
+      "host_config": {
+        "PortBindings": {
+          "18080/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "45173"
+            }
+          ]
+        },
+        "ReadonlyRootfs": true,
+        "Privileged": false,
+        "CapAdd": null,
+        "CapDrop": [
+          "ALL"
+        ],
+        "SecurityOpt": [
+          "no-new-privileges:true"
+        ],
+        "PidsLimit": 24,
+        "NanoCpus": 500000000,
+        "Memory": 134217728,
+        "MemorySwap": 134217728,
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "NetworkMode": "84e6278bf2ccaa73101d3d329deb116c1a0da877922e406ee982d664fd522d7d"
+      },
+      "effective": {
+        "18080/tcp": []
+      },
+      "networks": {
+        "container-port-diagnostic-v4-responder": {
+          "NetworkID": "84e6278bf2ccaa73101d3d329deb116c1a0da877922e406ee982d664fd522d7d",
+          "Gateway": "",
+          "IPv6Gateway": "",
+          "IPAddress": "172.20.0.2"
+        }
+      }
+    },
+    {
+      "Id": "a3390049a8af0ae16f6d039b62ef287daf61ed419384ca24d8166abe1804f945",
+      "Name": "/container-port-diagnostic-v4-sentinel",
+      "Image": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f",
+      "Mounts": [],
+      "user": "10001:10001",
+      "labels": {
+        "org.project5.diagnostic": "container-port-diag-5b-v4-once"
+      },
+      "host_config": {
+        "PortBindings": {},
+        "ReadonlyRootfs": true,
+        "Privileged": false,
+        "CapAdd": null,
+        "CapDrop": [
+          "ALL"
+        ],
+        "SecurityOpt": [
+          "no-new-privileges:true"
+        ],
+        "PidsLimit": 24,
+        "NanoCpus": 500000000,
+        "Memory": 134217728,
+        "MemorySwap": 134217728,
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "NetworkMode": "39e390336cbefed64b864d3685c436ed4e3d74240704f49677ba0daaaa0c1470"
+      },
+      "effective": {},
+      "networks": {
+        "container-port-diagnostic-v4-sentinel": {
+          "NetworkID": "39e390336cbefed64b864d3685c436ed4e3d74240704f49677ba0daaaa0c1470",
+          "Gateway": "",
+          "IPv6Gateway": "",
+          "IPAddress": "172.21.0.2"
+        }
+      }
+    }
+  ],
+  "networks": [
+    {
+      "Id": "84e6278bf2ccaa73101d3d329deb116c1a0da877922e406ee982d664fd522d7d",
+      "Name": "container-port-diagnostic-v4-responder",
+      "Driver": "bridge",
+      "Internal": true,
+      "EnableIPv6": false,
+      "diagnostic_label": "container-port-diag-5b-v4-once",
+      "container_ids": [
+        "c741e8dd420a5ecc3013ab0cd9a3de5b6a143f1b9667798f9e9aba92b1bdff99"
+      ]
+    },
+    {
+      "Id": "39e390336cbefed64b864d3685c436ed4e3d74240704f49677ba0daaaa0c1470",
+      "Name": "container-port-diagnostic-v4-sentinel",
+      "Driver": "bridge",
+      "Internal": true,
+      "EnableIPv6": false,
+      "diagnostic_label": "container-port-diag-5b-v4-once",
+      "container_ids": [
+        "a3390049a8af0ae16f6d039b62ef287daf61ed419384ca24d8166abe1804f945"
+      ]
+    }
+  ],
+  "fs": {
+    "audit_dir": "/var/tmp/project5-port-diag-5b-v4-once.preflight",
+    "workspace": "/var/tmp/project5-port-diag-5b-v4-once",
+    "modes": {
+      "project5-port-diag-5b-v4-once.preflight": {
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      "project5-port-diag-5b-v4-once.preflight/actions.jsonl": {
+        "type": "-",
+        "mode": "0o400",
+        "uid": 10001,
+        "gid": 10001,
+        "bytes": 25621,
+        "sha256": "7ba6557e4d35e63ea4bc4fb7114b4f41d07f38abba36f4ee0b8b8898af2fcd8c"
+      },
+      "project5-port-diag-5b-v4-once.preflight/intent.json": {
+        "type": "-",
+        "mode": "0o644",
+        "uid": 10001,
+        "gid": 10001,
+        "bytes": 190,
+        "sha256": "16ac66d9189274885f34468b1e44125f61840faf9c8d4388cfe900ce8ca2ac45"
+      },
+      "project5-port-diag-5b-v4-once": {
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      "project5-port-diag-5b-v4-once/claim.json": {
+        "type": "-",
+        "mode": "0o644",
+        "uid": 10001,
+        "gid": 10001,
+        "bytes": 308,
+        "sha256": "56ae459b854b63de3ceada1b91de4a6a77f96b634ac2beff2e165ff488de43a4"
+      },
+      "project5-port-diag-5b-v4-once/actions.jsonl": {
+        "type": "-",
+        "mode": "0o400",
+        "uid": 10001,
+        "gid": 10001,
+        "bytes": 63773,
+        "sha256": "c88242f132287f2dc869b1b6ab22bb3d8b2c37d37ca33e6351d59470214618c0"
+      },
+      "project5-port-diag-5b-v4-once/result.json": {
+        "type": "-",
+        "mode": "0o644",
+        "uid": 10001,
+        "gid": 10001,
+        "bytes": 52287,
+        "sha256": "8d41fa80f0c7ed525a78ec2cbd4746334dc276d103b4317371ede5e3a360ebd6"
+      },
+      "project5-port-diag-5b-v4-once.preflight/cli-home": {
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      "project5-port-diag-5b-v4-once.preflight/cli-config": {
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      }
+    },
+    "cli_config_entries": [],
+    "cli_home_entries": [
+      {
+        "path": ".docker",
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      {
+        "path": ".docker/desktop",
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      {
+        "path": ".docker/desktop/log",
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      {
+        "path": ".docker/desktop/log/host",
+        "type": "d",
+        "mode": "0o700",
+        "uid": 10001,
+        "gid": 10001
+      },
+      {
+        "path": ".docker/desktop/log/host/docker-desktop.log",
+        "type": "-",
+        "mode": "0o600",
+        "uid": 10001,
+        "gid": 10001,
+        "bytes": 466,
+        "sha256": "52bde20b7b10e15655a59d1ce2c0f00d3ea78cd50a760b8fda4f8050f4af5e95"
+      }
+    ]
+  },
+  "probe_receipts": {
+    "inside_http": [
+      "{\"status\": 200, \"body\": \"project5-fictional-ingress-diagnostic\\n\"}\n",
+      {
+        "status": 200,
+        "body": "project5-fictional-ingress-diagnostic\n"
+      }
+    ],
+    "sentinel_control": [
+      "sentinel_listening\n"
+    ],
+    "blocked_egress": [
+      "cross_bridge_blocked\n"
+    ],
+    "ubuntu_private_socket_http": [
+      {
+        "status": 200,
+        "body": "project5-fictional-ingress-diagnostic\n"
+      }
+    ]
+  },
+  "cleanup_receipts": {
+    "cleanup_stop_sentinel": [
+      "Flag --time has been deprecated, use --timeout instead\na3390049a8af0ae16f6d039b62ef287daf61ed419384ca24d8166abe1804f945\n"
+    ],
+    "cleanup_remove_sentinel": [
+      "a3390049a8af0ae16f6d039b62ef287daf61ed419384ca24d8166abe1804f945\n"
+    ],
+    "cleanup_stop_responder": [
+      "Flag --time has been deprecated, use --timeout instead\nc741e8dd420a5ecc3013ab0cd9a3de5b6a143f1b9667798f9e9aba92b1bdff99\n"
+    ],
+    "cleanup_remove_responder": [
+      "c741e8dd420a5ecc3013ab0cd9a3de5b6a143f1b9667798f9e9aba92b1bdff99\n"
+    ],
+    "cleanup_remove_net_sentinel": [
+      "39e390336cbefed64b864d3685c436ed4e3d74240704f49677ba0daaaa0c1470\n"
+    ],
+    "cleanup_remove_net_responder": [
+      "84e6278bf2ccaa73101d3d329deb116c1a0da877922e406ee982d664fd522d7d\n"
+    ]
+  },
+  "preflight": {
+    "checkout": "/home/project5-acceptance/local-rag-customer-support-agent-port-diag-v4",
+    "source": "24707cacf6e55a0d6a9f5e8bd04b6af68cfa7757",
+    "host": {
+      "os": "linux",
+      "uid": 10001,
+      "gid": 10001,
+      "filesystem": "ext4"
+    },
+    "python": "3.13.18",
+    "landlock_abi": 7,
+    "protected": 397,
+    "original_archive": 31,
+    "stopped_v3_archive": 5,
+    "v3_raw_audit_verified": 3,
+    "prior_claim_sha256": "659781019cfe636c16ec5100a37541a16e7e35b1f4595acb5128bf080a49362b",
+    "plans": [
+      "fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74",
+      "7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471",
+      "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7",
+      "ced9a01a7cc79553244fc2c4f69742cee4d54e13f3e391898ab580d6183f9129"
+    ],
+    "live_paths_absent": true,
+    "source_ci": "https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44261640822",
+    "docker_cli_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621"
+  },
+  "slot_totals": {
+    "normal": 14,
+    "cleanup": 6,
+    "total": 20,
+    "confirmed_cli_launches": 20,
+    "http": 2
+  },
+  "archive_disclosure": "Public summary and journal index omit full Engine inventory. Original journals are retained in Ubuntu with hashes below."
+}
