@@ -1,0 +1,6 @@
+{"utc":"2026-11-18T07:06:09.379412+00:00","event":"before","transport":"docker","action":"context","argv":["context","inspect","default"],"has_details":false}
+{"utc":"2026-11-18T07:06:09.414690+00:00","event":"result","action":"context","output_bytes":391}
+{"utc":"2026-11-18T07:06:09.417900+00:00","event":"before","transport":"docker","action":"engine","argv":["info","--format","{{json .}}"],"has_details":false}
+{"utc":"2026-11-18T07:06:13.843397+00:00","event":"result","action":"engine","output_bytes":16914}
+{"utc":"2026-11-18T07:06:13.848418+00:00","event":"before","transport":"docker","action":"image","argv":["image","inspect","sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f"],"has_details":false}
+{"utc":"2026-11-18T07:06:13.853259+00:00","event":"error","action":"image","reason":"docker_config_not_private_empty","possibly_committed":false,"error":"StopRun: docker_config_not_private_empty","has_details":false}

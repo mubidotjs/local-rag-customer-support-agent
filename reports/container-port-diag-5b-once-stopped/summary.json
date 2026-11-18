@@ -1,0 +1,116 @@
+{
+  "status": "STOPPED",
+  "diagnostic_id": "container-port-diag-5b-once",
+  "execution_source": "21949c13b7db31166dd86e7cf697d78908deb628",
+  "plan_sha256": "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7",
+  "source_ci": "https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44252750558",
+  "stop": "The image step failed its local private-empty-config check before the child CLI was invoked. The retained config tree shows a Desktop log under the HOME directory that the runner also used as --config.",
+  "counts": {
+    "reserved_normal_actions": 3,
+    "actual_docker_cli_invocations": 2,
+    "verified_metadata_responses": 2,
+    "cleanup_commands": 0,
+    "http_attempts": 0,
+    "actual_model_requests": 0
+  },
+  "context": {
+    "Name": "default",
+    "endpoint": "unix:///var/run/docker.sock"
+  },
+  "engine": {
+    "ID": "d86d0c2c-42a0-4420-9f0d-0027845314bf",
+    "OSType": "linux",
+    "Architecture": "x86_64",
+    "DefaultRuntime": "runc",
+    "CgroupVersion": "2",
+    "SecurityOptions": [
+      "name=seccomp,profile=builtin",
+      "name=cgroupns"
+    ],
+    "MemoryLimit": true,
+    "PidsLimit": true,
+    "CpuCfsQuota": true,
+    "CpuCfsPeriod": true
+  },
+  "image": {
+    "status": "NOT_REACHED",
+    "expected_full_id": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f"
+  },
+  "evidence": [
+    "No tested mapping, internal HTTP, Ubuntu TCP, private Unix-socket HTTP, cross-bridge denial or sentinel outcome.",
+    "No resource creation command was reached; no known, unresolved or possibly committed Docker resources."
+  ],
+  "config": {
+    "mode": "0o700",
+    "uid": 10001,
+    "gid": 10001,
+    "entries": [
+      {
+        "relative_path": ".docker",
+        "type": "d",
+        "mode": "0o755",
+        "uid": 10001,
+        "gid": 10001,
+        "size": 4096
+      },
+      {
+        "relative_path": ".docker/desktop",
+        "type": "d",
+        "mode": "0o755",
+        "uid": 10001,
+        "gid": 10001,
+        "size": 4096
+      },
+      {
+        "relative_path": ".docker/desktop/log",
+        "type": "d",
+        "mode": "0o755",
+        "uid": 10001,
+        "gid": 10001,
+        "size": 4096
+      },
+      {
+        "relative_path": ".docker/desktop/log/host",
+        "type": "d",
+        "mode": "0o755",
+        "uid": 10001,
+        "gid": 10001,
+        "size": 4096
+      },
+      {
+        "relative_path": ".docker/desktop/log/host/docker-desktop.log",
+        "type": "-",
+        "mode": "0o644",
+        "uid": 10001,
+        "gid": 10001,
+        "size": 464
+      }
+    ]
+  },
+  "audit": {
+    "path": "/var/tmp/project5-port-diag-5b-once.preflight",
+    "retained_exclusive": true,
+    "audit_mode": "0o700",
+    "journal_mode": "0o400",
+    "raw_file_sha256": {
+      "actions.jsonl": "d62fd2324204818a130ff5471bd429ec83979bd2a3d6a2d3e2cdc7434a19465f",
+      "intent.json": "53dd9b5d1c5b63d9558125a4026cf57935609f467676feb0bbc0f28ea96e866c",
+      "result.json": "10e34cb0b6da54c2ff38cb58f612faeb11e729740bd63d981c54a70b3516673b"
+    },
+    "raw_journal_bytes": 21645,
+    "permanent_workspace_created": false,
+    "permanent_claim_created": false
+  },
+  "preservation": {
+    "preflight_protected": 397,
+    "postflight_protected": 397,
+    "preflight_archive": 31,
+    "postflight_archive": 31,
+    "prior_claim_sha256": "659781019cfe636c16ec5100a37541a16e7e35b1f4595acb5128bf080a49362b",
+    "plan_hashes": [
+      "fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74",
+      "7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471",
+      "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7"
+    ]
+  }
+}

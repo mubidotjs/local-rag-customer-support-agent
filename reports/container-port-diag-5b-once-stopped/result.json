@@ -1,0 +1,19 @@
+{
+  "status": "STOPPED",
+  "run_id": "container-port-diag-5b-once",
+  "source": "21949c13b7db31166dd86e7cf697d78908deb628",
+  "plan_sha256": "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7",
+  "failure": "TargetUncertain: docker_config_not_private_empty",
+  "claim_created": false,
+  "captured_ids": {},
+  "normal_docker": 3,
+  "cleanup_docker": 0,
+  "http_attempts": 0,
+  "actual_model_requests": 0,
+  "docker_uncertainty": {
+    "action": "image",
+    "reason": "docker_config_not_private_empty",
+    "possibly_committed": false
+  },
+  "journal_sha256": "d62fd2324204818a130ff5471bd429ec83979bd2a3d6a2d3e2cdc7434a19465f"
+}
