@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 import hashlib
 from threading import Barrier
 import json
+import stat
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -57,7 +59,9 @@ class Fake:
     def __init__(self, work, mode="empty", fail=None, mutate=None):
         self.work, self.mode, self.fail, self.mutate = work, mode, fail, mutate
         self.calls, self.http, self.ready = [], [], False
-        self.engine, self.image, self.token = d.ENGINE, d.IMAGE, "attested-fake"
+        self.engine, self.image, self.token = d.ENGINE, d.IMAGE, "same-local-endpoint"
+        self.context, self.endpoint = "default", d.ENDPOINT
+        self.image_labels = dict(d.IMAGE_LABELS)
         self.audit = work.with_name(work.name + ".preflight")
 
     def binding(self):
@@ -80,7 +84,7 @@ class Fake:
         if action == self.fail:
             raise d.StopRun("injected docker failure")
         if action == "context":
-            return json.dumps([{"Endpoints": {"docker": {"Host": "unix:///var/run/docker.sock"}}}])
+            return json.dumps([{"Name": self.context, "Endpoints": {"docker": {"Host": self.endpoint}}}])
         if action == "engine":
             return json.dumps({"ID": self.engine, "OSType": "linux", "Architecture": "x86_64",
                                "DefaultRuntime": "runc", "SecurityOptions": ["name=seccomp,profile=builtin"],
@@ -88,7 +92,7 @@ class Fake:
                                "CpuCfsQuota": True, "CpuCfsPeriod": True})
         if action == "image":
             return json.dumps([{"Id": self.image, "Os": "linux", "Architecture": "amd64",
-                                "Config": {"User": "10001:10001", "Labels": d.IMAGE_LABELS,
+                                "Config": {"User": "10001:10001", "Labels": self.image_labels,
                                            "Env": [f"{k}={v}" for k, v in d.IMAGE_ENVIRONMENTS["backend"].items()]}}])
         if action in ("network_responder", "network_sentinel", "create_responder", "create_sentinel"):
             if action.startswith("network"):
@@ -234,7 +238,12 @@ def test_created_id_uncertain_only_known_resources_removed(session):
     instance, fake = session
     fake.fail = "create_sentinel"
     outcome = run(instance)
-    assert outcome["unresolved_cleanup"] == {"sentinel": "unknown_id_manual_review"}
+    assert outcome["unresolved_cleanup"] == {
+        "sentinel": "unknown_id_manual_review", "responder": fake.ids["responder"],
+        "net_responder": fake.ids["net_responder"], "net_sentinel": fake.ids["net_sentinel"],
+    }
+    assert outcome["docker_uncertainty"]["possibly_committed"] is True
+    assert outcome["cleanup_docker"] == 0 and outcome["cleanup_owner_review"]
     assert all(fake.ids["sentinel"] not in args for _, args in fake.calls)
 
 
@@ -264,7 +273,7 @@ def test_deadline_refuses_before_audit_or_claim(session):
 
 def test_budgets_wrong_order_and_unauthorized_extra_calls(session):
     instance, fake = session
-    instance.bound_engine = fake.binding()
+    instance.local_identity = fake.binding()
     with pytest.raises(d.StopRun, match="docker_action_requires_claim"):
         instance.docker("start_responder")
     with pytest.raises(d.StopRun, match="docker_order"):
@@ -307,7 +316,8 @@ def test_plan_pinned_and_budgets_match_code():
     assert d.sha(d.PLAN) == d.PLAN_SHA
     original = json.loads(d.ORIGINAL_PLAN.read_bytes())
     assert d.sha(d.ORIGINAL_PLAN) == d.ORIGINAL_PLAN_SHA
-    assert all(plan == original[k] for k, plan in json.loads(d.PLAN.read_bytes()).items()
+    assert d.sha(d.PREVIOUS_PLAN) == d.PREVIOUS_PLAN_SHA
+    assert all(value == original[k] for k, value in json.loads(d.PLAN.read_bytes()).items()
                if k in original and k != "evidence")
     plan = json.loads(d.PLAN.read_bytes())
     limits = plan["limits"]
@@ -321,15 +331,24 @@ def test_plan_pinned_and_budgets_match_code():
 
 
 @pytest.mark.parametrize(("problem", "count", "reason"), [
+    ("context", 1, "unexpected_docker_context_or_endpoint"),
+    ("endpoint", 1, "unexpected_docker_context_or_endpoint"),
     ("engine", 2, "unexpected_engine_identity"),
+    ("labels", 3, "unexpected_image_identity"),
     ("image", 3, "unexpected_image_identity"),
     ("command", 2, "injected docker failure"),
     ("port", 3, "port unavailable"),
 ])
 def test_preflight_failure_keeps_audit_and_does_not_claim(session, problem, count, reason):
     instance, fake = session
-    if problem == "engine":
+    if problem == "context":
+        fake.context = "alternate"
+    elif problem == "endpoint":
+        fake.endpoint = "tcp://127.0.0.1:2375"
+    elif problem == "engine":
         fake.engine = "different-engine"
+    elif problem == "labels":
+        fake.image_labels.pop("org.project5.context")
     elif problem == "image":
         fake.image = "different-image"
     elif problem == "command":
@@ -417,7 +436,7 @@ def test_binding_change_during_preflight_refuses_claim(session):
     def verify():
         fake.token = "switched-backend"
     result = instance.run("a" * 40, verify)
-    assert "docker_engine_binding_changed" in result["failure"]
+    assert "docker_local_identity_changed" in result["failure"]
     assert not instance.work.exists() and len(fake.calls) == 3
 
 
@@ -429,7 +448,7 @@ def test_binding_change_after_claim_stops_before_first_mutation(session, monkeyp
         fake.token = "switched-backend"
     monkeypatch.setattr(instance, "claim", switch)
     result = run(instance)
-    assert result["claim_created"] and "docker_engine_binding_changed" in result["failure"]
+    assert result["claim_created"] and "docker_local_identity_changed" in result["failure"]
     assert len(fake.calls) == 3 and not fake.http
 
 
@@ -442,10 +461,153 @@ def test_preservation_failure_prevents_claim(session):
     assert not instance.work.exists() and len(fake.calls) == 3
 
 
-def test_native_transport_blocks_before_audit_or_docker(tmp_path, monkeypatch):
-    transport = d.Transport()
-    monkeypatch.setattr(transport, "command", lambda *_: pytest.fail("native Docker must not run"))
-    instance = d.Session(transport, tmp_path / "synthetic")
-    with pytest.raises(d.StopRun, match="desktop_engine_continuity_unattested"):
+
+@pytest.mark.parametrize("key", ["DOCKER_CONTEXT", "DOCKER_HOST", "DOCKER_CONFIG",
+                                  "DOCKER_TLS", "DOCKER_TLS_VERIFY", "DOCKER_CERT_PATH", "DOCKER_API_VERSION"])
+def test_native_override_rejected_before_files_or_subprocess(tmp_path, monkeypatch, key):
+    monkeypatch.setenv(key, "")
+    monkeypatch.setattr(d.subprocess, "Popen", lambda *_, **__: pytest.fail("Docker forbidden in tests"))
+    instance = d.Session(d.Transport(tmp_path / "fixture-config"), tmp_path / "synthetic")
+    with pytest.raises(d.TargetUncertain, match="docker_environment_override_forbidden"):
         run(instance)
     assert not instance.audit.exists() and not instance.work.exists()
+
+
+def test_native_rejects_wrong_absolute_link_target(tmp_path, monkeypatch):
+    entry = tmp_path / "docker"
+    info = SimpleNamespace(st_mode=stat.S_IFLNK, st_uid=0)
+    real = d.Path.lstat
+    monkeypatch.setattr(d, "CLI_ENTRY", entry)
+    monkeypatch.setattr(d.Path, "lstat", lambda path: info if path == entry else real(path))
+    monkeypatch.setattr(d.os, "readlink", lambda _: "/example/other-docker")
+    with pytest.raises(d.TargetUncertain, match="unexpected_docker_cli_path"):
+        d.Transport(tmp_path).binding()
+
+
+@pytest.mark.parametrize("uid,gid,mode", [
+    (1000, 0, 0o755), (0, 1000, 0o775), (0, 0, 0o777), (0, 0, 0o4755), (0, 0, 0o644),
+])
+def test_untrusted_linux_cli_file_rejected(uid, gid, mode):
+    with pytest.raises(d.StopRun, match="untrusted_docker_cli_file"):
+        d.validate_cli_file(SimpleNamespace(st_mode=stat.S_IFREG | mode, st_uid=uid, st_gid=gid, st_size=1024))
+
+
+@pytest.mark.parametrize("index,duplicate", [(1, True), (3, False)])
+def test_preflight_receipts_must_be_exact_before_claim(session, index, duplicate):
+    instance, fake = session
+    def verify():
+        path = instance.audit / "actions.jsonl"
+        rows = path.read_bytes().splitlines(keepends=True)
+        if duplicate:
+            rows.insert(index, rows[index])
+        else:
+            del rows[index]
+        path.write_bytes(b"".join(rows))
+    result = instance.run("a" * 40, verify)
+    assert "missing_duplicate_or_changed_preflight_receipt" in result["failure"]
+    assert len(fake.calls) == 3 and not instance.work.exists()
+
+
+def test_cleanup_uncertainty_halts_without_further_dispatch(session, monkeypatch):
+    instance, fake = session
+    original = fake.command
+    def send(args, seconds):
+        reply = original(args, seconds)
+        if fake.calls[-1][0] == "cleanup_stop_responder":
+            raise TimeoutError("lost stop response")
+        return reply
+    monkeypatch.setattr(fake, "command", send)
+    outcome = run(instance)
+    assert outcome["status"] == "STOPPED" and outcome["cleanup_docker"] == 3
+    assert fake.calls[-1][0] == "cleanup_stop_responder"
+    assert not any(a == "cleanup_remove_responder" for a, _ in fake.calls)
+    assert outcome["docker_uncertainty"]["possibly_committed"] is True
+    assert set(outcome["unresolved_cleanup"]) == {"responder", "net_responder", "net_sentinel"}
+
+
+def test_deterministic_probe_mismatch_cleans_exact_owned_ids(session, monkeypatch):
+    instance, fake = session
+    monkeypatch.setattr(fake, "request", lambda *_: {"status": 503, "body": "fixture not ready"})
+    result = run(instance)
+    assert result["status"] == "STOPPED"
+    assert result["docker_uncertainty"] is None and result["cleanup_docker"] == 6
+    assert not result["unresolved_cleanup"]
+
+
+def test_local_endpoint_drift_after_resource_creation_blocks_cleanup(session, monkeypatch):
+    instance, fake = session
+    original = fake.command
+    def send(args, seconds):
+        value = original(args, seconds)
+        if fake.calls[-1][0] == "create_sentinel":
+            fake.token = "different-local-socket"
+        return value
+    monkeypatch.setattr(fake, "command", send)
+    result = run(instance)
+    assert result["docker_uncertainty"]["action"] == "create_sentinel"
+    assert result["docker_uncertainty"]["unconfirmed_created_id"] == fake.ids["sentinel"]
+    assert result["docker_uncertainty"]["possibly_committed"] is True
+    assert result["cleanup_docker"] == 0 and not fake.http
+    assert result["unresolved_cleanup"]["net_sentinel"] == fake.ids["net_sentinel"]
+
+
+@pytest.mark.parametrize("detectable", [True, False])
+def test_unchanged_endpoint_substitution_limits(session, monkeypatch, detectable):
+    instance, fake = session
+    original = fake.command
+    switched = False
+    def send(args, seconds):
+        nonlocal switched
+        if args[:2] == ["network", "create"]:
+            switched = True
+        return original(args, seconds)
+    if detectable:
+        def changed_label(row):
+            if switched and "Config" in row:
+                row["Config"]["Labels"]["org.project5.diagnostic"] = "other"
+        fake.mutate = changed_label
+    monkeypatch.setattr(fake, "command", send)
+    result = run(instance)
+    assert switched
+    if detectable:
+        assert result["status"] == "STOPPED" and result["cleanup_docker"] == 0 and result["http_attempts"] == 0
+        assert result["docker_uncertainty"]["action"] == "resource_inspection"
+    else:
+        # Indistinguishable local observations cannot identify a different upstream.
+        assert result["status"] == "DIAGNOSTIC_COMPLETE" and result["normal_docker"] == 14
+
+
+@pytest.mark.parametrize(("args", "routing"), [
+    (("context", "inspect", "default"), ["--context", "default"]),
+    (("info", "--format", "{{json .}}"), ["--host", d.ENDPOINT]),
+    (("network", "create", "--internal", "fictional"), ["--host", d.ENDPOINT]),
+])
+def test_cli_exec_uses_pinned_file_socket_and_clean_environment(tmp_path, monkeypatch, args, routing):
+    config = tmp_path / "config"
+    config.mkdir()
+    inode = SimpleNamespace(st_ino=7, st_size=4096, st_dev=5, st_ctime_ns=19, st_uid=0, st_gid=0,
+                            st_mode=stat.S_IFREG | 0o775)
+    cfg = SimpleNamespace(st_uid=10001, st_gid=10001, st_mode=stat.S_IFDIR | 0o700)
+    transport = d.Transport(config)
+    transport._cli_stamp = d.stamp(inode)
+    monkeypatch.setattr(transport, "binding", lambda: ("fake",))
+    real = d.Path.lstat
+    monkeypatch.setattr(d.Path, "lstat", lambda path: cfg if path == config else real(path))
+    fd = 123
+    fds = []
+    monkeypatch.setattr(d.os, "O_NOFOLLOW", 1, raising=False)
+    monkeypatch.setattr(d.os, "open", lambda path, flags: fd if path == d.CLI_BINARY else pytest.fail("unapproved open"))
+    monkeypatch.setattr(d.os, "fstat", lambda _: inode)
+    monkeypatch.setattr(d.os, "close", fds.append)
+    calls = []
+    def stop(argv, **kwargs):
+        calls.append(argv)
+        assert kwargs["executable"] == f"/proc/self/fd/{fd}" and kwargs["pass_fds"] == (fd,)
+        assert kwargs["env"] == {"LANG": "C.UTF-8", "PATH": "/usr/bin:/bin",
+                                 "HOME": str(config), "OTEL_SDK_DISABLED": "true"}
+        raise OSError("synthetic dispatch boundary")
+    monkeypatch.setattr(d.subprocess, "Popen", stop)
+    with pytest.raises(OSError, match="synthetic dispatch boundary"):
+        transport.command(list(args), 1)
+    assert calls == [[str(d.CLI_BINARY), "--config", str(config), *routing, *args]]
+    assert fds == [fd]

@@ -56,8 +56,10 @@ on Desktop, stop; use an independently validated native Linux host design.
 
 ## Frozen diagnostic
 
-See the [revised frozen plan](../reports/container-port-diagnostic-preparation/plan-preclaim-v2.json)
-(SHA-256: `7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471`).
+See the [bounded CLI frozen plan](../reports/container-port-diagnostic-preparation/plan-bounded-cli-v3.json)
+(SHA-256: `dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7`).
+The [preflight ordering plan](../reports/container-port-diagnostic-preparation/plan-preclaim-v2.json)
+is unchanged (SHA-256: `7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471`).
 The [original frozen plan](../reports/container-port-diagnostic-preparation/plan.json)
 is unchanged (SHA-256: `fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74`).
 The original diagnostic stopped before sending any request or creating a claim.
@@ -98,35 +100,72 @@ the audit and refuse reuse; an incomplete directory is evidence and blocks
 another invocation. A failed preflight does not create the permanent claim.
 
 On success, recheck source and preservation, seal the audit, validate its
-digest and the Engine binding, and exclusively create the permanent workspace.
+digest, exact ordered receipts, and locally observed endpoint identity, and exclusively create the permanent workspace.
 Adopt the exact preflight bytes as the execution journal prefix and record
 their count and SHA-256 in the claim. The directory reservation is the
 atomic exclusion point; only a durably populated workspace authorizes
 mutation. A crash during adoption leaves the audit and the consumed workspace
 in place without dispatching a mutation. Seal the complete journal and record
-its hash in the result. Cleanup remains bounded to captured IDs under the same
-Engine binding, with uncertain resources reported for manual review.
+its hash in the result. Cleanup remains bounded to captured IDs when the CLI and local endpoint still
+match and there is no transport or ownership uncertainty.
 
-### Live status: BLOCKED
+### Bounded CLI risk model
 
-An Engine ID from one CLI call does not identify the peer that will receive
-a later independent CLI call. Docker Desktop's Ubuntu endpoint can front an
-upstream Engine, so the same socket path, inode, ownership, or local peer
-credentials do not prove upstream continuity. An image digest fixes image
-content; it does not identify the Engine carrying out network or container
-operations. The implementation requires an attested, non-reconnecting
-binding to the same Engine before reservation and again at the claim and
-dispatch boundaries. The current Desktop CLI transport cannot provide it
-and refuses execution before creating the audit or claim. The fake
-transport models the contract so the order, race handling, and failure
-paths can be tested offline.
+Ubuntu WSL2 must present the root-owned entry /usr/bin/docker pointing to the
+pinned Docker Desktop Linux ELF binary. The runner checks the binary's SHA-256
+and trusted path components, then rechecks the file and socket stamps around
+dispatch. It executes the verified file descriptor, not a PATH lookup. The
+CLI receives only a minimal environment and an exclusive empty Docker config
+directory; caller Docker overrides are refused. It inspects context default
+once, then directs every other command explicitly to unix:///var/run/docker.sock.
+Engine ID and pinned image ID, platform, user, source/context labels, and
+environment are verified before claiming. The plan counts CLI invocations;
+the runner starts no hidden probes or additional CLI processes. This is not
+an Engine API request count.
 
-For a future authorization, first review an Engine-bound transport with no
-transparent reconnect or a platform guarantee that binds all commands to one
-verified daemon. Keep the three existing checks in the same 20-command budget.
-Authorize one run only after that binding is implemented and independently
-reviewed; use its exact reviewed commit and revised plan digest. There is
-no runnable live authorization proposal for the blocked transport.
+A matching Engine ID is a point-in-time check. An unchanged socket and matching
+receipts cannot reveal a silent upstream substitution with indistinguishable
+responses. The owner accepted this residual risk only for the isolated fictional
+diagnostic on a trusted Desktop host. This does not attest daemon continuity.
+Changes to the CLI digest, endpoint, or plans require a new review; do not
+substitute an upgraded binary or alternate socket.
+
+A deterministic bad diagnostic result with an otherwise trusted target permits
+the original bounded cleanup on exact owned IDs only. A timeout, lost response,
+malformed create receipt, ownership mismatch, or detectable CLI/socket drift
+stops every further Docker dispatch, including cleanup. A mutation with an
+unconfirmed receipt is possibly committed. Do not retry or reconnect. The
+result records captured IDs still unresolved and any candidate returned before
+identity drift; candidates are not trusted cleanup targets.
+
+### Separate owner inspection after an ambiguous failure
+
+Do not run these steps under the diagnostic budget or resume the run. Obtain
+separate authorization for read-only inspection. Preserve both audit paths,
+the result, and the journal hash. In the original Ubuntu environment, verify
+the pinned CLI file, the local socket, and the approved Engine ID on the
+fixed endpoint before inspecting any recorded full ID. Inspect container IDs
+as containers and network IDs as networks. Compare each receipt's full ID,
+diagnostic label, expected role name, image for containers, and topology to
+the journal. If a create response was lost, use the exact diagnostic-label
+filter org.project5.diagnostic=container-port-diag-5b-once on the applicable
+container or network list only to find candidates, then inspect their full
+IDs and corroborate the role, creation time, source mount (responder only),
+and topology. Stop if the Engine or ownership cannot be verified. Inspection
+does not authorize removal. Any subsequent removal needs separate approval
+and exact verified IDs; no name-based, force, wildcard, or prune cleanup.
+
+### Separate live authorization
+
+Authorize exactly one use of the bounded CLI plan at its reviewed clean
+source SHA, with its exact pinned CLI digest, Engine and image IDs, Ubuntu
+ext4 checkout as UID/GID 10001:10001, successful offline CI, and both live
+paths absent. Explicitly accept the documented upstream visibility limit.
+Use the existing module with --execute-authorized-once and the approved
+source SHA. Keep the 180-second maximum, 14 normal Docker CLI invocations
+including exactly three pre-claim metadata checks, six cleanup invocations,
+at most three fixed diagnostic HTTP attempts, zero retries, and zero model
+requests. This approval would cover only the fictional diagnostic.
 
 The manual offline CI path runs fake Docker regressions and the Python
 and frontend suites. It deselects the single test that invokes the actual

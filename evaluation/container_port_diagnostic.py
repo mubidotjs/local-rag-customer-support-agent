@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import selectors
 import signal
 import socket
 import stat
@@ -16,7 +17,7 @@ import sys
 import time
 
 from evaluation.container_runtime import (
-    IMAGE_ENVIRONMENTS, Native, ROOT, git, host_gate, preservation,
+    IMAGE_ENVIRONMENTS, ROOT, git, host_gate, preservation,
 )
 from evaluation.lifecycle_live import Journal, StopRun, save_new, sha
 
@@ -28,8 +29,16 @@ WORK = Path("/var/tmp/project5-port-diag-5b-once")
 ORIGINAL_PLAN = ROOT / "reports/container-port-diagnostic-preparation/plan.json"
 ORIGINAL_PLAN_SHA = "fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74"
 PRECLAIM_BASELINE = "cdb2038d81d72956bd73ad2f003f9948aa78c1d4"
-PLAN = ORIGINAL_PLAN.with_name("plan-preclaim-v2.json")
-PLAN_SHA = "7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471"
+PREVIOUS_PLAN = ORIGINAL_PLAN.with_name("plan-preclaim-v2.json")
+PREVIOUS_PLAN_SHA = "7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471"
+OPTION_C_BASELINE = "839f81087ea155c7219c0099578f4553d43e5ed2"
+PLAN = ORIGINAL_PLAN.with_name("plan-bounded-cli-v3.json")
+PLAN_SHA = "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7"
+CLI_ENTRY = Path("/usr/bin/docker")
+CLI_BINARY = Path("/mnt/wsl/docker-desktop/cli-tools/usr/bin/docker")
+CLI_SHA = "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621"
+SOCKET = Path("/var/run/docker.sock")
+ENDPOINT = "unix:///var/run/docker.sock"
 ENGINE = "d86d0c2c-42a0-4420-9f0d-0027845314bf"
 IMAGE = "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f"
 IMAGE_LABELS = {
@@ -63,6 +72,22 @@ REVISED = {
     "docs/container-port-diagnostic.md", "reports/container-port-diagnostic-preparation/plan-preclaim-v2.json",
     ".github/workflows/runtime-preparation.yml",
 }
+
+
+OPTION_C = {
+    "evaluation/container_port_diagnostic.py", "tests/test_container_port_diagnostic.py",
+    "docs/container-port-diagnostic.md", "reports/container-port-diagnostic-preparation/plan-bounded-cli-v3.json",
+}
+PREFLIGHT_ARGS = (("context", "inspect", "default"), ("info", "--format", "{{json .}}"),
+                  ("image", "inspect", IMAGE))
+
+
+class TargetUncertain(StopRun):
+    pass
+
+
+class Deadline(StopRun):
+    pass
 
 
 def sole_target(port, local_port):
@@ -175,7 +200,7 @@ def one(value):
 @contextmanager
 def alarm(seconds):
     def expired(*_):
-        raise StopRun("overall_or_operation_timeout")
+        raise Deadline("overall_or_operation_timeout")
     previous = signal.signal(signal.SIGALRM, expired)
     outer, interval = signal.getitimer(signal.ITIMER_REAL)
     start = time.monotonic()
@@ -189,18 +214,107 @@ def alarm(seconds):
             signal.setitimer(signal.ITIMER_REAL, max(.001, outer - (time.monotonic() - start)), interval)
 
 
-class Transport(Native):
-    def binding(self):
-        # The Desktop Unix endpoint can stay unchanged while forwarding to a
-        # different daemon. Independent CLI invocations cannot bind later
-        # mutations to the Engine that answered info. Inode/peer checks alone
-        # only identify the local endpoint, not its upstream.
-        raise StopRun("desktop_engine_continuity_unattested")
+def stamp(info):
+    return (info.st_dev, info.st_ino, info.st_ctime_ns, info.st_size,
+            info.st_uid, info.st_gid, info.st_mode)
+
+
+def validate_cli_file(info):
+    require(stat.S_ISREG(info.st_mode) and info.st_uid == info.st_gid == 0
+            and bool(info.st_mode & stat.S_IXUSR)
+            and not info.st_mode & (stat.S_IWOTH | stat.S_ISUID | stat.S_ISGID)
+            and 1 <= info.st_size <= 64 * 1024 * 1024, "untrusted_docker_cli_file")
+
+
+class Transport:
+    def __init__(self, config):
+        self.config = config
+        self._cli_stamp = None
+        self._initial_identity = None
 
     def verify_socket(self):
-        s = Path("/var/run/docker.sock").lstat()
-        require(stat.S_ISSOCK(s.st_mode) and s.st_uid == 0 and stat.S_IMODE(s.st_mode) == 0o660,
-                "unexpected_docker_socket")
+        s = SOCKET.lstat()
+        require(stat.S_ISSOCK(s.st_mode) and s.st_uid == 0 and stat.S_IMODE(s.st_mode) == 0o660
+                and s.st_gid in os.getgroups(), "unexpected_docker_socket")
+        return stamp(s)
+
+    def binding(self):
+        # This is a locally observable identity only, not a daemon binding.
+        try:
+            require(not any(k.upper().startswith("DOCKER_") for k in os.environ),
+                    "docker_environment_override_forbidden")
+            name = CLI_ENTRY.lstat()
+            require(stat.S_ISLNK(name.st_mode) and name.st_uid == 0
+                    and os.readlink(CLI_ENTRY) == str(CLI_BINARY)
+                    and CLI_BINARY.resolve(strict=True) == CLI_BINARY,
+                    "unexpected_docker_cli_path")
+            require(0 not in {os.getgid(), *os.getgroups()}, "root_group_not_allowed")
+            for parent in set(CLI_ENTRY.parents) | set(CLI_BINARY.parents):
+                info = parent.lstat()
+                require(stat.S_ISDIR(info.st_mode) and info.st_uid == 0
+                        and (not info.st_mode & stat.S_IWGRP or info.st_gid == 0)
+                        and (not info.st_mode & stat.S_IWOTH or
+                             (parent == Path("/mnt/wsl") and info.st_mode & stat.S_ISVTX)),
+                        "untrusted_docker_cli_parent")
+            current = CLI_BINARY.lstat()
+            validate_cli_file(current)
+            if self._cli_stamp is None:
+                with os.fdopen(os.open(CLI_BINARY, os.O_RDONLY | os.O_NOFOLLOW), "rb") as stream:
+                    require(stamp(os.fstat(stream.fileno())) == stamp(current)
+                            and stream.read(4) == b"\x7fELF", "unexpected_docker_cli_binary")
+                    stream.seek(0)
+                    require(hashlib.file_digest(stream, "sha256").hexdigest() == CLI_SHA
+                            and stamp(os.fstat(stream.fileno())) == stamp(current), "unexpected_docker_cli_digest")
+                self._cli_stamp = stamp(current)
+            require(stamp(current) == self._cli_stamp, "docker_cli_changed")
+            identity = (stamp(name), self._cli_stamp, self.verify_socket())
+            if self._initial_identity is None:
+                self._initial_identity = identity
+            require(identity == self._initial_identity, "docker_local_identity_changed")
+            return identity
+        except (OSError, StopRun) as error:
+            raise TargetUncertain(str(error)) from error
+
+    def command(self, args, seconds):
+        self.binding()
+        info = self.config.lstat()
+        require(stat.S_ISDIR(info.st_mode) and (info.st_uid, info.st_gid, stat.S_IMODE(info.st_mode))
+                == (10001, 10001, 0o700) and not any(self.config.iterdir()), "docker_config_not_private_empty")
+        prefix = ["--config", str(self.config)]
+        prefix += ["--context", "default"] if tuple(args) == PREFLIGHT_ARGS[0] else ["--host", ENDPOINT]
+        fd = os.open(CLI_BINARY, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            require(stamp(os.fstat(fd)) == self._cli_stamp, "docker_cli_changed_before_exec")
+            process = subprocess.Popen([str(CLI_BINARY), *prefix, *args], executable=f"/proc/self/fd/{fd}",
+                                       pass_fds=(fd,), env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8",
+                                                             "HOME": str(self.config), "OTEL_SDK_DISABLED": "true"},
+                                       stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        finally:
+            os.close(fd)
+        deadline, data = time.monotonic() + seconds, bytearray()
+        try:
+            with selectors.DefaultSelector() as selector:
+                selector.register(process.stdout, selectors.EVENT_READ)
+                while selector.get_map():
+                    left = deadline - time.monotonic()
+                    if left <= 0:
+                        raise Deadline("docker_command_timeout")
+                    for key, _ in selector.select(min(left, .25)):
+                        block = os.read(key.fileobj.fileno(), 65536)
+                        if not block:
+                            selector.unregister(key.fileobj)
+                        data.extend(block)
+                        require(len(data) <= 1_000_000, "docker_output_limit")
+            if process.wait(timeout=max(.01, deadline - time.monotonic())):
+                error = TargetUncertain("docker_command_failed")
+                error.details = data.decode("utf-8", errors="replace")
+                raise error
+            return data.decode("utf-8")
+        finally:
+            process.stdout.close()
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=2)
 
     def wait_listener(self, path, seconds):
         deadline = time.monotonic() + seconds
@@ -246,13 +360,26 @@ class Session:
         self.ids, self.uncertain, self.results = {}, set(), {}
         self.audit = work.with_name(work.name + ".preflight")
         self.journal = None
-        self.bound_engine = None
+        self.local_identity = None
+        self.docker_uncertainty = None
+        self.preflight_receipts = []
+        self.removed = set()
         self.preflight_hash = None
         self.claim_reserved = self.claimed = False
 
+    def mark_uncertain(self, action, reason, possibly_committed=False):
+        if self.docker_uncertainty is None:
+            self.docker_uncertainty = {"action": action, "reason": str(reason),
+                                       "possibly_committed": possibly_committed}
+
     def require_binding(self):
-        current = self.transport.binding()
-        require(current is not None and current == self.bound_engine, "docker_engine_binding_changed")
+        try:
+            current = self.transport.binding()
+            if current is None or current != self.local_identity:
+                raise TargetUncertain("docker_local_identity_changed")
+        except (OSError, StopRun) as error:
+            self.mark_uncertain("local_endpoint_check", error)
+            raise TargetUncertain(str(error)) from error
 
     def require_unused(self):
         require(not os.path.lexists(self.work) and not os.path.lexists(self.audit),
@@ -265,46 +392,65 @@ class Session:
             raise StopRun("fixed_preflight_audit_already_exists") from error
         self.sync_directory(self.audit.parent)
         save_new(self.audit / "intent.json", {"run_id": RUN_ID, "source": commit, "plan_sha256": PLAN_SHA})
+        (self.audit / "cli-config").mkdir(mode=0o700)
         self.journal = Journal(self.audit / "actions.jsonl")
         self.sync_directory(self.audit)
 
     def remaining(self, cleanup=False):
         seconds = self.start + (TOTAL - 12 if cleanup else NORMAL_WINDOW) - self.clock()
-        require(seconds >= .1, "diagnostic_deadline")
+        if seconds < .1:
+            raise Deadline("diagnostic_deadline")
         return seconds
 
     def receipt(self, name, data):
         self.journal.write({"event": "result", "action": name, "result": data})
 
     def docker(self, action, *argv, cleanup=False):
+        require(self.docker_uncertainty is None, "docker_target_uncertain")
         limit = min(6, self.remaining(cleanup))
         require(self.normal + self.cleanup_count < MAX_DOCKER, "docker_budget")
         require(self.claimed or (not cleanup and action in PREFLIGHT), "docker_action_requires_claim")
         require(not self.claimed or action not in PREFLIGHT, "preflight_already_adopted")
-        self.require_binding()
         if cleanup:
             require(self.cleanup_count < 6 and action.startswith("cleanup_"), "cleanup_budget")
         else:
             require(self.normal < len(ORDER) and ORDER[self.normal] == action, "docker_order")
-        self.journal.write({"event": "before", "transport": "docker", "action": action, "argv": argv})
+        if action in PREFLIGHT:
+            require(argv == PREFLIGHT_ARGS[self.normal], "unexpected_preflight_arguments")
+        self.require_binding()
+        sent, result = False, None
         try:
+            self.journal.write({"event": "before", "transport": "docker", "action": action, "argv": argv})
             self.require_binding()
             limit = min(limit, self.remaining(cleanup))
             if cleanup:
                 self.cleanup_count += 1
             else:
                 self.normal += 1
+            sent = True
             result = self.transport.command(list(argv), limit)
+            self.receipt(action, result)
+            self.require_binding()
+            if action in PREFLIGHT:
+                self.preflight_receipts.append(result)
+            return result
         except (Exception, KeyboardInterrupt) as error:
-            self.journal.write({"event": "error", "action": action,
+            # Lost status means an operation may have been accepted even if the
+            # CLI failed or its receipt could not be durably recorded.
+            self.docker_uncertainty = {"action": action, "reason": str(error),
+                                       "possibly_committed": sent and (
+                                           cleanup or action not in (*PREFLIGHT, "inspect_containers", "inspect_networks"))}
+            if action in {"network_responder", "network_sentinel", "create_responder", "create_sentinel"}:
+                if isinstance(result, str) and re.fullmatch("[0-9a-f]{64}", result.strip()):
+                    self.docker_uncertainty["unconfirmed_created_id"] = result.strip()
+            self.journal.write({"event": "error", "action": action, **self.docker_uncertainty,
                                 "error": f"{type(error).__name__}: {error}",
                                 "details": getattr(error, "details", None)})
-            raise
-        self.receipt(action, result)
-        return result
+            raise TargetUncertain(str(error)) from error
 
     def http(self, action):
         require(self.claimed, "http_action_requires_claim")
+        self.require_binding()
         expected = HTTP_ORDER if self.results.get("publication") == "effective_exact_loopback" else (HTTP_ORDER[0], HTTP_ORDER[2])
         limit = min(3, self.remaining())
         require(self.http_count < MAX_HTTP and self.http_count < len(expected)
@@ -332,6 +478,13 @@ class Session:
         return sha(path)
 
     def seal_audit(self):
+        actual = [json.loads(line) for line in self.journal.path.read_bytes().splitlines()]
+        expected = []
+        for action, args, result in zip(PREFLIGHT, PREFLIGHT_ARGS, self.preflight_receipts, strict=True):
+            expected.extend([{"event": "before", "transport": "docker", "action": action, "argv": list(args)},
+                             {"event": "result", "action": action, "result": result}])
+        require([{k: v for k, v in row.items() if k != "utc"} for row in actual] == expected,
+                "missing_duplicate_or_changed_preflight_receipt")
         self.journal.write({"event": "preflight_verified", "normal_docker": self.normal})
         self.preflight_hash = self.seal_journal()
 
@@ -375,14 +528,19 @@ class Session:
 
     def create(self, role, action, *argv):
         self.uncertain.add(role)
-        ident = exact_id(self.docker(action, *argv))
-        require(ident not in self.ids.values(), "duplicate_created_resource_id")
+        raw = self.docker(action, *argv)
+        try:
+            ident = exact_id(raw)
+            require(ident not in self.ids.values(), "duplicate_created_resource_id")
+        except StopRun as error:
+            self.mark_uncertain(action, error, possibly_committed=True)
+            raise TargetUncertain(str(error)) from error
         self.ids[role] = ident
         self.uncertain.remove(role)
 
     def preflight(self):
         contexts = json.loads(self.docker("context", "context", "inspect", "default"))
-        require(one(contexts)["Endpoints"]["docker"]["Host"] == "unix:///var/run/docker.sock", "unexpected_docker_endpoint")
+        require(one(contexts)["Name"] == "default" and one(contexts)["Endpoints"]["docker"]["Host"] == ENDPOINT, "unexpected_docker_context_or_endpoint")
         self.transport.verify_socket()
         info = json.loads(self.docker("engine", "info", "--format", "{{json .}}"))
         require((info["ID"], info["OSType"], info["Architecture"], info["DefaultRuntime"])
@@ -477,7 +635,11 @@ class Session:
 
     def exercise(self):
         self.construct()
-        target = self.inspect()
+        try:
+            target = self.inspect()
+        except (KeyError, ValueError, TypeError, StopRun) as error:
+            self.mark_uncertain("resource_inspection", error)
+            raise TargetUncertain(str(error)) from error
         self.transport.wait_listener(self.work / "ingress/responder.sock", min(5, self.remaining()))
         require(self.http("inside_http") == EXPECTED, "listener_http_failed")
         require(self.exe("sentinel_control", "sentinel", CONTROL).strip() == "sentinel_listening", "sentinel_control_failed")
@@ -494,30 +656,32 @@ class Session:
         require(self.http("ubuntu_private_socket_http") == EXPECTED, "private_socket_response_mismatch")
 
     def clean(self):
-        unresolved = dict.fromkeys(self.uncertain, "unknown_id_manual_review")
+        actions = []
         for role in ("sentinel", "responder"):
-            if role not in self.ids:
-                continue
-            ident = self.ids[role]
-            try:
-                self.docker("cleanup_stop_" + role, "stop", "--time", "2", ident, cleanup=True)
-            except Exception:
-                unresolved[role + "_stop"] = ident
-            try:
-                self.docker("cleanup_remove_" + role, "rm", ident, cleanup=True)
-            except Exception:
-                unresolved[role] = ident
+            if role in self.ids:
+                ident = self.ids[role]
+                actions.extend([(role, False, ("stop", "--time", "2", ident)),
+                                (role, True, ("rm", ident))])
         for role in ("net_sentinel", "net_responder"):
             if role in self.ids:
-                try:
-                    self.docker("cleanup_remove_" + role, "network", "rm", self.ids[role], cleanup=True)
-                except Exception:
-                    unresolved[role] = self.ids[role]
-        return unresolved
+                actions.append((role, True, ("network", "rm", self.ids[role])))
+        for role, removed, args in actions:
+            if self.docker_uncertainty is not None:
+                break
+            name = "cleanup_" + ("remove_" if removed else "stop_") + role
+            try:
+                self.docker(name, *args, cleanup=True)
+            except (OSError, StopRun, KeyboardInterrupt) as error:
+                self.mark_uncertain(name, error)
+                break
+            if removed:
+                self.removed.add(role)
+        return {**dict.fromkeys(self.uncertain, "unknown_id_manual_review"),
+                **{role: ident for role, ident in self.ids.items() if role not in self.removed}}
 
     def run(self, commit, verify):
         self.require_unused()
-        self.bound_engine = self.transport.binding()
+        self.local_identity = self.transport.binding()
         self.require_binding()
         self.remaining()
         self.reserve_audit(commit)
@@ -532,7 +696,7 @@ class Session:
         except (Exception, KeyboardInterrupt) as error:
             outcome.update(failure=f"{type(error).__name__}: {error}", claim_created=self.claim_reserved,
                            captured_ids={}, normal_docker=self.normal, cleanup_docker=0, http_attempts=0,
-                           actual_model_requests=0, journal_sha256=(sha(self.journal.path) if self.preflight_hash is not None
+                           actual_model_requests=0, docker_uncertainty=self.docker_uncertainty, journal_sha256=(sha(self.journal.path) if self.preflight_hash is not None
                                                                     else self.seal_journal()))
             save_new(self.audit / "result.json", outcome)
             self.sync_directory(self.audit)
@@ -542,6 +706,8 @@ class Session:
             outcome["status"] = "DIAGNOSTIC_COMPLETE"
         except (Exception, KeyboardInterrupt) as error:
             outcome["failure"] = f"{type(error).__name__}: {error}"
+            if isinstance(error, (TargetUncertain, Deadline, OSError, KeyboardInterrupt)):
+                self.mark_uncertain("diagnostic", error)
         finally:
             outcome["unresolved_cleanup"] = self.clean()
             if outcome["unresolved_cleanup"]:
@@ -554,6 +720,8 @@ class Session:
             outcome.update(results=self.results, captured_ids=self.ids, normal_docker=self.normal,
                            cleanup_docker=self.cleanup_count, http_attempts=self.http_count,
                            actual_model_requests=0, windows_localhost="not_tested", claim_created=True,
+                           docker_uncertainty=self.docker_uncertainty,
+                           cleanup_owner_review=bool(outcome["unresolved_cleanup"]),
                            preflight_sha256=self.preflight_hash,
                            journal_sha256=self.seal_journal())
             save_new(self.work / "result.json", outcome)
@@ -566,11 +734,14 @@ def verify_source(commit):
             "unapproved_source")
     require(not git("status", "--porcelain", "--untracked-files=all"), "dirty_checkout")
     require(sha(ORIGINAL_PLAN) == ORIGINAL_PLAN_SHA, "original_frozen_plan_changed")
+    require(sha(PREVIOUS_PLAN) == PREVIOUS_PLAN_SHA, "previous_frozen_plan_changed")
     require(sha(PLAN) == PLAN_SHA, "frozen_plan_changed")
     diff = set(git("diff", "--name-only", "--no-renames", BASELINE, commit).decode().splitlines())
-    require(diff == CHANGED | REVISED, "unexpected_changes_from_historical_delivery")
+    require(diff == CHANGED | REVISED | OPTION_C, "unexpected_changes_from_historical_delivery")
     revised = set(git("diff", "--name-only", "--no-renames", PRECLAIM_BASELINE, commit).decode().splitlines())
-    require(revised == REVISED, "unexpected_changes_from_preclaim_baseline")
+    require(revised == REVISED | OPTION_C, "unexpected_changes_from_preclaim_baseline")
+    option_c = set(git("diff", "--name-only", "--no-renames", OPTION_C_BASELINE, commit).decode().splitlines())
+    require(option_c == OPTION_C, "unexpected_changes_from_option_c_baseline")
     result = preservation(require_local=True)
     require(len(result["checked"]) == 397, "historical_preservation_count")
     archive_manifest = ARCHIVE / "checksums.json"
@@ -595,7 +766,8 @@ def main():
             require(not os.path.lexists(WORK) and not os.path.lexists(WORK.with_name(WORK.name + ".preflight")),
                     "fixed_workspace_or_preflight_audit_already_exists")
             verify_source(commit)
-        session = Session(Transport(), WORK, started=started)
+        audit_config = WORK.with_name(WORK.name + ".preflight") / "cli-config"
+        session = Session(Transport(audit_config), WORK, started=started)
         with alarm(max(.1, TOTAL - (time.monotonic() - started))):
             result = session.run(commit, lambda: verify_source(commit))
         receipt_dir = WORK if session.claimed else session.audit
