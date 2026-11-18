@@ -1,0 +1,77 @@
+{
+  "run_id": "container-port-diag-5b-once",
+  "historical_delivery": "6923dbdeb1e7d89637ea1daac188f2f2e451895c",
+  "historical_run": "container-runtime-5b-once",
+  "work": "/var/tmp/project5-port-diag-5b-once",
+  "engine_id": "d86d0c2c-42a0-4420-9f0d-0027845314bf",
+  "docker_cli_context": "default",
+  "docker_socket": "unix:///var/run/docker.sock",
+  "image": "sha256:375ed722706d2bc40338803d48e15df32c3eade270ace39e23166d5e045f7b6f",
+  "limits": {
+    "total_seconds": 180,
+    "normal_window_seconds": 110,
+    "cleanup_end_seconds": 168,
+    "docker_commands": 20,
+    "normal_docker_commands": 14,
+    "cleanup_docker_commands": 6,
+    "http_attempts": 3,
+    "retries": 0,
+    "actual_model_requests": 0
+  },
+  "docker_sequence": [
+    "context inspect default",
+    "info (JSON)",
+    "image inspect pinned full ID",
+    "network create internal IPv4-only responder bridge",
+    "network create internal IPv4-only sentinel bridge",
+    "create responder (pinned Python only; fixed 127.0.0.1:45173 -> 18080/tcp request; private socket directory only)",
+    "create TCP sentinel (no publish or mounts)",
+    "start responder",
+    "start sentinel",
+    "container inspect both exact IDs",
+    "network inspect both exact IDs",
+    "exec responder: one loopback HTTP GET after private listener socket appears",
+    "exec sentinel: one loopback TCP positive control",
+    "exec responder: inspect routes and one cross-bridge TCP attempt against owned sentinel"
+  ],
+  "http_sequence": [
+    "Inside responder GET 127.0.0.1:18080/fictional-health; require exact fictional body",
+    "Ubuntu GET 127.0.0.1:45173/fictional-health only if exact effective binding; skip when Docker explicitly reports target empty/null",
+    "Ubuntu GET /fictional-health over private Unix socket; no published port used"
+  ],
+  "http_host": "127.0.0.1:45173",
+  "cleanup_sequence": [
+    "stop sentinel, rm sentinel",
+    "stop responder, rm responder",
+    "remove sentinel network",
+    "remove responder network"
+  ],
+  "evidence": [
+    "exclusive permanent ext4 workspace",
+    "durable exclusive claim",
+    "fsynced pre-send journal and returned inspection/probe receipts",
+    "result with counts, unexpected failures, captured/uncertain resources, preservation hashes and journal SHA-256",
+    "exclusive and retained pre-claim audit, including failed metadata attempts",
+    "preflight SHA-256 and byte count bound to the immutable claim and exact execution journal prefix"
+  ],
+  "exclusions": [
+    "Windows localhost is not probed",
+    "no application, database, corpus, auth secret, external services, DNS lookup, proxy, relay, model, pull, rebuild, host networking or socket mount",
+    "Ubuntu Unix socket exercise does not attest a browser-facing TCP proxy",
+    "cross-bridge denial is one synthetic target, not exhaustive egress attestation"
+  ],
+  "revision": "preclaim-v2",
+  "original_plan_sha256": "fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74",
+  "preclaim": {
+    "audit": "/var/tmp/project5-port-diag-5b-once.preflight",
+    "exclusive": "Both claim and audit paths must be absent. Reserve the audit directory with mkdir; retain even on failure and refuse reuse.",
+    "metadata_actions": [
+      "context",
+      "engine",
+      "image"
+    ],
+    "counting": "The three actions are the first three of the existing 14 normal Docker actions. No separate or duplicate metadata commands.",
+    "transition": "Durably journal the three pre-send records and receipts; seal the audit, verify its hash and continuity, exclusively mkdir the permanent workspace, and copy the exact verified bytes as the execution journal prefix. The claim binds its size and hash. Do not dispatch a mutation before durable adoption.",
+    "continuity": "Require an attested daemon binding before dispatch and recheck it before the claim and every Docker action without extra Docker commands. The frozen Desktop CLI transport cannot attest this across connections; native invocation is blocked before audit or claim creation."
+  }
+}

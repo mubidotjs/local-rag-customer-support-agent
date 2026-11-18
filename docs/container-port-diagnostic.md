@@ -56,7 +56,11 @@ on Desktop, stop; use an independently validated native Linux host design.
 
 ## Frozen diagnostic
 
-See [the frozen plan](../reports/container-port-diagnostic-preparation/plan.json).
+See the [revised frozen plan](../reports/container-port-diagnostic-preparation/plan-preclaim-v2.json)
+(SHA-256: `7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471`).
+The [original frozen plan](../reports/container-port-diagnostic-preparation/plan.json)
+is unchanged (SHA-256: `fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74`).
+The original diagnostic stopped before sending any request or creating a claim.
 It uses the already-approved local Python image by full ID and runs only inline
 fictional responders; inherited health checks are disabled, proxies are neutralized,
 and pulling is forbidden. Two separate internal IPv4 bridges contain one
@@ -79,21 +83,53 @@ Maximum **180 seconds, 20 Docker commands (14 normal + 6 cleanup), 3 HTTP
 attempts**. The expected no-publication branch uses two HTTP attempts; the
 third is conditional. The two sentinel TCP checks are not HTTP. No retries,
 no extra probes, no endpoint/ID overrides. The execution gate requires the
-owner-approved exact clean commit, pinned plan/image/engine, all 397 protected
-files verified, and an absent fixed ext4 workspace. Failed attempts are counted
-before dispatch. A preexisting path of any kind refuses reuse. Cleanup acts
-only on captured exact IDs, never by wildcard or force. Unknown or nonremoved
-resources are reported for manual review. The consumed claim, journal and result
-remain at `/var/tmp/project5-port-diag-5b-once`, even on failure.
+owner-approved exact clean commit, both pinned plan digests, pinned image and
+Engine, all 397 protected files, and all 31 consumed archive checksums.
 
-For separate authorization only, from a clean Ubuntu/ext4 checkout with the
-protected artifacts and existing Python environment, as UID/GID `10001:10001`:
+### Revised preflight and claim
 
-```sh
-python -m evaluation.container_port_diagnostic --execute-authorized-once <approved-exact-delivery-sha>
-```
+The claim workspace and its fixed sibling, `/var/tmp/project5-port-diag-5b-once.preflight`,
+must both be absent. Exclusive directory creation reserves the audit once.
+The runner flushes and fsyncs each pre-send record before dispatch and saves
+the receipt or error. The three read-only Docker commands (context, Engine,
+pinned image) are the first three of the same 14 normal commands. It never
+runs them again after the claim. On metadata failure or interruption, retain
+the audit and refuse reuse; an incomplete directory is evidence and blocks
+another invocation. A failed preflight does not create the permanent claim.
 
-Authorize one execution of `container-port-diag-5b-once` at the named commit
-and plan digest, on the pinned engine/image, within the ceilings above. No
-Windows probe, real application, model request, download, fallback, or prior run
-may be added. This is a diagnostic only; its success would not complete 5B.
+On success, recheck source and preservation, seal the audit, validate its
+digest and the Engine binding, and exclusively create the permanent workspace.
+Adopt the exact preflight bytes as the execution journal prefix and record
+their count and SHA-256 in the claim. The directory reservation is the
+atomic exclusion point; only a durably populated workspace authorizes
+mutation. A crash during adoption leaves the audit and the consumed workspace
+in place without dispatching a mutation. Seal the complete journal and record
+its hash in the result. Cleanup remains bounded to captured IDs under the same
+Engine binding, with uncertain resources reported for manual review.
+
+### Live status: BLOCKED
+
+An Engine ID from one CLI call does not identify the peer that will receive
+a later independent CLI call. Docker Desktop's Ubuntu endpoint can front an
+upstream Engine, so the same socket path, inode, ownership, or local peer
+credentials do not prove upstream continuity. An image digest fixes image
+content; it does not identify the Engine carrying out network or container
+operations. The implementation requires an attested, non-reconnecting
+binding to the same Engine before reservation and again at the claim and
+dispatch boundaries. The current Desktop CLI transport cannot provide it
+and refuses execution before creating the audit or claim. The fake
+transport models the contract so the order, race handling, and failure
+paths can be tested offline.
+
+For a future authorization, first review an Engine-bound transport with no
+transparent reconnect or a platform guarantee that binds all commands to one
+verified daemon. Keep the three existing checks in the same 20-command budget.
+Authorize one run only after that binding is implemented and independently
+reviewed; use its exact reviewed commit and revised plan digest. There is
+no runnable live authorization proposal for the blocked transport.
+
+The manual offline CI path runs fake Docker regressions and the Python
+and frontend suites. It deselects the single test that invokes the actual
+Compose CLI. The standard image-build workflow is intentionally not launched
+for this revision. No application, Windows loopback, or model diagnostic is
+part of this work.
