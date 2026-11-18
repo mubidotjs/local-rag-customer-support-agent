@@ -1,0 +1,20 @@
+{
+  "kind": "fictional-portable-support-index",
+  "seed": "private-uds-v1",
+  "documents": [
+    {
+      "id": "lark",
+      "title": "Lark setup",
+      "version": "1.0",
+      "text": "The Lark indicator flashes green twice when setup is complete."
+    },
+    {
+      "id": "maple",
+      "title": "Maple setup",
+      "version": "1.0",
+      "text": "The Maple indicator flashes blue three times when setup is complete."
+    }
+  ],
+  "embedding": "deterministic offline fixture adapter only; no inference, pinned-shaped metadata is not real inference",
+  "sqlite": "fresh DELETE journal index; exactly 2 documents and 2 chunks; read-write host fixture setup only; bind container read-only"
+}

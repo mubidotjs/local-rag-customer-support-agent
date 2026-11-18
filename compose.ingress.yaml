@@ -1,0 +1,120 @@
+{
+  "name": "project5-private-ingress",
+  "services": {
+    "frontend": {
+      "platform": "linux/amd64",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "restart": "on-failure:3",
+      "stop_grace_period": "20s",
+      "pull_policy": "never",
+      "image": "${RAG_FRONTEND_IMAGE:?Set the approved private-ingress frontend image}",
+      "build": {
+        "context": ".",
+        "dockerfile": "containers/private-ingress.Dockerfile"
+      },
+      "user": "101:101",
+      "networks": [
+        "isolated"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "/var/lib/project5-ingress/local",
+          "target": "/run/rag-ingress",
+          "read_only": false,
+          "bind": {
+            "create_host_path": false,
+            "propagation": "rprivate"
+          }
+        }
+      ],
+      "cpus": 0.25,
+      "mem_limit": "128m",
+      "mem_reservation": "32m",
+      "pids_limit": 32,
+      "tmpfs": [
+        "/tmp:rw,noexec,nosuid,nodev,size=16m,uid=101,gid=101,mode=0700"
+      ],
+      "logging": {
+        "driver": "local",
+        "options": {
+          "max-size": "1m",
+          "max-file": "3"
+        }
+      }
+    },
+    "backend": {
+      "platform": "linux/amd64",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "restart": "on-failure:3",
+      "stop_grace_period": "20s",
+      "pull_policy": "never",
+      "image": "${RAG_BACKEND_IMAGE:?Set the approved backend image}",
+      "build": {
+        "context": ".",
+        "dockerfile": "containers/backend.Dockerfile"
+      },
+      "user": "10001:10001",
+      "network_mode": "service:frontend",
+      "depends_on": {
+        "frontend": {
+          "condition": "service_healthy"
+        }
+      },
+      "environment": {
+        "RAG_MODEL_MODE": "disabled"
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${RAG_DATA_DIR:?Set the existing private absolute data directory}",
+          "target": "/var/lib/rag",
+          "read_only": true,
+          "bind": {
+            "create_host_path": false,
+            "propagation": "rprivate"
+          }
+        }
+      ],
+      "cpus": 1,
+      "mem_limit": "768m",
+      "mem_reservation": "256m",
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:rw,noexec,nosuid,nodev,size=16m,uid=10001,gid=10001,mode=0700"
+      ],
+      "logging": {
+        "driver": "local",
+        "options": {
+          "max-size": "1m",
+          "max-file": "3"
+        }
+      }
+    }
+  },
+  "networks": {
+    "isolated": {
+      "driver": "bridge",
+      "internal": true,
+      "enable_ipv6": false,
+      "driver_opts": {
+        "com.docker.network.bridge.gateway_mode_ipv4": "isolated",
+        "com.docker.network.bridge.inhibit_ipv4": "true"
+      }
+    }
+  }
+}

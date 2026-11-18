@@ -1,0 +1,13 @@
+**
+!containers/
+!containers/private-ingress.Dockerfile
+!containers/nginx-ingress.conf
+!containers/ingress-entrypoint.sh
+!frontend/
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/index.html
+!frontend/src/
+!frontend/src/**
+!frontend/tsconfig.json
+!frontend/vite.config.ts
