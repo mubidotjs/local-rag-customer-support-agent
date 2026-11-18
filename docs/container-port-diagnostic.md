@@ -56,13 +56,16 @@ on Desktop, stop; use an independently validated native Linux host design.
 
 ## Frozen diagnostic
 
-See the [bounded CLI frozen plan](../reports/container-port-diagnostic-preparation/plan-bounded-cli-v3.json)
-(SHA-256: `dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7`).
-The [preflight ordering plan](../reports/container-port-diagnostic-preparation/plan-preclaim-v2.json)
-is unchanged (SHA-256: `7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471`).
-The [original frozen plan](../reports/container-port-diagnostic-preparation/plan.json)
-is unchanged (SHA-256: `fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74`).
-The original diagnostic stopped before sending any request or creating a claim.
+See the [split-home CLI v4 frozen plan](../reports/container-port-diagnostic-preparation/plan-split-cli-home-v4.json)
+(SHA-256: `ced9a01a7cc79553244fc2c4f69742cee4d54e13f3e391898ab580d6183f9129`).
+The [original](../reports/container-port-diagnostic-preparation/plan.json),
+[preflight v2](../reports/container-port-diagnostic-preparation/plan-preclaim-v2.json),
+and [bounded CLI v3](../reports/container-port-diagnostic-preparation/plan-bounded-cli-v3.json)
+plans are all preserved with their original hashes. The [stopped v3
+evidence](../reports/container-port-diag-5b-once-stopped/README.md) shows why a
+shared HOME/config directory fails: Desktop creates its log under HOME.
+The v3 ID and audit remain consumed. Version 4 uses
+`container-port-diag-5b-v4-once` and new Docker resource names and labels.
 It uses the already-approved local Python image by full ID and runs only inline
 fictional responders; inherited health checks are disabled, proxies are neutralized,
 and pulling is forbidden. Two separate internal IPv4 bridges contain one
@@ -90,10 +93,10 @@ Engine, all 397 protected files, and all 31 consumed archive checksums.
 
 ### Revised preflight and claim
 
-The claim workspace and its fixed sibling, `/var/tmp/project5-port-diag-5b-once.preflight`,
+The claim workspace `/var/tmp/project5-port-diag-5b-v4-once` and its fixed sibling, `/var/tmp/project5-port-diag-5b-v4-once.preflight`,
 must both be absent. Exclusive directory creation reserves the audit once.
 The runner flushes and fsyncs each pre-send record before dispatch and saves
-the receipt or error. The three read-only Docker commands (context, Engine,
+the confirmed child launch separately, then the result or error. The three read-only Docker commands (context, Engine,
 pinned image) are the first three of the same 14 normal commands. It never
 runs them again after the claim. On metadata failure or interruption, retain
 the audit and refuse reuse; an incomplete directory is evidence and blocks
@@ -102,7 +105,8 @@ another invocation. A failed preflight does not create the permanent claim.
 On success, recheck source and preservation, seal the audit, validate its
 digest, exact ordered receipts, and locally observed endpoint identity, and exclusively create the permanent workspace.
 Adopt the exact preflight bytes as the execution journal prefix and record
-their count and SHA-256 in the claim. The directory reservation is the
+their count and SHA-256 in the claim. The result distinguishes reserved slots from
+confirmed launches; an interrupted spawn is uncertain and is never retried. The directory reservation is the
 atomic exclusion point; only a durably populated workspace authorizes
 mutation. A crash during adoption leaves the audit and the consumed workspace
 in place without dispatching a mutation. Seal the complete journal and record
@@ -115,8 +119,22 @@ Ubuntu WSL2 must present the root-owned entry /usr/bin/docker pointing to the
 pinned Docker Desktop Linux ELF binary. The runner checks the binary's SHA-256
 and trusted path components, then rechecks the file and socket stamps around
 dispatch. It executes the verified file descriptor, not a PATH lookup. The
-CLI receives only a minimal environment and an exclusive empty Docker config
-directory; caller Docker overrides are refused. It inspects context default
+CLI receives only a minimal environment. Separate mode-0700 directories
+under the exclusive audit path supply `HOME`/working directory (`cli-home`)
+and `--config` (`cli-config`). The config directory must stay empty before and
+after every invocation. Caller Docker overrides are refused. HOME may contain
+only the observed log tree and a bounded regular log file; there is no
+allowlist exception for config entries. Ownership, modes, directory identity,
+symlinks and log hardlinks are checked. Unexpected HOME entries stop the run.
+
+On x86_64 Linux, the CLI process must apply [Landlock](https://docs.kernel.org/userspace-api/landlock.html)
+ABI 3+ to keep regular data writes, creation, removal, and truncation within
+its private HOME. The CLI child sets no-new-privileges first. It cannot write
+configuration or journals through the child filesystem policy. This is not
+a general metadata sandbox (for example, Landlock does not mediate chmod)
+or a constraint on the Docker daemon. The owned-directory guards independently
+enforce permissions and identity. No host settings or privileges are changed.
+If confinement is unavailable or the observed log layout changes, stop. It inspects context default
 once, then directs every other command explicitly to unix:///var/run/docker.sock.
 Engine ID and pinned image ID, platform, user, source/context labels, and
 environment are verified before claiming. The plan counts CLI invocations;
@@ -148,7 +166,7 @@ fixed endpoint before inspecting any recorded full ID. Inspect container IDs
 as containers and network IDs as networks. Compare each receipt's full ID,
 diagnostic label, expected role name, image for containers, and topology to
 the journal. If a create response was lost, use the exact diagnostic-label
-filter org.project5.diagnostic=container-port-diag-5b-once on the applicable
+filter org.project5.diagnostic=container-port-diag-5b-v4-once on the applicable
 container or network list only to find candidates, then inspect their full
 IDs and corroborate the role, creation time, source mount (responder only),
 and topology. Stop if the Engine or ownership cannot be verified. Inspection
@@ -159,8 +177,9 @@ and exact verified IDs; no name-based, force, wildcard, or prune cleanup.
 
 Authorize exactly one use of the bounded CLI plan at its reviewed clean
 source SHA, with its exact pinned CLI digest, Engine and image IDs, Ubuntu
-ext4 checkout as UID/GID 10001:10001, successful offline CI, and both live
-paths absent. Explicitly accept the documented upstream visibility limit.
+ext4 checkout as UID/GID 10001:10001, successful offline CI, and both v4 live
+paths absent and the v3 audit untouched. Require Linux Landlock ABI 3+.
+Explicitly accept the documented upstream visibility limit.
 Use the existing module with --execute-authorized-once and the approved
 source SHA. Keep the 180-second maximum, 14 normal Docker CLI invocations
 including exactly three pre-claim metadata checks, six cleanup invocations,

@@ -1,5 +1,6 @@
 """Offline preparation for a separate, synthetic ingress diagnostic."""
 import argparse
+import ctypes
 import hashlib
 from contextlib import contextmanager
 import http.client
@@ -14,6 +15,7 @@ import socket
 import stat
 import subprocess
 import sys
+import threading
 import time
 
 from evaluation.container_runtime import (
@@ -21,19 +23,21 @@ from evaluation.container_runtime import (
 )
 from evaluation.lifecycle_live import Journal, StopRun, save_new, sha
 
-BASELINE = "6923dbdeb1e7d89637ea1daac188f2f2e451895c"
 ARCHIVE = ROOT / "reports/container-runtime-5b-once-consumed"
 ARCHIVE_CHECKSUMS = "217da0328f7361b5e81e7cdfc6d13efa0bc59d0d34b9d02e6c34652474b1d050"
-RUN_ID = "container-port-diag-5b-once"
-WORK = Path("/var/tmp/project5-port-diag-5b-once")
+RUN_ID = "container-port-diag-5b-v4-once"
+WORK = Path("/var/tmp/project5-port-diag-5b-v4-once")
 ORIGINAL_PLAN = ROOT / "reports/container-port-diagnostic-preparation/plan.json"
 ORIGINAL_PLAN_SHA = "fd44d2a2f8a2400d8388f1df0cdd1a460ab47d86b3b1a08b4b958a9a393bae74"
-PRECLAIM_BASELINE = "cdb2038d81d72956bd73ad2f003f9948aa78c1d4"
 PREVIOUS_PLAN = ORIGINAL_PLAN.with_name("plan-preclaim-v2.json")
 PREVIOUS_PLAN_SHA = "7385595c3ae43277dda952cf8dc4454f075b3d24b1a5a28613d8402829d2b471"
-OPTION_C_BASELINE = "839f81087ea155c7219c0099578f4553d43e5ed2"
-PLAN = ORIGINAL_PLAN.with_name("plan-bounded-cli-v3.json")
-PLAN_SHA = "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7"
+V3_PLAN = ORIGINAL_PLAN.with_name("plan-bounded-cli-v3.json")
+V3_PLAN_SHA = "dcd89935db51b1313202f93e7edacf099d1bd18c7addd005d377b0a52ddc3ec7"
+V3_DELIVERY = "57609463e63b76197e1871098f12c2afab76b0dc"
+V3_ARCHIVE = ROOT / "reports/container-port-diag-5b-once-stopped"
+V3_ARCHIVE_SHA = "ff03d7b670d05f207df8410eb33095652bfaa14ab8aedeb653fb57d3b23e33d0"
+PLAN = ORIGINAL_PLAN.with_name("plan-split-cli-home-v4.json")
+PLAN_SHA = "ced9a01a7cc79553244fc2c4f69742cee4d54e13f3e391898ab580d6183f9129"
 CLI_ENTRY = Path("/usr/bin/docker")
 CLI_BINARY = Path("/mnt/wsl/docker-desktop/cli-tools/usr/bin/docker")
 CLI_SHA = "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621"
@@ -46,7 +50,7 @@ IMAGE_LABELS = {
     "org.project5.context": "3691f6470f429d194e5b21eaffc75dc1e9df659141fb1d75dfb2c1c43de7d91a",
 }
 LABEL = "org.project5.diagnostic=" + RUN_ID
-TAG = "container-port-diagnostic"
+TAG = "container-port-diagnostic-v4"
 PORT, LOCAL_PORT, SENTINEL_PORT = 18080, 45173, 18082
 KEY = f"{PORT}/tcp"
 HOST = f"127.0.0.1:{LOCAL_PORT}"
@@ -61,22 +65,9 @@ ORDER = (
 PREFLIGHT = ORDER[:3]
 PROXY_ENV = ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "http_proxy", "https_proxy", "all_proxy", "no_proxy")
 HTTP_ORDER = ("inside_http", "ubuntu_published_http", "ubuntu_private_socket_http")
-CHANGED = {
-    ".github/workflows/runtime-preparation.yml", "evaluation/container_port_diagnostic.py",
-    "tests/test_container_port_diagnostic.py", "docs/container-port-diagnostic.md",
-    "reports/container-port-diagnostic-preparation/plan.json",
-    "reports/container-port-diagnostic-preparation/offline.md",
-}
-REVISED = {
+V4 = {
     "evaluation/container_port_diagnostic.py", "tests/test_container_port_diagnostic.py",
-    "docs/container-port-diagnostic.md", "reports/container-port-diagnostic-preparation/plan-preclaim-v2.json",
-    ".github/workflows/runtime-preparation.yml",
-}
-
-
-OPTION_C = {
-    "evaluation/container_port_diagnostic.py", "tests/test_container_port_diagnostic.py",
-    "docs/container-port-diagnostic.md", "reports/container-port-diagnostic-preparation/plan-bounded-cli-v3.json",
+    "docs/container-port-diagnostic.md", "reports/container-port-diagnostic-preparation/plan-split-cli-home-v4.json",
 }
 PREFLIGHT_ARGS = (("context", "inspect", "default"), ("info", "--format", "{{json .}}"),
                   ("image", "inspect", IMAGE))
@@ -226,9 +217,71 @@ def validate_cli_file(info):
             and 1 <= info.st_size <= 64 * 1024 * 1024, "untrusted_docker_cli_file")
 
 
+# Linux Landlock UAPI on x86_64. ABI 3 handles truncate; do not silently degrade.
+LL_CREATE, LL_ADD_RULE, LL_RESTRICT = 444, 445, 446
+LL_HANDLED = sum(1 << bit for bit in (1, *range(4, 15)))
+LL_HOME = sum(1 << bit for bit in (1, 4, 5, 7, 8, 14))
+HOME_LOG_DIRS = (".docker", ".docker/desktop", ".docker/desktop/log", ".docker/desktop/log/host")
+HOME_LOG = HOME_LOG_DIRS[-1] + "/docker-desktop.log"
+
+
+class PathBeneath(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [("access", ctypes.c_uint64), ("parent_fd", ctypes.c_int32)]
+
+
+def landlock_kernel():
+    require(sys.platform == "linux" and os.uname().machine == "x86_64", "linux_x86_64_landlock_required")
+    libc = ctypes.CDLL(None, use_errno=True)
+    require(libc.syscall(LL_CREATE, ctypes.c_void_p(), ctypes.c_size_t(0), 1) >= 3,
+            "landlock_abi3_required")
+    return libc
+
+
+@contextmanager
+def cli_write_rules(home, identity):
+    require(threading.active_count() == 1, "single_threaded_cli_launch_required")
+    libc = landlock_kernel()
+    handled = ctypes.c_uint64(LL_HANDLED)
+    rules = libc.syscall(LL_CREATE, ctypes.byref(handled), ctypes.c_size_t(ctypes.sizeof(handled)), 0)
+    require(rules >= 0, "landlock_ruleset_unavailable")
+    try:
+        fd = os.open(home, os.O_PATH | os.O_NOFOLLOW | os.O_DIRECTORY)
+        try:
+            require(directory_identity(os.fstat(fd)) == identity, "docker_cli_home_replaced")
+            rule = PathBeneath(LL_HOME, fd)
+            require(libc.syscall(LL_ADD_RULE, rules, 1, ctypes.byref(rule), 0) == 0,
+                    "landlock_home_rule_rejected")
+        finally:
+            os.close(fd)
+
+        def restrict_child():
+            if libc.prctl(38, 1, 0, 0, 0) != 0 or libc.syscall(LL_RESTRICT, rules, 0) != 0:
+                raise OSError("landlock_child_restriction_failed")
+            os.close(rules)
+
+        yield rules, restrict_child
+    finally:
+        os.close(rules)
+
+
+def directory_identity(info):
+    return (info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode)
+
+
+def validate_private_dir(path):
+    info = path.lstat()
+    require(stat.S_ISDIR(info.st_mode) and (info.st_uid, info.st_gid, stat.S_IMODE(info.st_mode))
+            == (10001, 10001, 0o700), "docker_cli_directory_not_private:" + path.name)
+    return directory_identity(info)
+
+
 class Transport:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, audit):
+        self.private = audit
+        self.config = audit / "cli-config"
+        self.home = audit / "cli-home"
+        self._directory_ids = None
         self._cli_stamp = None
         self._initial_identity = None
 
@@ -275,24 +328,51 @@ class Transport:
         except (OSError, StopRun) as error:
             raise TargetUncertain(str(error)) from error
 
-    def command(self, args, seconds):
+    def guard_paths(self):
+        require(self.private.resolve(strict=True) == self.private, "docker_cli_path_traversal")
+        ids = tuple(validate_private_dir(p) for p in (self.private, self.config, self.home))
+        require(len(set(ids)) == 3, "docker_cli_directory_alias")
+        if self._directory_ids is None:
+            self._directory_ids = ids
+        require(ids == self._directory_ids, "docker_cli_directory_identity_changed")
+        require(not any(self.config.iterdir()), "docker_config_not_empty")
+        root = self.home
+        for name in (*HOME_LOG_DIRS, HOME_LOG):
+            target = self.home / name
+            unexpected = [child.name for child in root.iterdir() if child != target]
+            require(not unexpected, "unexpected_docker_cli_home_entry")
+            try:
+                info = target.lstat()
+            except FileNotFoundError:
+                return
+            require((info.st_uid, info.st_gid) == (10001, 10001)
+                    and stat.S_IMODE(info.st_mode) & 0o7022 == 0, "untrusted_docker_cli_home_entry")
+            if name == HOME_LOG:
+                require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size <= 1_000_000,
+                        "unexpected_docker_cli_log")
+            else:
+                require(stat.S_ISDIR(info.st_mode), "unexpected_docker_cli_home_directory")
+                root = target
+
+    def command(self, args, seconds, on_launch):
         self.binding()
-        info = self.config.lstat()
-        require(stat.S_ISDIR(info.st_mode) and (info.st_uid, info.st_gid, stat.S_IMODE(info.st_mode))
-                == (10001, 10001, 0o700) and not any(self.config.iterdir()), "docker_config_not_private_empty")
+        self.guard_paths()
         prefix = ["--config", str(self.config)]
         prefix += ["--context", "default"] if tuple(args) == PREFLIGHT_ARGS[0] else ["--host", ENDPOINT]
+        deadline, data = time.monotonic() + seconds, bytearray()
         fd = os.open(CLI_BINARY, os.O_RDONLY | os.O_NOFOLLOW)
         try:
             require(stamp(os.fstat(fd)) == self._cli_stamp, "docker_cli_changed_before_exec")
-            process = subprocess.Popen([str(CLI_BINARY), *prefix, *args], executable=f"/proc/self/fd/{fd}",
-                                       pass_fds=(fd,), env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8",
-                                                             "HOME": str(self.config), "OTEL_SDK_DISABLED": "true"},
-                                       stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            with cli_write_rules(self.home, self._directory_ids[2]) as (rules, restrict_child):
+                process = subprocess.Popen([str(CLI_BINARY), *prefix, *args], executable=f"/proc/self/fd/{fd}",
+                                           pass_fds=(fd, rules), preexec_fn=restrict_child, umask=0o077,
+                                           cwd=self.home, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8",
+                                                              "HOME": str(self.home), "OTEL_SDK_DISABLED": "true"},
+                                           stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         finally:
             os.close(fd)
-        deadline, data = time.monotonic() + seconds, bytearray()
         try:
+            on_launch()
             with selectors.DefaultSelector() as selector:
                 selector.register(process.stdout, selectors.EVENT_READ)
                 while selector.get_map():
@@ -309,6 +389,7 @@ class Transport:
                 error = TargetUncertain("docker_command_failed")
                 error.details = data.decode("utf-8", errors="replace")
                 raise error
+            self.guard_paths()
             return data.decode("utf-8")
         finally:
             process.stdout.close()
@@ -357,6 +438,7 @@ class Session:
         self.transport, self.work, self.clock = transport, work, clock
         self.start = clock() if started is None else started
         self.normal = self.cleanup_count = self.http_count = 0
+        self.normal_launches = self.cleanup_launches = 0
         self.ids, self.uncertain, self.results = {}, set(), {}
         self.audit = work.with_name(work.name + ".preflight")
         self.journal = None
@@ -392,7 +474,8 @@ class Session:
             raise StopRun("fixed_preflight_audit_already_exists") from error
         self.sync_directory(self.audit.parent)
         save_new(self.audit / "intent.json", {"run_id": RUN_ID, "source": commit, "plan_sha256": PLAN_SHA})
-        (self.audit / "cli-config").mkdir(mode=0o700)
+        for name in ("cli-home", "cli-config"):
+            (self.audit / name).mkdir(mode=0o700)
         self.journal = Journal(self.audit / "actions.jsonl")
         self.sync_directory(self.audit)
 
@@ -418,7 +501,17 @@ class Session:
         if action in PREFLIGHT:
             require(argv == PREFLIGHT_ARGS[self.normal], "unexpected_preflight_arguments")
         self.require_binding()
-        sent, result = False, None
+        reserved, launched, result = False, False, None
+
+        def on_launch():
+            nonlocal launched
+            require(not launched, "duplicate_cli_launch_receipt")
+            launched = True
+            if cleanup:
+                self.cleanup_launches += 1
+            else:
+                self.normal_launches += 1
+            self.journal.write({"event": "launched", "action": action})
         try:
             self.journal.write({"event": "before", "transport": "docker", "action": action, "argv": argv})
             self.require_binding()
@@ -427,8 +520,9 @@ class Session:
                 self.cleanup_count += 1
             else:
                 self.normal += 1
-            sent = True
-            result = self.transport.command(list(argv), limit)
+            reserved = True
+            result = self.transport.command(list(argv), limit, on_launch)
+            require(launched, "missing_cli_launch_receipt")
             self.receipt(action, result)
             self.require_binding()
             if action in PREFLIGHT:
@@ -438,7 +532,8 @@ class Session:
             # Lost status means an operation may have been accepted even if the
             # CLI failed or its receipt could not be durably recorded.
             self.docker_uncertainty = {"action": action, "reason": str(error),
-                                       "possibly_committed": sent and (
+                                       "launch_confirmed": launched,
+                                       "possibly_committed": reserved and (
                                            cleanup or action not in (*PREFLIGHT, "inspect_containers", "inspect_networks"))}
             if action in {"network_responder", "network_sentinel", "create_responder", "create_sentinel"}:
                 if isinstance(result, str) and re.fullmatch("[0-9a-f]{64}", result.strip()):
@@ -482,17 +577,20 @@ class Session:
         expected = []
         for action, args, result in zip(PREFLIGHT, PREFLIGHT_ARGS, self.preflight_receipts, strict=True):
             expected.extend([{"event": "before", "transport": "docker", "action": action, "argv": list(args)},
+                             {"event": "launched", "action": action},
                              {"event": "result", "action": action, "result": result}])
         require([{k: v for k, v in row.items() if k != "utc"} for row in actual] == expected,
                 "missing_duplicate_or_changed_preflight_receipt")
-        self.journal.write({"event": "preflight_verified", "normal_docker": self.normal})
+        self.journal.write({"event": "preflight_verified", "normal_docker": self.normal,
+                            "normal_cli_launches": self.normal_launches})
         self.preflight_hash = self.seal_journal()
 
     def claim(self, commit):
         self.remaining()
         self.require_binding()
+        self.transport.guard_paths()
         source = self.audit / "actions.jsonl"
-        require(self.normal == len(PREFLIGHT) and self.preflight_hash is not None
+        require(self.normal_launches == self.normal == len(PREFLIGHT) and self.preflight_hash is not None
                 and sha(source) == self.preflight_hash, "unsealed_or_changed_preflight_audit")
         prefix = source.read_bytes()
         require(hashlib.sha256(prefix).hexdigest() == self.preflight_hash, "preflight_prefix_changed")
@@ -696,6 +794,7 @@ class Session:
         except (Exception, KeyboardInterrupt) as error:
             outcome.update(failure=f"{type(error).__name__}: {error}", claim_created=self.claim_reserved,
                            captured_ids={}, normal_docker=self.normal, cleanup_docker=0, http_attempts=0,
+                           normal_cli_launches=self.normal_launches, cleanup_cli_launches=0,
                            actual_model_requests=0, docker_uncertainty=self.docker_uncertainty, journal_sha256=(sha(self.journal.path) if self.preflight_hash is not None
                                                                     else self.seal_journal()))
             save_new(self.audit / "result.json", outcome)
@@ -719,6 +818,7 @@ class Session:
                 outcome["preservation_failure"] = f"{type(error).__name__}: {error}"
             outcome.update(results=self.results, captured_ids=self.ids, normal_docker=self.normal,
                            cleanup_docker=self.cleanup_count, http_attempts=self.http_count,
+                           normal_cli_launches=self.normal_launches, cleanup_cli_launches=self.cleanup_launches,
                            actual_model_requests=0, windows_localhost="not_tested", claim_created=True,
                            docker_uncertainty=self.docker_uncertainty,
                            cleanup_owner_review=bool(outcome["unresolved_cleanup"]),
@@ -735,13 +835,15 @@ def verify_source(commit):
     require(not git("status", "--porcelain", "--untracked-files=all"), "dirty_checkout")
     require(sha(ORIGINAL_PLAN) == ORIGINAL_PLAN_SHA, "original_frozen_plan_changed")
     require(sha(PREVIOUS_PLAN) == PREVIOUS_PLAN_SHA, "previous_frozen_plan_changed")
+    require(sha(V3_PLAN) == V3_PLAN_SHA, "v3_frozen_plan_changed")
     require(sha(PLAN) == PLAN_SHA, "frozen_plan_changed")
-    diff = set(git("diff", "--name-only", "--no-renames", BASELINE, commit).decode().splitlines())
-    require(diff == CHANGED | REVISED | OPTION_C, "unexpected_changes_from_historical_delivery")
-    revised = set(git("diff", "--name-only", "--no-renames", PRECLAIM_BASELINE, commit).decode().splitlines())
-    require(revised == REVISED | OPTION_C, "unexpected_changes_from_preclaim_baseline")
-    option_c = set(git("diff", "--name-only", "--no-renames", OPTION_C_BASELINE, commit).decode().splitlines())
-    require(option_c == OPTION_C, "unexpected_changes_from_option_c_baseline")
+    changed = set(git("diff", "--name-only", "--no-renames", V3_DELIVERY, commit).decode().splitlines())
+    require(changed == V4, "unexpected_changes_from_stopped_v3_delivery")
+    v3_manifest = V3_ARCHIVE / "checksums.json"
+    require(sha(v3_manifest) == V3_ARCHIVE_SHA, "stopped_v3_manifest_changed")
+    v3_files = json.loads(v3_manifest.read_bytes())
+    require(len(v3_files) == 5 and all(sha(V3_ARCHIVE / name) == digest for name, digest in v3_files.items()),
+            "stopped_v3_evidence_changed")
     result = preservation(require_local=True)
     require(len(result["checked"]) == 397, "historical_preservation_count")
     archive_manifest = ARCHIVE / "checksums.json"
@@ -749,7 +851,7 @@ def verify_source(commit):
     checksums = json.loads(archive_manifest.read_bytes())
     require(len(checksums) == 31 and all(sha(ARCHIVE / name) == digest for name, digest in checksums.items()),
             "historical_archive_changed")
-    return {**result, "archive_checksums": checksums}
+    return {**result, "archive_checksums": checksums, "stopped_v3_checksums": v3_files}
 
 
 def main():
@@ -763,11 +865,12 @@ def main():
             raise StopRun("linux_host_required")
         with alarm(20):
             host_gate()
+            landlock_kernel()
             require(not os.path.lexists(WORK) and not os.path.lexists(WORK.with_name(WORK.name + ".preflight")),
                     "fixed_workspace_or_preflight_audit_already_exists")
             verify_source(commit)
-        audit_config = WORK.with_name(WORK.name + ".preflight") / "cli-config"
-        session = Session(Transport(audit_config), WORK, started=started)
+        audit = WORK.with_name(WORK.name + ".preflight")
+        session = Session(Transport(audit), WORK, started=started)
         with alarm(max(.1, TOTAL - (time.monotonic() - started))):
             result = session.run(commit, lambda: verify_source(commit))
         receipt_dir = WORK if session.claimed else session.audit

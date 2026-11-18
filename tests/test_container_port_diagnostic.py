@@ -1,4 +1,8 @@
 import copy
+from contextlib import contextmanager
+import os
+import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 from threading import Barrier
@@ -67,16 +71,20 @@ class Fake:
     def binding(self):
         return self.token
 
+    def guard_paths(self):
+        pass
+
     def event(self, transport):
         directory = self.work if self.work.exists() else self.audit
         events = [json.loads(line) for line in (directory / "actions.jsonl").read_text().splitlines()]
         assert events[-1]["event"] == "before" and events[-1]["transport"] == transport
         return events[-1]["action"]
 
-    def command(self, args, seconds):
+    def command(self, args, seconds, on_launch):
         action = self.event("docker")
         assert 0 < seconds <= 6
         self.calls.append((action, args))
+        on_launch()
         if action in d.PREFLIGHT:
             assert not self.work.exists() and (self.audit / "intent.json").is_file()
         else:
@@ -201,7 +209,8 @@ def test_complete_fake_sequence(session, mode, http_count, published):
     assert outcome["results"]["ubuntu_published_http"] == published
     assert outcome["results"]["cross_bridge_tcp"] == "denied_with_positive_control"
     assert outcome["http_attempts"] == http_count
-    assert outcome["normal_docker"] == 14 and outcome["cleanup_docker"] == 6
+    assert outcome["normal_docker"] == outcome["normal_cli_launches"] == 14
+    assert outcome["cleanup_docker"] == outcome["cleanup_cli_launches"] == 6
     assert [a for a, _ in fake.calls[:14]] == list(d.ORDER)
     assert outcome["journal_sha256"] == d.sha(instance.work / "actions.jsonl")
     prefix = (instance.audit / "actions.jsonl").read_bytes()
@@ -317,8 +326,9 @@ def test_plan_pinned_and_budgets_match_code():
     original = json.loads(d.ORIGINAL_PLAN.read_bytes())
     assert d.sha(d.ORIGINAL_PLAN) == d.ORIGINAL_PLAN_SHA
     assert d.sha(d.PREVIOUS_PLAN) == d.PREVIOUS_PLAN_SHA
+    assert d.sha(d.V3_PLAN) == d.V3_PLAN_SHA
     assert all(value == original[k] for k, value in json.loads(d.PLAN.read_bytes()).items()
-               if k in original and k != "evidence")
+               if k in original and k not in {"evidence", "run_id", "work"})
     plan = json.loads(d.PLAN.read_bytes())
     limits = plan["limits"]
     assert plan["run_id"] == d.RUN_ID and Path(plan["work"]) == d.WORK
@@ -380,7 +390,8 @@ def test_pre_send_fsync_failure_never_dispatches(session, monkeypatch):
         return real(fd)
     monkeypatch.setattr(d.os, "fsync", inject)
     outcome = run(instance)
-    assert "fsync failure" in outcome["failure"] and not fake.calls and outcome["normal_docker"] == 0
+    assert "fsync failure" in outcome["failure"] and not fake.calls
+    assert outcome["normal_docker"] == outcome["normal_cli_launches"] == 0
     assert not instance.work.exists()
     assert (instance.audit / "result.json").exists()
 
@@ -511,8 +522,8 @@ def test_preflight_receipts_must_be_exact_before_claim(session, index, duplicate
 def test_cleanup_uncertainty_halts_without_further_dispatch(session, monkeypatch):
     instance, fake = session
     original = fake.command
-    def send(args, seconds):
-        reply = original(args, seconds)
+    def send(args, seconds, on_launch):
+        reply = original(args, seconds, on_launch)
         if fake.calls[-1][0] == "cleanup_stop_responder":
             raise TimeoutError("lost stop response")
         return reply
@@ -537,8 +548,8 @@ def test_deterministic_probe_mismatch_cleans_exact_owned_ids(session, monkeypatc
 def test_local_endpoint_drift_after_resource_creation_blocks_cleanup(session, monkeypatch):
     instance, fake = session
     original = fake.command
-    def send(args, seconds):
-        value = original(args, seconds)
+    def send(args, seconds, on_launch):
+        value = original(args, seconds, on_launch)
         if fake.calls[-1][0] == "create_sentinel":
             fake.token = "different-local-socket"
         return value
@@ -556,11 +567,11 @@ def test_unchanged_endpoint_substitution_limits(session, monkeypatch, detectable
     instance, fake = session
     original = fake.command
     switched = False
-    def send(args, seconds):
+    def send(args, seconds, on_launch):
         nonlocal switched
         if args[:2] == ["network", "create"]:
             switched = True
-        return original(args, seconds)
+        return original(args, seconds, on_launch)
     if detectable:
         def changed_label(row):
             if switched and "Config" in row:
@@ -577,37 +588,197 @@ def test_unchanged_endpoint_substitution_limits(session, monkeypatch, detectable
         assert result["status"] == "DIAGNOSTIC_COMPLETE" and result["normal_docker"] == 14
 
 
+
+@pytest.fixture
+def cli_paths(tmp_path, monkeypatch):
+    audit = tmp_path.resolve() / "fixture-audit"
+    audit.mkdir()
+    transport = d.Transport(audit)
+    transport.home.mkdir()
+    transport.config.mkdir()
+    real = d.Path.lstat
+    overrides = {}
+
+    def fake_stat(path):
+        info = real(path)
+        if path != audit and audit not in path.parents:
+            return info
+        mode = stat.S_IFMT(info.st_mode) | (0o700 if stat.S_ISDIR(info.st_mode) else 0o600)
+        values = dict(st_dev=info.st_dev, st_ino=info.st_ino, st_size=info.st_size,
+                      st_uid=10001, st_gid=10001, st_mode=mode, st_nlink=info.st_nlink)
+        return SimpleNamespace(**(values | overrides.get(path, {})))
+
+    monkeypatch.setattr(d.Path, "lstat", fake_stat)
+    return transport, overrides
+
+
 @pytest.mark.parametrize(("args", "routing"), [
     (("context", "inspect", "default"), ["--context", "default"]),
     (("info", "--format", "{{json .}}"), ["--host", d.ENDPOINT]),
     (("network", "create", "--internal", "fictional"), ["--host", d.ENDPOINT]),
 ])
-def test_cli_exec_uses_pinned_file_socket_and_clean_environment(tmp_path, monkeypatch, args, routing):
-    config = tmp_path / "config"
-    config.mkdir()
+def test_cli_exec_uses_separate_home_config_and_pinned_file(cli_paths, monkeypatch, args, routing):
+    transport, _ = cli_paths
     inode = SimpleNamespace(st_ino=7, st_size=4096, st_dev=5, st_ctime_ns=19, st_uid=0, st_gid=0,
                             st_mode=stat.S_IFREG | 0o775)
-    cfg = SimpleNamespace(st_uid=10001, st_gid=10001, st_mode=stat.S_IFDIR | 0o700)
-    transport = d.Transport(config)
     transport._cli_stamp = d.stamp(inode)
     monkeypatch.setattr(transport, "binding", lambda: ("fake",))
-    real = d.Path.lstat
-    monkeypatch.setattr(d.Path, "lstat", lambda path: cfg if path == config else real(path))
     fd = 123
     fds = []
+    ruleset = 124
+    child = lambda: None
     monkeypatch.setattr(d.os, "O_NOFOLLOW", 1, raising=False)
     monkeypatch.setattr(d.os, "open", lambda path, flags: fd if path == d.CLI_BINARY else pytest.fail("unapproved open"))
     monkeypatch.setattr(d.os, "fstat", lambda _: inode)
     monkeypatch.setattr(d.os, "close", fds.append)
+
+    @contextmanager
+    def fake_rules(home, identity):
+        assert home == transport.home and identity == transport._directory_ids[2]
+        yield ruleset, child
+
+    monkeypatch.setattr(d, "cli_write_rules", fake_rules)
     calls = []
     def stop(argv, **kwargs):
         calls.append(argv)
-        assert kwargs["executable"] == f"/proc/self/fd/{fd}" and kwargs["pass_fds"] == (fd,)
+        assert kwargs["executable"] == f"/proc/self/fd/{fd}" and kwargs["pass_fds"] == (fd, ruleset)
+        assert kwargs["preexec_fn"] is child and kwargs["umask"] == 0o077
+        assert kwargs["cwd"] == transport.home
         assert kwargs["env"] == {"LANG": "C.UTF-8", "PATH": "/usr/bin:/bin",
-                                 "HOME": str(config), "OTEL_SDK_DISABLED": "true"}
+                                 "HOME": str(transport.home), "OTEL_SDK_DISABLED": "true"}
         raise OSError("synthetic dispatch boundary")
     monkeypatch.setattr(d.subprocess, "Popen", stop)
     with pytest.raises(OSError, match="synthetic dispatch boundary"):
-        transport.command(list(args), 1)
-    assert calls == [[str(d.CLI_BINARY), "--config", str(config), *routing, *args]]
+        transport.command(list(args), 1, lambda: pytest.fail("not launched"))
+    assert calls == [[str(d.CLI_BINARY), "--config", str(transport.config), *routing, *args]]
     assert fds == [fd]
+
+
+def fake_desktop_log(home):
+    log = home / d.HOME_LOG
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with log.open("ab") as handle:
+        handle.write(b"synthetic Docker Desktop logging side effect\n")
+
+
+def test_repeated_preflight_with_desktop_logging_keeps_config_empty(cli_paths, session, monkeypatch):
+    instance, fake = session
+    transport, _ = cli_paths
+    command = fake.command
+    def desktop(args, seconds, launched):
+        transport.guard_paths()
+        reply = command(args, seconds, launched)
+        fake_desktop_log(transport.home)
+        transport.guard_paths()
+        return reply
+    monkeypatch.setattr(fake, "command", desktop)
+    outcome = run(instance)
+    assert outcome["status"] == "DIAGNOSTIC_COMPLETE" and len(fake.calls) == 20
+    assert outcome["normal_docker"] == outcome["normal_cli_launches"] == 14
+    assert (transport.home / d.HOME_LOG).read_bytes().count(b"logging side effect") == 20
+    assert list(transport.config.iterdir()) == []
+
+
+@pytest.mark.parametrize("after_launch", [False, True])
+def test_config_write_stops_with_separate_slot_and_launch_counts(cli_paths, session, monkeypatch, after_launch):
+    instance, fake = session
+    transport, _ = cli_paths
+    command = fake.command
+    def desktop(args, seconds, launched):
+        image = args[:2] == ["image", "inspect"]
+        if image and not after_launch:
+            (transport.config / "unexpected").touch()
+        transport.guard_paths()
+        response = command(args, seconds, launched)
+        if image and after_launch:
+            (transport.config / "unexpected").touch()
+        transport.guard_paths()
+        return response
+    monkeypatch.setattr(fake, "command", desktop)
+    outcome = run(instance)
+    assert outcome["status"] == "STOPPED" and "docker_config_not_empty" in outcome["failure"]
+    assert outcome["normal_docker"] == 3 and outcome["normal_cli_launches"] == (3 if after_launch else 2)
+    assert outcome["docker_uncertainty"]["launch_confirmed"] is after_launch
+    assert not instance.work.exists() and outcome["http_attempts"] == 0
+
+
+@pytest.mark.parametrize("attribute,changes,reason", [
+    ("home", {"st_uid": 1000}, "not_private"),
+    ("home", {"st_mode": stat.S_IFDIR | 0o755}, "not_private"),
+    ("home", {"st_ino": -1}, "identity_changed"),
+    ("home", {"st_mode": stat.S_IFLNK | 0o777}, "not_private"),
+    ("config", {"st_mode": stat.S_IFLNK | 0o777}, "not_private"),
+])
+def test_unsafe_cli_paths_fail_closed(cli_paths, attribute, changes, reason):
+    transport, overrides = cli_paths
+    transport.guard_paths()
+    overrides[getattr(transport, attribute)] = changes
+    with pytest.raises(d.StopRun, match=reason):
+        transport.guard_paths()
+
+
+@pytest.mark.parametrize("changes", [
+    {"st_mode": stat.S_IFLNK | 0o600}, {"st_nlink": 2},
+    {"st_mode": stat.S_IFREG | 0o666}, {"st_size": 1_000_001},
+])
+def test_symlink_hardlink_writable_or_unbounded_log_rejected(cli_paths, changes):
+    transport, overrides = cli_paths
+    fake_desktop_log(transport.home)
+    overrides[transport.home / d.HOME_LOG] = changes
+    with pytest.raises(d.StopRun, match="docker_cli"):
+        transport.guard_paths()
+
+
+def test_unknown_home_write_rejected(cli_paths):
+    transport, _ = cli_paths
+    (transport.home / "unexpected").touch()
+    with pytest.raises(d.StopRun, match="unexpected_docker_cli_home_entry"):
+        transport.guard_paths()
+
+
+def test_landlock_blocks_outside_writes_in_benign_fixture_process(tmp_path):
+    if sys.platform != "linux":
+        pytest.skip("Linux Landlock only")
+    try:
+        d.landlock_kernel()
+    except d.StopRun as error:
+        pytest.skip(str(error))
+    home, outside = tmp_path / "home", tmp_path / "outside"
+    home.mkdir()
+    outside.mkdir()
+    regular = outside / "existing"
+    regular.write_bytes(b"unchanged")
+    payload = """
+import sys
+from pathlib import Path
+home, outside = map(Path, sys.argv[1:])
+(home/'allowed').write_text('fictional log')
+for candidate in (outside/'escape', outside/'existing'):
+    try:
+        candidate.write_text('should not be written')
+    except PermissionError:
+        continue
+    raise SystemExit(2)
+"""
+    with d.cli_write_rules(home, d.directory_identity(home.stat())) as (rules, child):
+        result = subprocess.run([sys.executable, "-I", "-B", "-c", payload, str(home), str(outside)],
+                                pass_fds=(rules,), preexec_fn=child, timeout=8)
+    assert result.returncode == 0
+    assert (home / "allowed").read_text() == "fictional log"
+    assert not (outside / "escape").exists() and regular.read_bytes() == b"unchanged"
+
+
+@pytest.mark.parametrize("duplicate", [False, True])
+def test_launch_receipt_is_mandatory_and_never_counted_twice(session, monkeypatch, duplicate):
+    instance, fake = session
+    def malformed(args, seconds, launched):
+        if duplicate:
+            launched()
+            launched()
+        return "unexpected return without launch"
+    monkeypatch.setattr(fake, "command", malformed)
+    outcome = run(instance)
+    reason = "duplicate_cli_launch_receipt" if duplicate else "missing_cli_launch_receipt"
+    assert reason in outcome["failure"] and outcome["normal_docker"] == 1
+    assert outcome["normal_cli_launches"] == int(duplicate)
+    assert not instance.work.exists() and outcome["cleanup_docker"] == 0
