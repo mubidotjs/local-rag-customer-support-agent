@@ -414,3 +414,18 @@ def test_host_proxy_companion_runs_only_verified_loopback_and_shuts_down(monkeyp
             await worker.serve(SOURCE)
             assert events == ["intent.json","bind","start.json","unbind","stop.json","socket_removed.json","close"]
     asyncio.run(exercise())
+
+
+def test_restart_without_fresh_start_receipt_stops_without_cleanup(synthetic, monkeypatch):
+    run, fake = synthetic
+    actual = fake.container
+    def unchanged(role, running):
+        row = actual(role, running)
+        row["State"]["StartedAt"] = "before"
+        return row
+    monkeypatch.setattr(fake, "container", unchanged)
+    outcome = run.run()
+    assert outcome["status"] == "STOPPED" and outcome["claimed"]
+    assert outcome["uncertainty"]["error"] == "backend_restart_not_attested"
+    assert outcome["counts"]["cleanup"] == 0 and outcome["counts"]["http"] == 8
+    assert outcome["unresolved_ids"] == IDS
