@@ -157,6 +157,12 @@ def private_directory(path, uid, gid, mode):
     return st.st_dev, st.st_ino
 
 
+def exclusive_account(users, group, uid, name):
+    check({(entry.pw_uid, entry.pw_name, entry.pw_gid) for entry in users
+           if entry.pw_uid == uid or entry.pw_gid == group.gr_gid} == {(uid, name, group.gr_gid)}
+          and set(group.gr_mem) <= {name}, "uid_or_group_collision:" + name)
+
+
 def host_contract():
     import grp
     import pwd
@@ -166,7 +172,8 @@ def host_contract():
     group = grp.getgrnam("docker").gr_gid
     check(pwd.getpwuid(10001).pw_name == "project5-acceptance"
           and group in os.getgroups() and set(os.getgroups()) <= {10001, group}, "operator_groups")
-    check(not any(p.pw_uid == 101 for p in pwd.getpwall()), "host_uid101_collision")
+    accounts = pwd.getpwall()
+    check(not any(p.pw_uid == 101 for p in accounts), "host_uid101_collision")
     try:
         proxy_user = pwd.getpwuid(11018)
         proxy_group = grp.getgrgid(11017)
@@ -175,6 +182,8 @@ def host_contract():
     check(proxy_user.pw_name == "project5-ingress-proxy"
           and proxy_user.pw_gid == 11017 and proxy_group.gr_name == "project5-ingress"
           and set(os.getgrouplist("project5-ingress-proxy", 11017)) == {11017}, "proxy_account_groups")
+    exclusive_account(accounts, grp.getgrgid(10001), 10001, "project5-acceptance")
+    exclusive_account(accounts, proxy_group, 11018, "project5-ingress-proxy")
     ingress_proxy.ext4_ingress(INGRESS)
     ingress_proxy.ext4_ingress(CONTROL)
     private_directory(ingress_proxy.BASE, 0, 0, 0o755)

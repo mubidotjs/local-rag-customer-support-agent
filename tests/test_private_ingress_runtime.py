@@ -429,3 +429,14 @@ def test_restart_without_fresh_start_receipt_stops_without_cleanup(synthetic, mo
     assert outcome["uncertainty"]["error"] == "backend_restart_not_attested"
     assert outcome["counts"]["cleanup"] == 0 and outcome["counts"]["http"] == 8
     assert outcome["unresolved_ids"] == IDS
+
+
+def test_private_socket_group_cannot_include_another_host_principal():
+    from types import SimpleNamespace as Row
+    own = Row(pw_uid=11018, pw_gid=11017, pw_name="project5-ingress-proxy")
+    group = Row(gr_gid=11017, gr_mem=[])
+    a.exclusive_account([own], group, 11018, own.pw_name)
+    with pytest.raises(a.StopRun, match="group_collision"):
+        a.exclusive_account([own, Row(pw_uid=555, pw_gid=11017, pw_name="other")], group, 11018, own.pw_name)
+    with pytest.raises(a.StopRun, match="group_collision"):
+        a.exclusive_account([own], Row(gr_gid=11017, gr_mem=["other"]), 11018, own.pw_name)
