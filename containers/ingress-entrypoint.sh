@@ -15,7 +15,8 @@ awk -v p="$base" '$5==p { for (i=7;i<=NF;i++) {
     if ($i=="-") break
 } } END { if (n!=1) exit 1 }' /proc/self/mountinfo
 test -z "$(ls -A "$base")"
-mkdir -m 2700 "$stage"
+# Inherit SGID and group atomically under umask 077; do not chmod across groups.
+mkdir "$stage"
 test "$(stat -c '%u:%g:%a' "$stage")" = "$owner:2700"
 child=
 identity=

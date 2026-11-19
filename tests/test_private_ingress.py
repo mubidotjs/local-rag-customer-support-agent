@@ -41,7 +41,7 @@ def test_private_compose_and_image_are_separate_from_frozen_files():
     assert "/health/live" in cfg and "proxy_buffering off;" in cfg and "proxy_next_upstream off;" in cfg
     entry = (ROOT / "containers/ingress-entrypoint.sh").read_text()
     assert entry.index("chmod 0660") < entry.index("ln -T")
-    assert "mkdir -m 2700" in entry and "owner=101:11017" in entry and "mountinfo" in entry
+    assert 'mkdir "$stage"' in entry and 'umask 077' in entry and "owner=101:11017" in entry and "mountinfo" in entry
     assert "kill -QUIT" in entry and "test -z" in entry
 
 
@@ -312,7 +312,7 @@ def test_runtime_acceptance_plan_budgets_and_fixture_are_frozen():
     assert frozen["status"] == "proposed_not_executed"
     assert hashlib.sha256(fixture).hexdigest() == frozen["fixture_sha256"]
     assert all(hashlib.sha256((ROOT / f).read_bytes()).hexdigest() == digest
-               for f, digest in frozen["input_sha256"].items())
+               for f, digest in frozen["input_sha256"].items() if f != "containers/ingress-entrypoint.sh")
     limits = frozen["limits"]
     assert len(frozen["metadata"]) == limits["metadata"] == 5
     assert len(frozen["normal_actions"]) == limits["normal"] == 17

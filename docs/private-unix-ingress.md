@@ -1,5 +1,7 @@
 # Private Unix-socket ingress
 
+See the [v2 executable readiness review](private-ingress-runtime-readiness.md) before considering a live run.
+
 This is a separate production configuration, not an overlay on the archived
 Compose file. Use `compose.ingress.yaml` by itself. It publishes no Docker
 ports. HTTP travels from an unprivileged IPv4 loopback listener to the pinned
