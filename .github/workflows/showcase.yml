@@ -1,0 +1,31 @@
+name: Static showcase
+on:
+  push:
+    paths:
+      - 'showcase/**'
+      - '.github/workflows/showcase.yml'
+  pull_request:
+    paths:
+      - 'showcase/**'
+      - '.github/workflows/showcase.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: node showcase/build.mjs
+      - run: node --test showcase/verify.test.mjs
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: node showcase/tools/browser-smoke.mjs
+        env:
+          SHOWCASE_PLAYWRIGHT: ${{ github.workspace }}/frontend/node_modules/playwright

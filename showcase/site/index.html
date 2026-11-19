@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6ef">
+  <title>Local RAG Customer Support Agent | Mubashir Hussain</title>
+  <meta name="description" content="A local-first support assistant by Mubashir Hussain. Explore exact citations, hybrid search, and bounded investigation with FastAPI, SQLite, and Ollama.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://rag.mubashirhussain.dev/">
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="./assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="./assets/favicon-16.png" sizes="16x16" type="image/png">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" sizes="180x180">
+  <link rel="stylesheet" href="./styles.css">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mubashir Hussain">
+  <meta property="og:title" content="Local RAG Customer Support Agent">
+  <meta property="og:description" content="A local-first support assistant by Mubashir Hussain. Explore exact citations, hybrid search, and bounded investigation with FastAPI, SQLite, and Ollama.">
+  <meta property="og:url" content="https://rag.mubashirhussain.dev/">
+  <meta property="og:image" content="https://rag.mubashirhussain.dev/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Local RAG by Mubashir Hussain, with a screenshot showing exact source citations in the LumaDock support assistant.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Local RAG Customer Support Agent">
+  <meta name="twitter:description" content="A local-first support assistant by Mubashir Hussain. Explore exact citations, hybrid search, and bounded investigation with FastAPI, SQLite, and Ollama.">
+  <meta name="twitter:image" content="https://rag.mubashirhussain.dev/assets/og-image.png">
+  <meta name="twitter:image:alt" content="Local RAG by Mubashir Hussain, with a screenshot showing exact source citations in the LumaDock support assistant.">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Local RAG Customer Support Agent",
+      "url": "https://rag.mubashirhussain.dev/",
+      "description": "A local-first support assistant by Mubashir Hussain. Explore exact citations, hybrid search, and bounded investigation with FastAPI, SQLite, and Ollama.",
+      "inLanguage": "en",
+      "image": "https://rag.mubashirhussain.dev/assets/og-image.png",
+      "author": {"@type": "Person", "name": "Mubashir Hussain", "url": "https://mubashirhussain.dev/"},
+      "mainEntity": {
+        "@type": "SoftwareSourceCode",
+        "name": "Local RAG Customer Support Agent",
+        "codeRepository": "https://github.com/mubidotjs/local-rag-customer-support-agent",
+        "programmingLanguage": ["Python", "TypeScript"],
+        "runtimePlatform": "Local Python, Node.js and Ollama"
+      }
+    }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top shell">
+    <a class="brand" href="#main"><img src="./assets/logo.svg" width="35" height="35" alt=""><span>Local RAG</span></a>
+    <nav aria-label="Sections"><a href="#architecture">Architecture</a><a href="#evidence">Evidence</a><a href="#local">Run locally</a></nav>
+    <a class="owner" href="https://mubashirhussain.dev/">Mubashir Hussain</a>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow"><span></span> LOCAL-FIRST CUSTOMER SUPPORT</p>
+        <h1 id="hero-title">Answers you<br>can <em>trace.</em></h1>
+        <p class="lead">A RAG assistant that cites the exact words behind an answer and abstains when the documentation falls short. Built around LumaDock, a fictional product.</p>
+        <div class="actions"><a class="button primary" href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/98475535bb96a28710a4e3bd918ed641795412b8/docs/portfolio-case-study.md">Read the case study</a><a class="button secondary" href="https://github.com/mubidotjs/local-rag-customer-support-agent">View source</a></div>
+        <p class="scope">Static showcase · Real models run locally · No hosted inference</p>
+      </div>
+      <figure class="preview">
+        <div class="preview-bar"><span>Local frontend capture</span><span>Factory reset with citations</span></div>
+        <a class="capture" href="./assets/frontend-desktop.png" aria-label="Open the original desktop capture from the local app"><img src="./assets/frontend-desktop.png" width="1440" height="1237" alt="LumaDock support interface showing the factory reset answer and three citations from the Factory Reset Procedure."></a>
+        <figcaption>From the recorded local acceptance. <a href="./assets/frontend-mobile.png">View mobile capture</a></figcaption>
+      </figure>
+    </section>
+    <div class="metrics shell" aria-label="Recorded evaluation highlights">
+      <div><strong>9/9</strong><span>Exact-source citations<br>in the live fictional evaluation</span></div>
+      <div><strong>9/12</strong><span>Rubric-correct outcomes<br>in that same evaluation</span></div>
+      <div><strong>5</strong><span>Read-only MCP tools<br>in the investigation workflow</span></div>
+    </div>
+    <section class="section shell" id="architecture">
+      <div class="section-heading"><p class="eyebrow">ARCHITECTURE</p><h2>From documents to<br>verifiable answers.</h2></div>
+      <ol class="pipeline">
+        <li><span class="stage">Ingest</span><h3>Local documents</h3><p>The CLI normalizes selected Markdown and text, preserving document versions, chunk IDs and exact source offsets. Previewed changes reuse compatible embeddings.</p></li>
+        <li><span class="stage">Retrieve</span><h3>Hybrid search</h3><p>FastAPI combines Nomic cosine similarity with SQLite FTS5 keyword ranking using reciprocal rank fusion, then passes bounded passages to local Qwen.</p></li>
+        <li><span class="stage">Validate</span><h3>Cite or abstain</h3><p>The backend checks quote completeness, source offsets, relevance and conflicts. React shows the answer, passages and retrieval ranks.</p></li>
+      </ol>
+      <div class="investigation"><div><p class="eyebrow">OPTIONAL WORKFLOW</p><h3>LangGraph + MCP</h3></div><p>A bounded graph calls five allowlisted, read-only tools for indexed documents, passages, versions and evidence. Its deterministic trace keeps provenance inspectable. The scoped real Nomic query acceptance made zero generation calls. <a href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/7d7171a308bec542b72e1ff01f215ffa34c9228a/docs/investigation.md">Investigation architecture</a></p></div>
+      <figure class="sample"><blockquote>Release the reset button when the status light flashes amber three times.</blockquote><figcaption><a href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/7d7171a308bec542b72e1ff01f215ffa34c9228a/corpus/04-reset.md">Factory Reset Procedure v2.3</a> <code>reset:c000 · source characters [203, 276)</code></figcaption></figure>
+    </section>
+    <section class="section shell" id="evidence">
+      <div class="section-heading"><p class="eyebrow">EVIDENCE AND TRADEOFFS</p><h2>Exact quotes can still<br>miss the question.</h2></div>
+      <div class="evidence-grid">
+        <article><h3>Grounding and safety</h3><p>Indexes are read-only during questions. Instruction-like source documents can be quarantined, conflicting evidence can trigger abstention, and the API and investigation tools have no customer actions.</p><p>Two live answers quoted the wrong entities even though the citations were exact. Offline hardening rejected those selections and recovered a supported paraphrase. Two false abstentions remained in replay.</p><a href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/7d7171a308bec542b72e1ff01f215ffa34c9228a/reports/phase-d-v2-once/report.md">Recorded live evaluation</a><br><a href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/7d7171a308bec542b72e1ff01f215ffa34c9228a/reports/offline-relevance-hardening/report.md">Offline replay and 17-case holdout</a></article>
+        <article><h3>What was tested</h3><p>Local embedding, generation, document lifecycle and scoped investigation runs have separate evidence from synthetic tests. Reviewed implementation CI passed 664 Python tests per version, four Vitest tests, four synthetic Playwright tests and the frontend build.</p><p>Fictional responders verified Unix-socket HTTP on Ubuntu WSL2. The application’s private Nginx socket and IPv4-loopback host proxy have offline coverage. Full production container acceptance (5B) and operational hardening (5C) are deferred.</p><a href="https://github.com/mubidotjs/local-rag-customer-support-agent/actions/runs/44445068571">Reviewed implementation CI</a><br><a href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/7d7171a308bec542b72e1ff01f215ffa34c9228a/reports/container-port-diag-5b-v4-once-complete/README.md">Synthetic socket diagnostic</a></article>
+      </div>
+    </section>
+    <section class="section local shell" id="local">
+      <div><p class="eyebrow">LOCAL SETUP</p><h2>Run it on your machine.</h2><p>Use Python 3.12+, Node.js 24, and locally installed Ollama models <code>nomic-embed-text:latest</code> and <code>qwen3:4b</code>. Start Ollama on loopback. The application makes real local model requests during ingestion and questions.</p><p>Use <code>.venv\Scripts\python.exe</code> on Windows. In a second terminal, run <code>cd frontend</code>, <code>npm ci</code>, then <code>npm run dev</code>. Open <code>http://127.0.0.1:5173</code>.</p><a class="inline" href="https://github.com/mubidotjs/local-rag-customer-support-agent/blob/98475535bb96a28710a4e3bd918ed641795412b8/.github/README.md">Read the full setup and test instructions</a></div>
+      <div class="terminal"><p>Backend setup · from the repository root</p><pre tabindex="0"><code>python -m venv .venv
+.venv/bin/python -m pip install -r requirements.lock
+.venv/bin/python -m support_agent.cli corpus
+.venv/bin/python -m uvicorn support_agent.api:app \
+  --host 127.0.0.1 --port 8000 --workers 1</code></pre></div>
+    </section>
+  </main>
+  <footer class="footer shell"><a class="brand" href="#main"><img src="./assets/logo.svg" width="29" height="29" alt=""><span>Local RAG</span></a><p>An independent engineering project by <a href="https://mubashirhussain.dev/">Mubashir Hussain</a>.</p><a href="https://github.com/mubidotjs/local-rag-customer-support-agent">GitHub</a></footer>
+</body>
+</html>

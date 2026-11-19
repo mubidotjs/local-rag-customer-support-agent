@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://rag.mubashirhussain.dev/sitemap.xml
